@@ -1,0 +1,687 @@
+{
+    "Database": {
+        "MySQL": {
+            "defaultConnection": {
+                "databaseHost": "localhost",
+                "databaseUser": "root",
+                "databasePass": "",
+                "databaseName": "test",
+                "connectionCharset": "utf-8",
+                "connectionCollation": "utf8_general_ci"
+            },
+            "driverClass": "MySQLi",
+            "errorLevel": "exception"
+        }
+    },
+    "Filesystem": {
+        "newDirectoryMode": "755",
+        "newFileMode": "644",
+        "newSymlinkMode": "644",
+        "writeLocks": true,
+        "hashFileDirectory": "%DOCUMENT_ROOT%/s/p/_hashed/",
+        "hashFileDirectoryDepth": 5
+    },
+    "Html": {
+        "Tags": {
+            "a": {
+                "hasValue": true,
+                "defaultAttributes": {
+                    "title": ""
+                },
+                "clearAttributes": {}
+            },
+            "abbr": {
+                "hasValue": true,
+                "defaultAttributes": {
+                    "title": ""
+                },
+                "clearAttributes": {}
+            },
+            "address": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "area": {
+                "hasValue": false,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "article": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "aside": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "audio": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "b": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "base": {
+                "hasValue": false,
+                "defaultAttributes": {
+                    "href": ""
+                },
+                "clearAttributes": {}
+            },
+            "bdi": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "bdo": {
+                "hasValue": true,
+                "defaultAttributes": {
+                    "dir": "ltr"
+                },
+                "clearAttributes": {}
+            },
+            "blockquote": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "body": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {
+                    "0": "alink",
+                    "1": "background",
+                    "2": "bgcolor",
+                    "3": "link",
+                    "4": "text",
+                    "5": "vlink"
+                }
+            },
+            "br": {
+                "hasValue": false,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "button": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "canvas": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "caption": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {
+                    "0": "align"
+                }
+            },
+            "cite": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "code": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "col": {
+                "hasValue": false,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "colgroup": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "command": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "datalist": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "dd": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "del": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "details": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "dfn": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "div": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {
+                    "0": "align"
+                }
+            },
+            "dl": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "dt": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "em": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "embed": {
+                "hasValue": false,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "fieldset": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "figcaption": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "figure": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "footer": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "form": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "h1": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "h2": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "h3": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "h4": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "h5": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "h6": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "head": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {
+                    "0": "ALL"
+                }
+            },
+            "header": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "hr": {
+                "hasValue": false,
+                "defaultAttributes": {},
+                "clearAttributes": {
+                    "0": "align",
+                    "1": "noshade",
+                    "2": "size",
+                    "3": "width"
+                }
+            },
+            "html": {
+                "hasValue": true,
+                "defaultAttributes": {
+                    "xmlns": "http://www.w3.org/1999/xhtml"
+                },
+                "clearAttributes": {}
+            },
+            "i": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "iframe": {
+                "hasValue": false,
+                "defaultAttributes": {
+                    "src": ""
+                },
+                "clearAttributes": {}
+            },
+            "img": {
+                "hasValue": false,
+                "defaultAttributes": {
+                    "src": "",
+                    "alt": ""
+                },
+                "clearAttributes": {
+                    "0": "align",
+                    "1": "border",
+                    "2": "hspace",
+                    "3": "vspace"
+                }
+            },
+            "input": {
+                "hasValue": false,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "ins": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "kbd": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "keygen": {
+                "hasValue": false,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "label": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "legend": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {
+                    "0": "align"
+                }
+            },
+            "li": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "link": {
+                "hasValue": false,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "map": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "mark": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "menu": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "meta": {
+                "hasValue": false,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "meter": {
+                "hasValue": true,
+                "defaultAttributes": {
+                    "value": ""
+                },
+                "clearAttributes": {}
+            },
+            "nav": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "noscript": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "object": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "ol": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "optgroup": {
+                "hasValue": true,
+                "defaultAttributes": {
+                    "label": ""
+                },
+                "clearAttributes": {}
+            },
+            "option": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "output": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "p": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "param": {
+                "hasValue": false,
+                "defaultAttributes": {
+                    "name": "",
+                    "value": ""
+                },
+                "clearAttributes": {}
+            },
+            "pre": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {
+                    "0": "width"
+                }
+            },
+            "progress": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "q": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "rp": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "rt": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "ruby": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "s": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "samp": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "script": {
+                "hasValue": true,
+                "defaultAttributes": {
+                    "type": "text/javascript"
+                },
+                "clearAttributes": {
+                    "0": "language"
+                }
+            },
+            "section": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "select": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "small": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "source": {
+                "hasValue": false,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "span": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "strong": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "style": {
+                "hasValue": true,
+                "defaultAttributes": {
+                    "type": "text/css"
+                },
+                "clearAttributes": {}
+            },
+            "sub": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "summary": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "sup": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "table": {
+                "hasValue": true,
+                "defaultAttributes": {
+                    "cellpadding": 0,
+                    "cellspacing": 0,
+                    "border": 0
+                },
+                "clearAttributes": {
+                    "0": "align",
+                    "1": "bgcolor"
+                }
+            },
+            "tbody": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "td": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {
+                    "0": "bgcolor",
+                    "1": "width",
+                    "2": "height",
+                    "3": "nowrap"
+                }
+            },
+            "textarea": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "tfoot": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "th": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {
+                    "0": "bgcolor",
+                    "1": "width",
+                    "2": "height",
+                    "3": "nowrap"
+                }
+            },
+            "thead": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "time": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "title": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "tr": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {
+                    "0": "bgcolor"
+                }
+            },
+            "track": {
+                "hasValue": false,
+                "defaultAttributes": {
+                    "src": ""
+                },
+                "clearAttributes": {}
+            },
+            "u": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "ul": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "vartag": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "video": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            },
+            "wbr": {
+                "hasValue": true,
+                "defaultAttributes": {},
+                "clearAttributes": {}
+            }
+        }
+    },
+    "Image": {
+        "Server": {
+            "cacheTime": 2592000,
+            "checkRefererBeforeResize": false,
+            "forceGrayScale": false
+        },
+        "Resizer": {
+            "defaultQuality": 90
+        }
+    },
+    "Log": {
+        "logDirectory": "%DOCUMENT_ROOT%/tmp/logs/",
+        "classConfig": {
+            "Default": {
+                "backend": "filesystem",
+                "destination": "_default.log",
+                "logDebug": true,
+                "logInfo": true,
+                "logWarning": true,
+                "logError": true
+            },
+            "\\MFramework\\Db\\MySQL\\Drivers\\MySQLi": {
+                "backend": "filesystem",
+                "destination": "mysqli.log",
+                "logDebug": false,
+                "logInfo": false,
+                "logWarning": true,
+                "logError": true
+            }
+        }
+    },
+    "Session": {
+        "Backend": "filesystem",
+        "SavePath": "%DOCUMENT_ROOT%/tmp/sessions/",
+        "RefererIntegrity": {
+            "enabled": false
+        },
+        "TokenIntegrity": {
+            "enabled": true,
+            "useLooseIP": true,
+            "useHttpUserAgent": true,
+            "useHttpAccept": false,
+            "useHttpAcceptCharset": true,
+            "useHttpAcceptEncoding": false,
+            "useHttpAcceptLanguage": true
+        },
+        "RevalidationTimeout": 300
+    }
+}

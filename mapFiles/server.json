@@ -1,0 +1,1 @@
+[{"endpointMethodName":"rebuildEndpointsMap","endpointDesc":"Re-builds server endpoints' map","endpointHttpMethod":"get","endpointUri":"/server/rebuildEndpointsMap","endpointUriPattern":"|^/server/rebuildEndpointsMap$|i","endpointInput":[],"endpointOutput":"MS\\RestServer\\Server\\Models\\ServerControllerModel[]","endpointAuthProvider":"none"}]

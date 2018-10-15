@@ -1,0 +1,10 @@
+.wrapper {
+    position: relative;
+    width: 1200px;
+    padding: 0 10px;
+    margin: 0 auto;
+
+    @media all and (max-width: $res-960-wmax){
+        width: 100%;
+    }
+}
