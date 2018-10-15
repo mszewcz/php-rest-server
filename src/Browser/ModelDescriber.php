@@ -49,14 +49,14 @@ class ModelDescriber
                         $propertyOptional = $this->isPropertyOptional($propertyDoc);
 
                         $isDataTypeModel = $propertyDataType === 'Model';
-                        $isDataTypeArrayOfModels = $propertyDataType === 'Array&lt;Model&gt;';
+                        $isDataTypeArray = $propertyDataType === 'Array&lt;Model&gt;';
 
-                        if ($isDataTypeModel || $isDataTypeArrayOfModels) {
+                        if ($isDataTypeModel || $isDataTypeArray) {
                             $propertyClass = $propertyType;
-                            $propertyClassExploded = explode('\\', $propertyClass);
+                            $propertyClassEx = explode('\\', $propertyClass);
 
-                            $propertyType = array_pop($propertyClassExploded);
-                            if ($isDataTypeArrayOfModels) {
+                            $propertyType = array_pop($propertyClassEx);
+                            if ($isDataTypeArray) {
                                 $propertyType = \sprintf('Array&lt;%s&gt;', \str_replace('[]', '', $propertyType));
                             }
 

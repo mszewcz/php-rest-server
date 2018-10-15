@@ -152,7 +152,7 @@ class Server
 
         if ($requestHttpMethod === 'OPTIONS') {
             $this->sendHeaders();
-            die();
+            return;
         }
 
         try {
@@ -160,7 +160,6 @@ class Server
         } catch (ResponseException $e) {
             echo $this->printResponseException($e);
         }
-        die();
     }
 
     /**
@@ -171,7 +170,8 @@ class Server
         foreach ($this->headers->getHeaders() as $headerName => $headerValue) {
             if (is_numeric($headerName)) {
                 header($headerValue, true, $headerName);
-            } else {
+            }
+            if (!is_numeric($headerName)) {
                 header(sprintf('%s: %s', $headerName, $headerValue));
             }
         }
@@ -185,19 +185,19 @@ class Server
      */
     private function getResponse(): Response
     {
-        $requestControllerName = $this->request->getRequestControllerName();
+        $controllerName = $this->request->getRequestControllerName();
 
-        if (!array_key_exists($requestControllerName, $this->controllers)) {
-            throw new ResponseException(404, null, ['message' => sprintf('No controller for \'/%s\' has been registered', $requestControllerName)]);
+        if (!array_key_exists($controllerName, $this->controllers)) {
+            throw new ResponseException(404, null, ['message' => sprintf('No controller for \'/%s\' has been registered', $controllerName)]);
         }
-        if (!class_exists($this->controllers[$requestControllerName])) {
+        if (!class_exists($this->controllers[$controllerName])) {
             throw new ResponseException(500, null, ['message' => 'Controller class not found']);
         }
 
         /**
          * @var AbstractController $controller
          */
-        $controller = new $this->controllers[$requestControllerName]($this->request);
+        $controller = new $this->controllers[$controllerName]($this->request);
         return $controller->getResponse();
     }
 

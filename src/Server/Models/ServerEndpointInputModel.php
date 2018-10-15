@@ -38,6 +38,7 @@ class ServerEndpointInputModel extends AbstractModel
      */
     public function __construct(array $data)
     {
+        $data = null;
     }
 
     /**

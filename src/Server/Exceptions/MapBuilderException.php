@@ -20,7 +20,7 @@ class MapBuilderException extends \Exception
 
     /**
      * MapBuilderException constructor.
-     * 
+     *
      * @param string $message
      */
     public function __construct(string $message = null)

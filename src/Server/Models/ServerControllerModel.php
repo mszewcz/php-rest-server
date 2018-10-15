@@ -27,6 +27,7 @@ class ServerControllerModel extends AbstractModel
      */
     public function __construct(array $data)
     {
+        $data = null;
     }
 
     /**

@@ -69,7 +69,7 @@ class AbstractController
         }
 
         // Handle authorization
-        $isAuthorized = $this->getAuthorizationStatus($endpointAuthProvider);
+        $isAuthorized = $this->isAuthorized($endpointAuthProvider);
         if ($isAuthorized === false) {
             throw new ResponseException(401, null, ['message' => 'User authorization required']);
         }
@@ -140,7 +140,7 @@ class AbstractController
      * @return bool
      * @throws ResponseException
      */
-    private function getAuthorizationStatus(string $authProvider): bool
+    private function isAuthorized(string $authProvider): bool
     {
         switch ($authProvider) {
             case 'false':

@@ -76,6 +76,5 @@ const serverBrowser = {
 };
 
 $(document).ready(function () {
-    console.log('aaa');
     serverBrowser.init();
 });

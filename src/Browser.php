@@ -49,8 +49,8 @@ class Browser
     public function addController(string $controllerName = null, string $controllerClass = null): void
     {
         if ($controllerName !== null && $controllerClass !== null) {
-            $controllerClassExploded = \explode('\\', $controllerClass);
-            $controllerClassName = \strtolower(\array_pop($controllerClassExploded));
+            $controllerClassEx = \explode('\\', $controllerClass);
+            $controllerClassName = \strtolower(\array_pop($controllerClassEx));
 
             $this->controllers[] = [
                 'controllerName'    => $controllerName,
@@ -165,14 +165,14 @@ class Browser
      */
     private function showRequestSpecification(array $endpointData): string
     {
-        $requestSpecification = [];
+        $requestSpec = [];
 
         $row = [];
         $row[] = Tags::div('Parameter', ['class' => 'p-name']);
         $row[] = Tags::div('Type', ['class' => 'p-type']);
         $row[] = Tags::div('Required', ['class' => 'p-required']);
         $row[] = Tags::div('Data type', ['class' => 'p-data-type']);
-        $requestSpecification[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row header']);
+        $requestSpec[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row header']);
 
         if (count($endpointData['endpointInput']) === 0) {
             $row = [];
@@ -180,11 +180,25 @@ class Browser
             $row[] = Tags::div('-', ['class' => 'p-type']);
             $row[] = Tags::div('-', ['class' => 'p-required']);
             $row[] = Tags::div('-', ['class' => 'p-data-type']);
-            $requestSpecification[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
+            $requestSpec[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
 
-            return Tags::div(implode(Tags::CRLF, $requestSpecification), ['class' => 'table']);
+            return Tags::div(implode(Tags::CRLF, $requestSpec), ['class' => 'table']);
         }
 
+        $requestSpec[] = $this->showInputPathSpecification($endpointData);
+        $requestSpec[] = $this->showInputQuerySpecification($endpointData);
+        $requestSpec[] = $this->showInputBodySpecification($endpointData);
+
+        return Tags::div(implode(Tags::CRLF, $requestSpec), ['class' => 'table']);
+    }
+
+    /**
+     * @param array $endpointData
+     * @return string
+     */
+    private function showInputPathSpecification(array $endpointData): string
+    {
+        $ret = [];
         if (isset($endpointData['endpointInput']['path'])) {
             foreach ($endpointData['endpointInput']['path'] as $inputPath) {
                 $paramName = $inputPath['paramName'];
@@ -197,10 +211,19 @@ class Browser
                 $row[] = Tags::div($paramType, ['class' => 'p-type']);
                 $row[] = Tags::div($paramRequired, ['class' => 'p-required']);
                 $row[] = Tags::div($paramDataType, ['class' => 'p-data-type']);
-                $requestSpecification[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
+                $ret[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
             }
         }
+        return implode(Tags::CRLF, $ret);
+    }
 
+    /**
+     * @param array $endpointData
+     * @return string
+     */
+    private function showInputQuerySpecification(array $endpointData): string
+    {
+        $ret = [];
         if (isset($endpointData['endpointInput']['query'])) {
             foreach ($endpointData['endpointInput']['query'] as $inputQuery) {
                 $paramName = $inputQuery['paramName'];
@@ -213,10 +236,19 @@ class Browser
                 $row[] = Tags::div($paramType, ['class' => 'p-type']);
                 $row[] = Tags::div($paramRequired, ['class' => 'p-required']);
                 $row[] = Tags::div($paramDataType, ['class' => 'p-data-type']);
-                $requestSpecification[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
+                $ret[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
             }
         }
+        return implode(Tags::CRLF, $ret);
+    }
 
+    /**
+     * @param array $endpointData
+     * @return string
+     */
+    private function showInputBodySpecification(array $endpointData): string
+    {
+        $ret = [];
         if (isset($endpointData['endpointInput']['body'])) {
             foreach ($endpointData['endpointInput']['body'] as $inputBody) {
                 $paramName = $endpointData['endpointHttpMethod'] === 'get' ? 'body' : '-';
@@ -230,11 +262,10 @@ class Browser
                 $row[] = Tags::div($paramType, ['class' => 'p-type']);
                 $row[] = Tags::div($paramRequired, ['class' => 'p-required']);
                 $row[] = Tags::div($paramDataType, ['class' => 'p-data-type']);
-                $requestSpecification[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
+                $ret[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
             }
         }
-
-        return Tags::div(implode(Tags::CRLF, $requestSpecification), ['class' => 'table']);
+        return implode(Tags::CRLF, $ret);
     }
 
     /**
