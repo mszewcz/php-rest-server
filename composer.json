@@ -1,5 +1,5 @@
 {
-    "name": "mszewcz/php-rest-rpc",
+    "name": "mszewcz/php-rest-server",
     "description": "REST server implementation for PHP 7.1+",
     "keywords": ["php-rest-server", "phprestserver", "rest-server", "restserver", "rest", "server", "http", "php"],
     "type": "library",
