@@ -195,6 +195,7 @@ class Browser
     /**
      * @param array $endpointData
      * @return string
+     * @codeCoverageIgnore
      */
     private function showInputPathSpecification(array $endpointData): string
     {
@@ -220,6 +221,7 @@ class Browser
     /**
      * @param array $endpointData
      * @return string
+     * @codeCoverageIgnore
      */
     private function showInputQuerySpecification(array $endpointData): string
     {
@@ -245,6 +247,7 @@ class Browser
     /**
      * @param array $endpointData
      * @return string
+     * @codeCoverageIgnore
      */
     private function showInputBodySpecification(array $endpointData): string
     {
