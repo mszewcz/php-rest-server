@@ -1,0 +1,17 @@
+language: php
+sudo: false
+
+php:
+  - 7.1
+
+matrix:
+  fast_finish: true
+
+before_script:
+  - composer install
+
+script:
+  - phpunit --bootstrap tests/_bootstrap.php
+
+after_script:
+  - php vendor/bin/codacycoverage clover build/logs/clover.xml

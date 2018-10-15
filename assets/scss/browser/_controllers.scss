@@ -1,0 +1,283 @@
+.controller {
+    padding: 10px 0;
+    border-bottom: solid 1px #dddddd;
+
+    .controller__name {
+        height: 22px;
+        color: #999999;
+        font-weight: bold;
+        cursor: pointer;
+        @include font-size(20);
+        @include clearfix();
+        @include noselect();
+
+        span {
+            height: 22px;
+            line-height: 22px;
+            display: block;
+            float: right;
+            font-weight: normal;
+            @include font-size(12);
+            
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+    .controller__endpoints {
+        display: none;
+
+        .endpoint {
+            margin: 10px 0 0;
+            border: solid 1px transparent;
+
+            .endpoint__heading {
+                height: 30px;
+                line-height: 32px;
+                cursor: pointer;
+                @include clearfix();
+
+                .http-method {
+                    display: block;
+                    float: left;
+                    width: 55px;
+                    height: 30px;
+                    color: #ffffff;
+                    text-align: center;
+                    text-transform: uppercase;
+                    @include font-size(12);
+                }
+                .uri {
+                    display: block;
+                    width: calc(100% - 65px);
+                    height: 30px;
+                    margin-left: 65px;
+                    color: #000000;
+                    @include font-size(15);
+                    @include clearfix();
+
+                    i {
+                        display: block;
+                        float: right;
+                        margin: 7px 5px 0 0;
+                        width: 16px;
+                        height: 16px;
+                        line-height: 16px;
+                        background-color: #ff0000;
+                        color: #ffffff;
+                        font-weight: bold;
+                        font-style: normal;
+                        overflow: hidden;
+                        text-align: center;
+                        cursor: default;
+                        @include font-size(12);
+                        @include border-radius(50%);
+                    }
+
+                }
+            }
+            .endpoint__details {
+                display: none;
+                border-top: solid 1px transparent;
+                cursor: default;
+                @include font-size(14);
+
+                h2 {
+                    display: block;
+                    margin: 0 0 5px 0;
+                    font-weight: bold;
+                    @include font-size(16);
+                }
+                .description {
+                    display: block;
+                    padding: 10px;
+                    color: #999999;
+                    @include font-size(14);
+                    border-bottom: solid 1px transparent;
+                }
+                .request {
+                    display: block;
+                    padding: 10px;
+                    border-bottom: solid 1px transparent;
+                }
+                .response {
+                    display: block;
+                    padding: 10px;
+
+                    .table {
+                        .row {
+                            div {
+                                &.p-data-type {
+                                    padding-top: 10px;
+                                }
+                            }
+                            &.header {
+                                div {
+                                    &.p-data-type {
+                                        padding-top: 3px;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                .table {
+                    display: table;
+                    width: 100%;
+                    color: #000000;
+                    @include font-size(12);
+
+                    .row {
+                        display: table-row;
+
+                        div {
+                            padding: 3px 10px;
+
+                            &.p-type {
+                                display: table-cell;
+                                width: 60px;
+                                text-align: center;
+                            }
+                            &.p-name {
+                                display: table-cell;
+                                width: 300px;
+                                font-weight: bold;
+                                font-family: monospace;
+                            }
+                            &.p-data-type {
+                                display: table-cell;
+                                //font-family: monospace;
+                            }
+                            &.p-required {
+                                width: 70px;
+                                display: table-cell;
+                                text-align: center;
+                            }
+                            &.m-name {
+                                padding: 0;
+                            }
+                            &.m-prop {
+                                padding: 0;
+                                margin: 5px 15px;
+                            }
+                            &.m-close {
+                                padding: 0;
+
+                                + .m-name {
+                                    margin-top: 10px;
+                                }
+                            }
+                        }
+
+                        &.header {
+                            color: #999999;
+                            font-family: Arial, sans-serif;
+
+                            div {
+                                border-bottom: solid 1px #dddddd;
+                                font-weight: normal;
+                                font-family: Arial, sans-serif;
+                            }
+                        }
+                    }
+                }
+            }
+
+            &.expanded {
+                .endpoint__details {
+                    display: block;
+                }
+            }
+            &.endpoint-get {
+                border-color: #c3d9ec;
+                background-color: #e7f0f7;
+
+                .endpoint__heading {
+                    .http-method {
+                        background-color: #0f6ab4;
+                    }
+                }
+                .endpoint__details {
+                    border-color: #c3d9ec;
+
+                    h2 {
+                        color: #0f6ab4;
+                    }
+                    .description,
+                    .request {
+                        border-color: #c3d9ec;
+                    }
+                }
+            }
+            &.endpoint-post {
+                border-color: #c3e8d1;
+                background-color: #e7f6ec;
+
+                .endpoint__heading {
+                    .http-method {
+                        background-color: #10a54a;
+                    }
+                }
+                .endpoint__details {
+                    border-color: #c3e8d1;
+
+                    h2 {
+                        color: #10a54a;
+                    }
+                    .description,
+                    .request {
+                        border-color: #c3e8d1;
+                    }
+                }
+            }
+            &.endpoint-put {
+                border-color: #f0e0ca;
+                background-color: #f9f2e9;
+
+                .endpoint__heading {
+                    .http-method {
+                        background-color: #c5862b;
+                    }
+                }
+                .endpoint__details {
+                    border-color: #f0e0ca;
+
+                    h2 {
+                        color: #c5862b;
+                    }
+                    .description,
+                    .request {
+                        border-color: #f0e0ca;
+                    }
+                }
+            }
+            &.endpoint-delete {
+                border-color: #e8c6c7;
+                background-color: #f5e8e8;
+
+                .endpoint__heading {
+                    .http-method {
+                        background-color: #a41e22;
+                    }
+                }
+                .endpoint__details {
+                    border-color: #e8c6c7;
+
+                    h2 {
+                        color: #a41e22;
+                    }
+                    .description,
+                    .request {
+                        border-color: #e8c6c7;
+                    }
+                }
+            }
+        }
+    }
+
+    &.expanded {
+        .controller__endpoints {
+            display: block;
+        }
+    }
+}
