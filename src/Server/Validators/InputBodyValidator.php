@@ -208,7 +208,8 @@ class InputBodyValidator
                     foreach ($variableValue as $index => $bodyItem) {
                         if (!is_int($index)) {
                             $errors['body'] = \sprintf('Wymagana tablica %s', $variableType);
-                        } else {
+                        }
+                        if (is_int($index)) {
                             /**
                              * @var $tmpModel AbstractModel
                              */

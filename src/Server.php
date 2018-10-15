@@ -226,6 +226,9 @@ class Server
 
         $this->headers->addHeaders(['name' => $code, 'value' => sprintf('HTTP/1.1 %s %s', $code, $status)]);
 
+        if (!is_array($body) && !is_object($body)) {
+            $body = (string)$body;
+        }
         if (is_array($body) || is_object($body)) {
             try {
                 $body = $this->utils->encode($body);
@@ -233,8 +236,6 @@ class Server
                 $this->headers->addHeaders(['name' => 500, 'value' => 'HTTP/1.1 500 Internal Server Error']);
                 $body = '{"message" => "Error while encoding response"}';
             }
-        } else {
-            $body = (string)$body;
         }
 
         $this->sendHeaders();

@@ -26,7 +26,7 @@ class ResponseExceptionTest extends TestCase
 
     public function testGetErrors()
     {
-        $ex = new ResponseException(500, 'Internal Server Error', ['message'=>'text']);
-        $this->assertEquals(['message'=>'text'], $ex->getErrors());
+        $exception = new ResponseException(500, 'Internal Server Error', ['message'=>'text']);
+        $this->assertEquals(['message'=>'text'], $exception->getErrors());
     }
 }
