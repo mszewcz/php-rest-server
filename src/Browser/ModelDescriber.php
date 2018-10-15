@@ -60,9 +60,9 @@ class ModelDescriber
                                 $propertyType = \sprintf('Array&lt;%s&gt;', \str_replace('[]', '', $propertyType));
                             }
 
-                            $describedSubModel = $this->describe($propertyClass, true);
-                            foreach ($describedSubModel as $describedSubModelName => $describedSubModelProps) {
-                                $describedModels[$describedSubModelName] = $describedSubModelProps;
+                            $subModel = $this->describe($propertyClass, true);
+                            foreach ($subModel as $subModelName => $subModelProps) {
+                                $describedModels[$subModelName] = $subModelProps;
                             }
                         }
 
@@ -96,8 +96,8 @@ class ModelDescriber
             return \str_replace('[]', '', $modelName);
         }
 
-        $isModelSimpleTypeArrayOfModels = $this->getPropertySimpleType($modelType) === 'Array&lt;Model&gt;';
-        return $isModelSimpleTypeArrayOfModels ? \sprintf('Array&lt;%s&gt;', \str_replace('[]', '', $modelName)) : $modelName;
+        $isSimpleTypeArray = $this->getPropertySimpleType($modelType) === 'Array&lt;Model&gt;';
+        return $isSimpleTypeArray ? \sprintf('Array&lt;%s&gt;', \str_replace('[]', '', $modelName)) : $modelName;
     }
 
     /**

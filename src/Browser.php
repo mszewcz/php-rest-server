@@ -277,18 +277,18 @@ class Browser
      */
     private function showResponseSpecification(array $endpointData): string
     {
-        $responseSpecification = [];
+        $responseSpec = [];
 
         $row = [];
         $row[] = Tags::div('Data type', ['class' => 'p-data-type']);
-        $responseSpecification[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row header']);
+        $responseSpec[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row header']);
 
         if ($endpointData['endpointOutput'] === null) {
             $row = [];
             $row[] = Tags::div('-', ['class' => 'p-data-type']);
-            $responseSpecification[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
+            $responseSpec[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
 
-            return Tags::div(implode(Tags::CRLF, $responseSpecification), ['class' => 'table']);
+            return Tags::div(implode(Tags::CRLF, $responseSpec), ['class' => 'table']);
         }
 
         $paramDataType = $this->getParamDataType($endpointData['endpointOutput']);
@@ -296,9 +296,9 @@ class Browser
 
         $row = [];
         $row[] = Tags::div($paramDataType, ['class' => 'p-data-type']);
-        $responseSpecification[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
+        $responseSpec[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
 
-        return Tags::div(implode(Tags::CRLF, $responseSpecification), ['class' => 'table']);
+        return Tags::div(implode(Tags::CRLF, $responseSpec), ['class' => 'table']);
     }
 
     /**
