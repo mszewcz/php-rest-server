@@ -238,8 +238,6 @@ class Request
      */
     private function setRequestBody(): void
     {
-        $requestBody = null;
-
         switch ($this->requestMethod) {
             case 'GET':
                 if (filter_has_var(\INPUT_GET, 'body')) {

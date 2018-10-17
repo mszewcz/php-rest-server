@@ -72,37 +72,81 @@ class InputPathValidator
         $paramName = $paramData['paramName'];
         $paramType = $paramData['paramType'];
         $paramValue = $this->pathParams[$paramName];
-        $error = null;
 
         switch ($paramType) {
             case 'any':
-                if ($paramValue === 'null') {
-                    $errors['body'] = 'Wymagana zmienna';
-                }
-                break;
+                return $this->validateAny($paramValue);
             case 'int':
             case 'integer':
-                if (!is_numeric($paramValue) && !is_int($paramValue)) {
-                    return 'Wymagana liczba całkowita';
-                }
-                break;
+                return $this->validateInt($paramValue);
             case 'double':
-                if (!is_numeric($paramValue) && !is_double($paramValue)) {
-                    return 'Wymagana liczba zmiennoprzecinkowa';
-                }
-                break;
+                return $this->validateDouble($paramValue);
             case 'float':
-                if (!is_numeric($paramValue) && !is_float($paramValue)) {
-                    return 'Wymagana liczba zmiennoprzecinkowa';
-                }
-                break;
+                return $this->validateFloat($paramValue);
             case 'string':
-                if (!is_string($paramValue) || is_numeric($paramValue) || is_bool($paramValue) || $paramValue === 'null') {
-                    return 'Wymagany ciąg znaków';
-                }
-                break;
+                return $this->validateString($paramValue);
+            default:
+                return null;
         }
+    }
 
-        return $error;
+    /**
+     * @param $paramValue
+     * @return null|\string
+     */
+    private function validateAny($paramValue): ?string
+    {
+        if ($paramValue === 'null') {
+            return 'Wymagana zmienna';
+        }
+        return null;
+    }
+
+    /**
+     * @param $paramValue
+     * @return null|string
+     */
+    private function validateInt($paramValue): ?string
+    {
+        if (!is_numeric($paramValue) && !is_int($paramValue)) {
+            return 'Wymagana liczba całkowita';
+        }
+        return null;
+    }
+
+    /**
+     * @param $paramValue
+     * @return null|string
+     */
+    private function validateDouble($paramValue): ?string
+    {
+        if (!is_numeric($paramValue) && !is_double($paramValue)) {
+            return 'Wymagana liczba zmiennoprzecinkowa';
+        }
+        return null;
+    }
+
+    /**
+     * @param $paramValue
+     * @return null|string
+     */
+    private function validateFloat($paramValue): ?string
+    {
+        if (!is_numeric($paramValue) && !is_float($paramValue)) {
+            return 'Wymagana liczba zmiennoprzecinkowa';
+        }
+        return null;
+    }
+
+    /**
+     * @param $paramValue
+     * @return null|string
+     */
+    private function validateString($paramValue): ?string
+    {
+        if (!is_string($paramValue) || is_numeric($paramValue) || is_bool($paramValue) || $paramValue === 'null') {
+            return 'Wymagany ciąg znaków';
+        }
+        return null;
     }
 }
