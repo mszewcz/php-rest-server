@@ -209,7 +209,7 @@ class InputPathValidator
     {
         $paramName = $paramData['paramName'];
         $paramType = $paramData['paramType'];
-        $paramValue = $this->pathParams[$paramName];;
+        $paramValue = $this->pathParams[$paramName];
         $modelClass = str_replace('[]', '', $paramType);
         $modelName = explode('\\', $paramType);
         $modelName = array_pop($modelName);
