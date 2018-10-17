@@ -313,12 +313,12 @@ class Browser
             $ret[] = Tags::div(\sprintf('%s {', Tags::b($describedModelName)), ['class' => 'm-name']);
 
             foreach ($describedModelProps as $describedModelProp) {
-                $propName = Tags::b($describedModelProp['propertyName']);
+                $propName = $describedModelProp['propertyName'];
                 $propType = $describedModelProp['propertyType'];
                 $propOpt = $describedModelProp['propertyOptional'] ? '?' : '';
                 $propDesc = $describedModelProp['propertyName'] !== ''
-                    ? \sprintf('%s%s: %s;', $propName, $propOpt, $propType)
-                    : \sprintf('%s;', $propType);
+                    ? \sprintf('%s%s: %s;', Tags::b($propName), $propOpt, $propType)
+                    : \sprintf('%s', $propType);
 
                 $ret[] = Tags::div($propDesc, ['class' => 'm-prop']);
             }

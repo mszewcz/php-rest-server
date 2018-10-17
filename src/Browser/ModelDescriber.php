@@ -10,8 +10,8 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Browser;
 
-
 use MS\RestServer\Server\Helpers\DataTypeHelper;
+
 
 class ModelDescriber
 {
