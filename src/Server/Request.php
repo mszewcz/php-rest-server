@@ -10,8 +10,7 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Server;
 
-use MS\Json\Utils\Exceptions\DecodingException;
-use MS\Json\Utils\Utils;
+use MS\RestServer\Base;
 use MS\RestServer\Server\Auth\AbstractAuthProvider;
 use MS\RestServer\Server\Exceptions\ResponseException;
 
@@ -19,9 +18,9 @@ use MS\RestServer\Server\Exceptions\ResponseException;
 class Request
 {
     /**
-     * @var string
+     * @var Base
      */
-    private $mapFilePath = '';
+    private $base;
     /**
      * @var string
      */
@@ -66,6 +65,7 @@ class Request
      */
     public function __construct()
     {
+        $this->base = Base::getInstance();
         $this->setRequestMethod();
         $this->setRequestUri();
         $this->setRequestController();
@@ -149,26 +149,6 @@ class Request
     public function getRequestBody()
     {
         return $this->requestBody;
-    }
-
-    /**
-     * Returns path to map file
-     *
-     * @return string
-     */
-    public function getMapFilePath(): string
-    {
-        return $this->mapFilePath;
-    }
-
-    /**
-     * Sets controller map
-     *
-     * @param string $mapFilePath
-     */
-    public function setMapFilePath(string $mapFilePath): void
-    {
-        $this->mapFilePath = $mapFilePath;
     }
 
     /**
@@ -276,9 +256,8 @@ class Request
 
         if ($this->requestBody !== null && preg_match('/^\[|{/', $this->requestBody)) {
             try {
-                $utils = new Utils();
-                $this->requestBody = $utils->decode((string)$this->requestBody);
-            } catch (DecodingException $e) {
+                $this->requestBody = $this->base->decode((string)$this->requestBody);
+            } catch (\Exception $e) {
                 throw new ResponseException(400, null, ['message' => 'Request body parse error']);
             }
         }

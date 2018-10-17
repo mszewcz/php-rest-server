@@ -10,18 +10,12 @@ declare(strict_types=1);
 
 namespace MS\RestServer;
 
-use MS\LightFramework\Base;
-use MS\LightFramework\Config\AbstractConfig;
-use MS\LightFramework\Config\Factory;
-use MS\LightFramework\Filesystem\File;
-use MS\LightFramework\Filesystem\FileName;
 use MS\RestServer\Server\Auth\AbstractAuthProvider;
 use MS\RestServer\Server\Controllers\AbstractController;
 use MS\RestServer\Server\MapBuilder;
 use MS\RestServer\Server\Request;
 use MS\RestServer\Server\Exceptions\ResponseException;
 use MS\RestServer\Shared\Headers;
-use MS\Json\Utils\Utils;
 
 /**
  * @codeCoverageIgnore
@@ -33,10 +27,6 @@ class Server
      */
     private $base;
     /**
-     * @var AbstractConfig
-     */
-    private $config;
-    /**
      * @var Headers
      */
     private $headers;
@@ -45,10 +35,6 @@ class Server
      */
     private $request;
     /**
-     * @var Utils
-     */
-    private $utils;
-    /**
      * @var string
      */
     private $requestMethod = 'GET';
@@ -56,18 +42,6 @@ class Server
      * @var string
      */
     private $requestUri = '/';
-    /**
-     * @var string
-     */
-    private $apiBrowserUri = '/api-browser';
-    /**
-     * @var string
-     */
-    private $definitionsDir = '%DOCUMENT_ROOT%/definitions/';
-    /**
-     * @var array
-     */
-    private $controllers = [];
     /**
      * @var array
      */
@@ -139,13 +113,7 @@ class Server
     public function __construct()
     {
         $this->base = Base::getInstance();
-        $this->config = Factory::read($_ENV['CONFIG_FILE_SERVER']);
         $this->headers = new Headers($this->defaultHeaders);
-        $this->utils = new Utils();
-
-        $this->apiBrowserUri = $this->config->apiBrowserUri;
-        $this->controllers = $this->config->controllers;
-        $this->definitionsDir = $this->base->parsePath($this->config->definitionsDirectory);
 
         try {
             $this->request = new Request();
@@ -177,7 +145,7 @@ class Server
             $this->sendHeaders();
             return null;
         }
-        if (preg_match('|^'.$this->apiBrowserUri.'/?$|i', $this->requestUri)) {
+        if (preg_match('|^'.$this->base->getApiBrowserUri().'/?$|i', $this->requestUri)) {
             $browser = new Browser();
             return $browser->display();
         }
@@ -225,20 +193,23 @@ class Server
      */
     private function getController(): AbstractController
     {
-        foreach ($this->controllers as $controller) {
+        $controllers = $this->base->getControllers();
+        $definitionsDir = $this->base->getDefinitionsDir();
+
+        foreach ($controllers as $controller) {
             if (stripos($this->requestUri, $controller->uri) === 0) {
                 $controllerClass = (string)$controller->class;
-                $mapFile = FileName::getSafe($controller->uri);
-                $mapFilePath = \sprintf('%s%s.json', $this->definitionsDir, $mapFile);
+                $mapFile = $this->base->getSafeFileName($controller->uri);
+                $mapFilePath = \sprintf('%s%s.json', $definitionsDir, $mapFile);
 
                 if (!class_exists($controllerClass)) {
                     throw new ResponseException(500, null, ['message' => 'Controller class not found']);
                 }
-                if (!File::exists($mapFilePath)) {
+                if (!$this->base->fileExists($mapFilePath)) {
                     $mapBuilder = new MapBuilder();
                     $mapBuilder->build();
                 }
-                $this->request->setMapFilePath($mapFilePath);
+                $this->base->setMapFilePath($mapFilePath);
 
                 return new $controllerClass($this->request);
             }
@@ -264,7 +235,7 @@ class Server
 
         if (is_array($body) || is_object($body)) {
             try {
-                $body = $this->utils->encode($body);
+                $body = $this->base->encode($body);
             } catch (\Exception $e) {
                 $this->headers->addHeaders(['name' => 500, 'value' => 'HTTP/1.1 500 Internal Server Error']);
                 $body = '{"message" => "Error while encoding response"}';
@@ -296,7 +267,7 @@ class Server
             $body['errors'] = $errors;
         }
         try {
-            $body = $this->utils->encode($body);
+            $body = $this->base->encode($body);
         } catch (\Exception $exception) {
             $this->headers->addHeaders(['name' => 500, 'value' => 'HTTP/1.1 500 Internal Server Error']);
             $body = '{"message" => "Error while encoding response exception"}';

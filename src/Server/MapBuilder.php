@@ -10,12 +10,8 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Server;
 
-use MS\Json\Utils\Utils;
-use MS\LightFramework\Base;
 use MS\LightFramework\Config\AbstractConfig;
-use MS\LightFramework\Config\Factory;
-use MS\LightFramework\Filesystem\File;
-use MS\LightFramework\Filesystem\FileName;
+use MS\RestServer\Base;
 use MS\RestServer\Server\Exceptions\MapBuilderException;
 use MS\RestServer\Server\Exceptions\ResponseException;
 
@@ -26,22 +22,6 @@ class MapBuilder
      * @var Base
      */
     private $base;
-    /**
-     * @var AbstractConfig
-     */
-    private $config;
-    /**
-     * @var Utils
-     */
-    private $utils;
-    /**
-     * @var string
-     */
-    private $definitionsDir;
-    /**
-     * @var array
-     */
-    private $controllers = [];
 
     /**
      * MapBuilder constructor
@@ -49,11 +29,6 @@ class MapBuilder
     public function __construct()
     {
         $this->base = Base::getInstance();
-        $this->config = Factory::read($_ENV['CONFIG_FILE_SERVER']);
-        $this->utils = new Utils();
-
-        $this->controllers = $this->config->controllers;
-        $this->definitionsDir = $this->base->parsePath($this->config->definitionsDirectory);
     }
 
     /**
@@ -64,8 +39,10 @@ class MapBuilder
      */
     public function build(): array
     {
+        $controllers = $this->base->getControllers();
+
         $result = [];
-        foreach ($this->controllers as $controller) {
+        foreach ($controllers as $controller) {
             $result[] = $this->buildControllerMap($controller);
         }
         return $result;
@@ -80,12 +57,13 @@ class MapBuilder
      */
     private function buildControllerMap(AbstractConfig $controller): array
     {
+        $definitionsDir = $this->base->getDefinitionsDir();
         $endpointMap = [];
 
         try {
             $controllerClass = (string)$controller->class;
-            $mapFile = FileName::getSafe($controller->uri);
-            $mapFilePath = \sprintf('%s%s.json', $this->definitionsDir, $mapFile);
+            $mapFile = $this->base->getSafeFileName($controller->uri);
+            $mapFilePath = \sprintf('%s%s.json', $definitionsDir, $mapFile);
 
             $classReflection = new \ReflectionClass($controllerClass);
             $methods = $classReflection->getMethods(\ReflectionMethod::IS_PROTECTED);
@@ -137,14 +115,14 @@ class MapBuilder
         }
 
         try {
-            $endpointMapEncoded = $this->utils->encode($endpointMap);
+            $endpointMapEncoded = $this->base->encode($endpointMap);
             // @codeCoverageIgnoreStart
         } catch (\Exception $e) {
             throw new ResponseException(500, $e->getMessage());
             // @codeCoverageIgnoreEnd
         }
 
-        File::write($mapFilePath, $endpointMapEncoded);
+        $this->base->fileWrite($mapFilePath, $endpointMapEncoded);
         return $endpointMap;
     }
 

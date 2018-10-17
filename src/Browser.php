@@ -10,13 +10,6 @@ declare(strict_types=1);
 
 namespace MS\RestServer;
 
-use MS\Json\Utils\Exceptions\DecodingException;
-use MS\Json\Utils\Utils;
-use MS\LightFramework\Base;
-use MS\LightFramework\Config\AbstractConfig;
-use MS\LightFramework\Config\Factory;
-use MS\LightFramework\Filesystem\File;
-use MS\LightFramework\Filesystem\FileName;
 use MS\LightFramework\Html\Tags;
 use MS\RestServer\Browser\ModelDescriber;
 
@@ -27,22 +20,6 @@ class Browser
      * @var Base
      */
     private $base;
-    /**
-     * @var AbstractConfig
-     */
-    private $config;
-    /**
-     * @var Utils
-     */
-    private $utils;
-    /**
-     * @var array
-     */
-    private $controllers = [];
-    /**
-     * @var string
-     */
-    private $definitionsDir = '';
 
     /**
      * Browser constructor.
@@ -50,11 +27,6 @@ class Browser
     public function __construct()
     {
         $this->base = Base::getInstance();
-        $this->config = Factory::read($_ENV['CONFIG_FILE_SERVER']);
-        $this->utils = new Utils();
-
-        $this->controllers = $this->config->controllers;
-        $this->definitionsDir = $this->base->parsePath($this->config->definitionsDirectory);
     }
 
     /**
@@ -89,11 +61,14 @@ class Browser
      */
     private function listControllers(): string
     {
+        $controllers = $this->base->getControllers();
+        $definitionsDir = $this->base->getDefinitionsDir();
+
         $ret = [];
-        foreach ($this->controllers as $controller) {
+        foreach ($controllers as $controller) {
             $controllerName = (string)$controller->name;
-            $mapFile = FileName::getSafe((string)$controller->uri);
-            $mapFilePath = \sprintf('%s%s.json', $this->definitionsDir, $mapFile);
+            $mapFile = $this->base->getSafeFileName((string)$controller->uri);
+            $mapFilePath = \sprintf('%s%s.json', $definitionsDir, $mapFile);
 
             $expandCollapse = Tags::span('Expand / Collapse Everything');
             $controller = [
@@ -117,7 +92,7 @@ class Browser
     {
         $ret = '';
         try {
-            $controllerMap = $this->utils->decode(File::read($controllerMapFile));
+            $controllerMap = $this->base->decode($this->base->fileRead($controllerMapFile));
             $controllerUris = array_column($controllerMap, 'endpointUri');
 
             array_multisort($controllerUris, SORT_ASC, SORT_STRING, $controllerMap, SORT_ASC);
@@ -152,7 +127,7 @@ class Browser
                 $endpoint[] = Tags::div(implode(Tags::CRLF, $endpointDetails), ['class' => 'endpoint__details']);
                 $ret .= Tags::div(implode(Tags::CRLF, $endpoint), ['class' => 'endpoint endpoint-' . $endpointData['endpointHttpMethod']]);
             }
-        } catch (DecodingException $e) {
+        } catch (\Exception $e) {
         }
 
         return $ret;

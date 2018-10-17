@@ -10,8 +10,7 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Server\Controllers;
 
-use MS\Json\Utils\Utils;
-use MS\LightFramework\Filesystem\File;
+use MS\RestServer\Base;
 use MS\RestServer\Server\Auth\AbstractAuthProvider;
 use MS\RestServer\Server\Exceptions\ResponseException;
 use MS\RestServer\Server\Validators\InputQueryValidator;
@@ -27,17 +26,13 @@ use MS\RestServer\Server\Response;
 class AbstractController
 {
     /**
-     * @var Utils
+     * @var Base
      */
-    private $utils;
+    private $base;
     /**
      * @var Request
      */
     protected $request;
-    /**
-     * @var string
-     */
-    protected $mapFilePath;
 
     /**
      * AbstractController constructor.
@@ -46,9 +41,8 @@ class AbstractController
      */
     public function __construct(Request $request)
     {
-        $this->utils = new Utils();
+        $this->base = Base::getInstance();
         $this->request = $request;
-        $this->mapFilePath = $this->request->getMapFilePath();
     }
 
     /**
@@ -103,12 +97,13 @@ class AbstractController
      */
     private function getControllerMap(): array
     {
+        $mapFilePath = $this->base->getMapFilePath();
         // Load method map file for current controller
-        if (!File::exists($this->mapFilePath)) {
+        if (!$this->base->fileExists($mapFilePath)) {
             throw new ResponseException(500, sprintf('Method map file is missing for route: %s', $this->request->getRequestUri()));
         }
         try {
-            return $this->utils->decode(File::read($this->mapFilePath));
+            return $this->base->decode($this->base->fileRead($mapFilePath));
         } catch (\Exception $e) {
             throw new ResponseException(500, null, ['message' => 'Method map file decoding error']);
         }
