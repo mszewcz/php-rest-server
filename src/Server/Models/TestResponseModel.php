@@ -29,9 +29,11 @@ class TestResponseModel
      * TestResponseModel constructor.
      * @param array $data
      */
-    public function __construct(array $data)
+    public function __construct($data)
     {
-        $this->urlParams = isset($data['urlParams']) ? $data['urlParams'] : [];
-        $this->requestBody = isset($data['requestBody']) ? $data['requestBody'] : new \stdClass();
+        if (\is_array($data)) {
+            $this->urlParams = isset($data['urlParams']) ? $data['urlParams'] : [];
+            $this->requestBody = isset($data['requestBody']) ? $data['requestBody'] : new \stdClass();
+        }
     }
 }

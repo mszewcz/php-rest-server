@@ -67,7 +67,8 @@ class AbstractController
                 $endpointInput = $endpointData['endpointInput'];
                 $endpointMethodName = $endpointData['endpointMethodName'];
 
-                $this->setRequestPathParams($endpointData);
+                $this->request->setRequestPathParams($endpointData);
+                $this->request->setRequestQueryParams($endpointData);
             }
         }
 
@@ -112,37 +113,13 @@ class AbstractController
             );
         }
         try {
-            return $this->base->decode($this->base->fileRead($mapFilePath));
+            return $this->base->decodeAsArray($this->base->fileRead($mapFilePath));
         } catch (\Exception $e) {
             throw new ResponseException(
                 500,
                 null,
                 ['message' => 'Method map file decoding error']
             );
-        }
-    }
-
-    /**
-     * Set request path params
-     *
-     * @param array $endpointData
-     */
-    private function setRequestPathParams(array $endpointData): void
-    {
-        preg_match_all('|([^/]+)/?|', explode('?', $endpointData['endpointUri'])[0], $matches);
-
-        if (isset($matches[1])) {
-            $matchesCount = count($matches[1]);
-
-            for ($i = 0; $i < $matchesCount; $i++) {
-                $hasOpeningBracket = strpos($matches[1][$i], '{') !== false;
-                $hasClosingBracket = strpos($matches[1][$i], '}') !== false;
-
-                if ($hasOpeningBracket && $hasClosingBracket) {
-                    $paramName = str_replace(['{', '}'], '', $matches[1][$i]);
-                    $this->request->setPathParam($paramName, $this->request->getPathArray()[$i]);
-                }
-            }
         }
     }
 
@@ -211,7 +188,7 @@ class AbstractController
         $inputErrors = [];
 
         // Validate path params
-        if (array_key_exists('url', $endpointInput)) {
+        if (array_key_exists('path', $endpointInput)) {
             $validator = new InputPathValidator($this->request, $endpointInput['path']);
             $errors = $validator->validate();
             foreach ($errors as $k => $v) {
@@ -220,7 +197,7 @@ class AbstractController
         }
 
         // Validate query params
-        if (array_key_exists('get', $endpointInput)) {
+        if (array_key_exists('query', $endpointInput)) {
             $validator = new InputQueryValidator($this->request, $endpointInput['query']);
             $errors = $validator->validate();
             foreach ($errors as $k => $v) {

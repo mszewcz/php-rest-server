@@ -29,9 +29,9 @@ class TestRequestParamModel extends AbstractModel
      * TestRequestParamModel constructor.
      * @param array $data
      */
-    public function __construct(array $data)
+    public function __construct($data)
     {
-        if ($data !== null) {
+        if (\is_array($data)) {
             foreach ($data as $paramName => $paramValue) {
                 $this->name = $paramName;
                 $this->value = (int)$paramValue;

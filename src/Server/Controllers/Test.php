@@ -43,8 +43,8 @@ class Test extends AbstractController
      */
     protected function sumOf(): Response
     {
-        $urlParams = $this->request->getRequestPathParams();
-        $sum = (int)$urlParams['a'] + (int)$urlParams['b'];
+        $pathParams = $this->request->getRequestPathParams();
+        $sum = $pathParams['a'] + $pathParams['b'];
 
         return new Response(200, $sum);
     }

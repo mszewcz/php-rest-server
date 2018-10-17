@@ -16,7 +16,6 @@ use MS\LightFramework\Config\Factory;
 use MS\LightFramework\Filesystem\File;
 use MS\LightFramework\Filesystem\FileName;
 use MS\LightFramework\Variables\Variables;
-use MS\Json\Utils\Utils;
 
 /**
  * @codeCoverageIgnore
@@ -27,10 +26,6 @@ class Base
      * @var Base
      */
     private static $instance;
-    /**
-     * @var Utils
-     */
-    private $utils;
     /**
      * @var array
      */
@@ -53,8 +48,6 @@ class Base
      */
     private function __construct()
     {
-        $this->utils = new Utils();
-
         $frameworkBase = FrameworkBase::getInstance();
         $variablesHandler = Variables::getInstance();
         $config = Factory::read($variablesHandler->env->get('CONFIG_FILE_SERVER'));
@@ -88,22 +81,29 @@ class Base
 
     /**
      * @param $json
-     * @return array
-     * @throws \MS\Json\Utils\Exceptions\DecodingException
+     * @return array|\stdClass
      */
-    public function decode(string $json): array
+    public function decode(string $json)
     {
-        return $this->utils->decode($json);
+        return \json_decode($json);
+    }
+
+    /**
+     * @param $json
+     * @return array
+     */
+    public function decodeAsArray(string $json): array
+    {
+        return \json_decode($json, true);
     }
 
     /**
      * @param array $data
      * @return string
-     * @throws \MS\Json\Utils\Exceptions\EncodingException
      */
     public function encode(array $data): string
     {
-        return $this->utils->encode($data);
+        return \json_encode($data, \JSON_UNESCAPED_SLASHES);
     }
 
     /**

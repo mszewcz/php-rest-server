@@ -31,13 +31,15 @@ class TestRequestBodyModel extends AbstractModel
 
     /**
      * TestRequestBodyModel constructor.
-     * @param array $data
+     * @param null|array $data
      */
-    public function __construct(array $data)
+    public function __construct($data)
     {
-        $this->testVar1 = isset($data['testVar1']) ? $data['testVar1'] : null;
-        $this->testVar2 = isset($data['testVar2']) ? $data['testVar2'] : null;
-        $this->testVar3 = isset($data['testVar3']) ? $data['testVar3'] : null;
+        if (\is_array($data)) {
+            $this->testVar1 = isset($data['testVar1']) ? $data['testVar1'] : null;
+            $this->testVar2 = isset($data['testVar2']) ? $data['testVar2'] : null;
+            $this->testVar3 = isset($data['testVar3']) ? $data['testVar3'] : null;
+        }
     }
 
     /**
@@ -48,6 +50,8 @@ class TestRequestBodyModel extends AbstractModel
         $errors = [];
         if ($this->testVar1 === null) {
             $errors['testVar1'] = 'To pole jest wymagane';
+        } elseif (!is_int($this->testVar1)) {
+            $errors['testVar1'] = 'Wymagana liczba';
         }
         if ($this->testVar2 === null) {
             $errors['testVar2'] = 'To pole jest wymagane';

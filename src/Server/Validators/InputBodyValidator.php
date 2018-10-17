@@ -10,9 +10,12 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Server\Validators;
 
-use MS\Json\Utils\Utils;
 use MS\RestServer\Server\Models\AbstractModel;
 use MS\RestServer\Server\Request;
+use MS\RestServer\Server\Validators\Interfaces\ArrayTypeValidator;
+use MS\RestServer\Server\Validators\Interfaces\SimpleTypeValidator;
+use MS\RestServer\Server\Validators\SimpleType\ArrayValidator as SimpleArrayValidator;
+use MS\RestServer\Server\Validators\SimpleType\ObjectValidator as SimpleObjectValidator;
 
 
 /**
@@ -20,10 +23,6 @@ use MS\RestServer\Server\Request;
  */
 class InputBodyValidator
 {
-    /**
-     * @var Utils
-     */
-    private $utils;
     /**
      * @var Request
      */
@@ -36,6 +35,14 @@ class InputBodyValidator
      * @var null
      */
     private $requestBody;
+    /**
+     * @var array
+     */
+    private $simpleTypes = ['any', 'array', 'bool', 'boolean', 'float', 'int', 'integer', 'string'];
+    /**
+     * @var array
+     */
+    private $arrayTypes = ['any[]', 'array[]', 'bool[]', 'boolean[]', 'float[]', 'int[]', 'integer[]', 'string[]'];
 
     /**
      * InputBodyValidator constructor.
@@ -45,7 +52,6 @@ class InputBodyValidator
      */
     public function __construct(Request $request, array $inputParams)
     {
-        $this->utils = new Utils();
         $this->request = $request;
         $this->inputParams = $inputParams;
         $this->requestBody = $request->getRequestBody();
@@ -62,279 +68,110 @@ class InputBodyValidator
             return ['body' => 'To pole jest wymagane'];
         }
 
-        return $this->validateType($this->inputParams['body'][0]['paramType'], $this->requestBody);
+        $variableType = $this->inputParams['body'][0]['paramType'];
+
+        if (\in_array($variableType, $this->simpleTypes)) {
+            return $this->validateSimpleType($this->inputParams['body'][0]);
+        }
+        if (\in_array($variableType, $this->arrayTypes)) {
+            return $this->validateArrayType($this->inputParams['body'][0]);
+        }
+        if (stripos($variableType, '[]') !== false) {
+            return $this->validateModelArrayType($this->inputParams['body'][0]);
+        }
+        return $this->validateModelType($this->inputParams['body'][0]);
     }
 
     /**
-     * Validates variable type
+     * Validates simple type
      *
-     * @param string $variableType
-     * @param $variableValue
+     * @param array $paramData
      * @return array
      */
-    private function validateType(string $variableType, $variableValue): array
+    private function validateSimpleType(array $paramData): array
     {
-        $typesAny = ['any', 'any[]'];
-        $typesInteger = ['int', 'int[]', 'integer', 'integer[]'];
-        $typesDouble = ['double', 'double[]'];
-        $typesFloat = ['float', 'float[]'];
-        $typesBoolean = ['bool', 'bool[]', 'boolean', 'boolean[]'];
-        $typesString = ['string', 'string[]'];
-        $typesArray = ['array', 'array[]'];
+        $paramType = $paramData['paramType'];
+        $paramValue = $this->requestBody;
 
-        if (in_array($variableType, $typesAny)) {
-            return $this->validateAny($variableType, $variableValue);
+        $validatorClass = \sprintf(
+            '\\MS\RestServer\\Server\\Validators\\SimpleType\\%sValidator',
+            \ucfirst($paramType)
+        );
+        /**
+         * @var SimpleTypeValidator $validator
+         */
+        $validator = new $validatorClass();
+        $result = $validator->validate($paramValue, $paramType);
+        if ($result !== null) {
+            return ['body' => $result];
         }
-        if (in_array($variableType, $typesInteger)) {
-            return $this->validateInteger($variableType, $variableValue);
-        }
-        if (in_array($variableType, $typesDouble)) {
-            return $this->validateDouble($variableType, $variableValue);
-        }
-        if (in_array($variableType, $typesFloat)) {
-            return $this->validateFloat($variableType, $variableValue);
-        }
-        if (in_array($variableType, $typesBoolean)) {
-            return $this->validateBoolean($variableType, $variableValue);
-        }
-        if (in_array($variableType, $typesString)) {
-            return $this->validateString($variableType, $variableValue);
-        }
-        if (in_array($variableType, $typesArray)) {
-            return $this->validateArray($variableType, $variableValue);
-        }
-        return $this->validateModel($variableType, $variableValue);
+        return [];
     }
 
     /**
-     * @param $paramValue
-     * @param string $paramType
+     * Validates array type
+     *
+     * @param array $paramData
      * @return array
      */
-    private function validateAny(string $paramType, $paramValue): array
+    private function validateArrayType(array $paramData): array
     {
-        $errors = [];
+        $paramType = $paramData['paramType'];
+        $paramValue = $this->requestBody;
 
-        if (stripos($paramType, '[]') !== false) {
-            if (!$this->isValidArray($paramValue)) {
-                $errors['body'] = 'Wymagana tablica zmiennych';
-                return $errors;
-            }
-            foreach ($paramValue as $index => $value) {
-                if ($value === 'null') {
-                    $errors['body'][$index] = 'Wymagana zmienna';
-                }
-            }
-            return $errors;
+        $validatorType = \str_replace('[]', '', $paramType);
+        $validatorClass = \sprintf(
+            '\\MS\RestServer\\Server\\Validators\\ArrayType\\%sValidator',
+            \ucfirst($validatorType)
+        );
+        /**
+         * @var SimpleTypeValidator $validator
+         */
+        $validator = new SimpleArrayValidator();
+        $result = $validator->validate($paramValue, $paramType);
+        if ($result !== null) {
+            return ['body' => $result];
         }
 
-        if ($paramValue === 'null') {
-            $errors['body'] = 'Wymagana zmienna';
+        $errors = [];
+        /**
+         * @var ArrayTypeValidator $validator
+         */
+        $validator = new $validatorClass();
+        $result = $validator->validate($paramValue, $validatorType);
+        foreach ($result as $index => $error) {
+            $errors['body'][$index] = $error;
         }
         return $errors;
     }
 
     /**
-     * @param $paramValue
-     * @param string $paramType
+     * Validates model type
+     *
+     * @param array $paramData
      * @return array
      */
-    private function validateInteger(string $paramType, $paramValue): array
+    private function validateModelType(array $paramData): array
     {
+        $paramValue = $this->requestBody;
+        $modelClass = $paramData['paramType'];
+        $modelName = explode('\\', $modelClass);
+        $modelName = array_pop($modelName);
         $errors = [];
 
-        if (stripos($paramType, '[]') !== false) {
-            if (!$this->isValidArray($paramValue)) {
-                $errors['body'] = 'Wymagana tablica liczb całkowitych';
-                return $errors;
-            }
-            foreach ($paramValue as $index => $value) {
-                if (!is_numeric($value) && !is_int($value)) {
-                    $errors['body'][$index] = 'Wymagana liczba całkowita';
-                }
-            }
-            return $errors;
-        }
-
-        if (!is_numeric($paramValue) && !is_int($paramValue)) {
-            $errors['body'] = 'Wymagana liczba całkowita';
-        }
-        return $errors;
-    }
-
-    /**
-     * @param $paramValue
-     * @param string $paramType
-     * @return array
-     */
-    private function validateDouble(string $paramType, $paramValue): array
-    {
-        $errors = [];
-
-        if (stripos($paramType, '[]') !== false) {
-            if (!$this->isValidArray($paramValue)) {
-                $errors['body'] = 'Wymagana tablica liczb zmiennoprzecinkowych';
-                return $errors;
-            }
-            foreach ($paramValue as $index => $value) {
-                if (!is_numeric($value) && !is_double($value)) {
-                    $errors['body'][$index] = 'Wymagana liczba zmiennoprzecinkowa';
-                }
-            }
-            return $errors;
-        }
-
-        if (!is_numeric($paramValue) && !is_double($paramValue)) {
-            $errors['body'] = 'Wymagana liczba zmiennoprzecinkowa';
-        }
-        return $errors;
-    }
-
-    /**
-     * @param $paramValue
-     * @param string $paramType
-     * @return array
-     */
-    private function validateFloat(string $paramType, $paramValue): array
-    {
-        $errors = [];
-
-        if (stripos($paramType, '[]') !== false) {
-            if (!$this->isValidArray($paramValue)) {
-                $errors['body'] = 'Wymagana tablica liczb zmiennoprzecinkowych';
-                return $errors;
-            }
-            foreach ($paramValue as $index => $value) {
-                if (!is_numeric($value) && !is_float($value)) {
-                    $errors['body'][$index] = 'Wymagana liczba zmiennoprzecinkowa';
-                }
-            }
-            return $errors;
-        }
-
-        if (!is_numeric($paramValue) && !is_float($paramValue)) {
-            $errors['body'] = 'Wymagana liczba zmiennoprzecinkowa';
-        }
-        return $errors;
-    }
-
-    /**
-     * @param $paramValue
-     * @param string $paramType
-     * @return array
-     */
-    private function validateBoolean(string $paramType, $paramValue): array
-    {
-        $errors = [];
-
-        if (stripos($paramType, '[]') !== false) {
-            if (!$this->isValidArray($paramValue)) {
-                $errors['body'] = 'Wymagana tablica zmiennych logicznych';
-                return $errors;
-            }
-            foreach ($paramValue as $index => $value) {
-                if (!is_bool($value)) {
-                    $errors['body'][$index] = 'Wymagana zmienna logiczna';
-                }
-            }
-            return $errors;
-        }
-
-        if (!is_bool($paramValue)) {
-            $errors['body'] = 'Wymagana zmienna logiczna';
-        }
-        return $errors;
-    }
-
-    /**
-     * @param $paramValue
-     * @param string $paramType
-     * @return array
-     */
-    private function validateString(string $paramType, $paramValue): array
-    {
-        $errors = [];
-
-        if (stripos($paramType, '[]') !== false) {
-            if (!$this->isValidArray($paramValue)) {
-                $errors['body'] = 'Wymagana tablica ciągów znaków';
-                return $errors;
-            }
-            foreach ($paramValue as $index => $value) {
-                if (!is_string($value)) {
-                    $errors['body'][$index] = 'Wymagany ciąg znaków';
-                }
-            }
-            return $errors;
-        }
-
-        if (!is_string($paramValue)) {
-            $errors['body'] = 'Wymagany ciąg znaków';
-        }
-        return $errors;
-    }
-
-    /**
-     * @param $paramValue
-     * @param string $paramType
-     * @return array
-     */
-    private function validateArray(string $paramType, $paramValue): array
-    {
-        $errors = [];
-
-        if (stripos($paramType, '[]') !== false) {
-            if (!$this->isValidArray($paramValue)) {
-                $errors['body'] = 'Wymagana tablica tablic';
-                return $errors;
-            }
-            foreach ($paramValue as $index => $value) {
-                if (!$this->isValidArray($value)) {
-                    $errors['body'][$index] = 'Wymagana tablica';
-                }
-            }
-            return $errors;
-        }
-
-        if (!$this->isValidArray($paramValue)) {
-            $errors['body'] = 'Wymagana tablica';
-        }
-        return $errors;
-    }
-
-    /**
-     * @param $paramValue
-     * @param string $paramType
-     * @return array
-     */
-    private function validateModel(string $paramType, $paramValue): array
-    {
-        $errors = [];
-
-        if (stripos($paramType, '[]') !== false) {
-            $modelName = str_replace('[]', '', $paramType);
-
-            if (!$this->isValidArray($paramValue)) {
-                $errors['body'] = \sprintf('Wymagana tablica %s', $modelName);
-                return $errors;
-            }
-            foreach ($paramValue as $index => $value) {
-                /**
-                 * @var $tmpModel AbstractModel
-                 */
-                $tmpModel = new $modelName($value);
-                $validationErrors = $tmpModel->validate();
-                foreach ($validationErrors as $propName => $propError) {
-                    $errors['body'][$index][$propName] = $propError;
-                }
-            }
-            return $errors;
+        /**
+         * @var SimpleTypeValidator $validator
+         */
+        $validator = new SimpleObjectValidator();
+        $result = $validator->validate($paramValue, $modelName);
+        if ($result !== null) {
+            return ['body' => $result];
         }
 
         /**
-         * @var $tmpModel AbstractModel
+         * @var AbstractModel $tmpModel
          */
-        $tmpModel = new $paramType($paramValue);
+        $tmpModel = new $modelClass((array)$paramValue);
         $validationErrors = $tmpModel->validate();
         foreach ($validationErrors as $propName => $propError) {
             $errors['body'][$propName] = $propError;
@@ -343,20 +180,52 @@ class InputBodyValidator
     }
 
     /**
-     * @param $paramValue
-     * @return bool
+     * Validates model array type
+     *
+     * @param array $paramData
+     * @return array
      */
-    private function isValidArray($paramValue): bool
+    private function validateModelArrayType(array $paramData): array
     {
-        if (!is_array($paramValue)) {
-            return false;
+        $paramType = $paramData['paramType'];
+        $paramValue = $this->requestBody;
+        $modelClass = str_replace('[]', '', $paramType);
+        $modelName = explode('\\', $paramType);
+        $modelName = array_pop($modelName);
+
+        /**
+         * @var SimpleTypeValidator $validator
+         */
+        $validator = new SimpleArrayValidator();
+        $result = $validator->validate($paramValue, $modelName);
+        if ($result !== null) {
+            return ['body' => $result];
         }
-        $arrayKeys = \array_keys($paramValue);
-        foreach ($arrayKeys as $key) {
-            if (!is_int($key)) {
-                return false;
+
+        $errors = [];
+        $modelName = str_replace('[]', '', $modelName);
+
+        foreach ($paramValue as $index => $value) {
+            /**
+             * @var SimpleTypeValidator $validator
+             */
+            $validator = new SimpleObjectValidator();
+            $result = $validator->validate($value, $modelName);
+            if ($result !== null) {
+                $errors['body'][$index] = $result;
+            }
+            if ($result === null) {
+                /**
+                 * @var AbstractModel $tmpModel
+                 */
+                $tmpModel = new $modelClass((array)$value);
+                $validationErrors = $tmpModel->validate();
+                foreach ($validationErrors as $propName => $propError) {
+                    $errors['body'][$index . '.' . $propName] = $propError;
+                }
             }
         }
-        return true;
+
+        return $errors;
     }
 }

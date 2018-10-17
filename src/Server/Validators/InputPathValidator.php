@@ -10,7 +10,12 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Server\Validators;
 
+use MS\RestServer\Server\Models\AbstractModel;
 use MS\RestServer\Server\Request;
+use MS\RestServer\Server\Validators\Interfaces\ArrayTypeValidator;
+use MS\RestServer\Server\Validators\Interfaces\SimpleTypeValidator;
+use MS\RestServer\Server\Validators\SimpleType\ArrayValidator as SimpleArrayValidator;
+use MS\RestServer\Server\Validators\SimpleType\ObjectValidator as SimpleObjectValidator;
 
 
 /**
@@ -30,6 +35,15 @@ class InputPathValidator
      * @var array
      */
     private $pathParams = [];
+    /**
+     * @var array
+     */
+    private $simpleTypes = ['any', 'array', 'bool', 'boolean', 'float', 'int', 'integer', 'string'];
+    /**
+     * @var array
+     */
+    private $arrayTypes = ['any[]', 'array[]', 'bool[]', 'boolean[]', 'float[]', 'int[]', 'integer[]', 'string[]'];
+
 
     /**
      * InputPathValidator constructor.
@@ -54,8 +68,8 @@ class InputPathValidator
         $errors = [];
         foreach ($this->params as $paramData) {
             $result = $this->validateType($paramData);
-            if ($result !== null) {
-                $errors['path'][$paramData['paramName']] = $result;
+            foreach ($result as $paramName => $error) {
+                $errors['path'][$paramName] = $error;
             }
         }
         return $errors;
@@ -65,93 +79,174 @@ class InputPathValidator
      * Validates param type
      *
      * @param array $paramData
-     * @return string
+     * @return array
      */
-    private function validateType(array $paramData): ?string
+    private function validateType(array $paramData): array
     {
         $paramName = $paramData['paramName'];
         $paramType = $paramData['paramType'];
         $paramRequired = $paramData['paramRequired'] === true;
         $paramValue = $this->pathParams[$paramName];
 
-        if ($paramRequired && is_null($paramValue)) {
-            return 'To pole jest wymagane';
+        if ($paramRequired && \is_null($paramValue)) {
+            return [$paramName => 'To pole jest wymagane'];
         }
-
-        switch ($paramType) {
-            case 'any':
-                return $this->validateAny($paramValue);
-            case 'int':
-            case 'integer':
-                return $this->validateInt($paramValue);
-            case 'double':
-                return $this->validateDouble($paramValue);
-            case 'float':
-                return $this->validateFloat($paramValue);
-            case 'string':
-                return $this->validateString($paramValue);
-            default:
-                return null;
+        if (\in_array($paramType, $this->simpleTypes)) {
+            return $this->validateSimpleType($paramData);
         }
+        if (\in_array($paramType, $this->arrayTypes)) {
+            return $this->validateArrayType($paramData);
+        }
+        if (stripos($paramType, '[]') !== false) {
+            return $this->validateModelArrayType($paramData);
+        }
+        return $this->validateModelType($paramData);
     }
 
     /**
-     * @param $paramValue
-     * @return null|\string
+     * @param array $paramData
+     * @return array
      */
-    private function validateAny($paramValue): ?string
+    private function validateSimpleType(array $paramData): array
     {
-        if ($paramValue === 'null') {
-            return 'Wymagana zmienna';
+        $paramName = $paramData['paramName'];
+        $paramType = $paramData['paramType'];
+        $paramValue = $this->pathParams[$paramName];
+
+        $validatorClass = \sprintf(
+            '\\MS\RestServer\\Server\\Validators\\SimpleType\\%sValidator',
+            \ucfirst($paramType)
+        );
+        /**
+         * @var SimpleTypeValidator $validator
+         */
+        $validator = new $validatorClass();
+        $result = $validator->validate($paramValue, $paramType);
+        if ($result !== null) {
+            return [$paramName => $result];
         }
-        return null;
+        return [];
     }
 
     /**
-     * @param $paramValue
-     * @return null|string
+     * @param array $paramData
+     * @return array
      */
-    private function validateInt($paramValue): ?string
+    private function validateArrayType(array $paramData): array
     {
-        if (!is_numeric($paramValue) && !is_int($paramValue)) {
-            return 'Wymagana liczba całkowita';
+        $paramName = $paramData['paramName'];
+        $paramType = $paramData['paramType'];
+        $paramValue = $this->pathParams[$paramName];
+
+        $validatorType = \str_replace('[]', '', $paramType);
+        $validatorClass = \sprintf(
+            '\\MS\RestServer\\Server\\Validators\\ArrayType\\%sValidator',
+            \ucfirst($validatorType)
+        );
+        /**
+         * @var SimpleTypeValidator $validator
+         */
+        $validator = new SimpleArrayValidator();
+        $result = $validator->validate($paramValue, $paramType);
+        if ($result !== null) {
+            return [$paramName => $result];
         }
-        return null;
+
+        $errors = [];
+        /**
+         * @var ArrayTypeValidator $validator
+         */
+        $validator = new $validatorClass();
+        $result = $validator->validate($paramValue, $validatorType);
+        foreach ($result as $index => $error) {
+            $errors[$paramName.'.'.$index] = $error;
+        }
+        return $errors;
     }
 
     /**
-     * @param $paramValue
-     * @return null|string
+     * Validates model type
+     *
+     * @param array $paramData
+     * @return array
      */
-    private function validateDouble($paramValue): ?string
+    private function validateModelType(array $paramData): array
     {
-        if (!is_numeric($paramValue) && !is_double($paramValue)) {
-            return 'Wymagana liczba zmiennoprzecinkowa';
+        $paramName = $paramData['paramName'];
+        $paramValue = $this->pathParams[$paramName];;
+        $modelClass = $paramData['paramType'];
+        $modelName = explode('\\', $modelClass);
+        $modelName = array_pop($modelName);
+        $errors = [];
+
+        /**
+         * @var SimpleTypeValidator $validator
+         */
+        $validator = new SimpleObjectValidator();
+        $result = $validator->validate($paramValue, $modelName);
+        if ($result !== null) {
+            return [$paramName => $result];
         }
-        return null;
+
+        /**
+         * @var AbstractModel $tmpModel
+         */
+        $tmpModel = new $modelClass((array)$paramValue);
+        $validationErrors = $tmpModel->validate();
+        foreach ($validationErrors as $propName => $propError) {
+            $errors[$paramName . '.' . $propName] = $propError;
+        }
+        return $errors;
     }
 
     /**
-     * @param $paramValue
-     * @return null|string
+     * Validates model array type
+     *
+     * @param array $paramData
+     * @return array
      */
-    private function validateFloat($paramValue): ?string
+    private function validateModelArrayType(array $paramData): array
     {
-        if (!is_numeric($paramValue) && !is_float($paramValue)) {
-            return 'Wymagana liczba zmiennoprzecinkowa';
-        }
-        return null;
-    }
+        $paramName = $paramData['paramName'];
+        $paramType = $paramData['paramType'];
+        $paramValue = $this->pathParams[$paramName];;
+        $modelClass = str_replace('[]', '', $paramType);
+        $modelName = explode('\\', $paramType);
+        $modelName = array_pop($modelName);
 
-    /**
-     * @param $paramValue
-     * @return null|string
-     */
-    private function validateString($paramValue): ?string
-    {
-        if (!is_string($paramValue) || is_numeric($paramValue) || is_bool($paramValue) || $paramValue === 'null') {
-            return 'Wymagany ciąg znaków';
+        /**
+         * @var SimpleTypeValidator $validator
+         */
+        $validator = new SimpleArrayValidator();
+        $result = $validator->validate($paramValue, $modelName);
+        if ($result !== null) {
+            return [$paramName => $result];
         }
-        return null;
+
+        $errors = [];
+        $modelName = str_replace('[]', '', $modelName);
+
+        foreach ($paramValue as $index => $value) {
+            /**
+             * @var SimpleTypeValidator $validator
+             */
+            $validator = new SimpleObjectValidator();
+            $result = $validator->validate($value, $modelName);
+            if ($result !== null) {
+                $errors[$paramName . '.' . $index] = $result;
+            }
+            if ($result === null) {
+                /**
+                 * @var AbstractModel $tmpModel
+                 */
+                $tmpModel = new $modelClass((array)$value);
+                $validationErrors = $tmpModel->validate();
+                foreach ($validationErrors as $propName => $propError) {
+                    $errors[$paramName . '.' . $index . '.' . $propName] = $propError;
+                }
+            }
+        }
+
+        return $errors;
     }
 }

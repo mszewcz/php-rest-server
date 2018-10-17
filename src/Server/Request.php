@@ -69,18 +69,7 @@ class Request
         $this->setRequestMethod();
         $this->setRequestUri();
         $this->setRequestController();
-        $this->setQueryParams();
         $this->setRequestBody();
-    }
-
-    /**
-     * Returns path variables array
-     *
-     * @return array
-     */
-    public function getPathArray(): array
-    {
-        return $this->pathArray;
     }
 
     /**
@@ -162,14 +151,52 @@ class Request
     }
 
     /**
-     * Sets path param
+     * Set request path params
      *
-     * @param string $paramName
-     * @param $paramValue
+     * @param array $endpointData
+     * @codeCoverageIgnore
      */
-    public function setPathParam(string $paramName, $paramValue): void
+    public function setRequestPathParams(array $endpointData): void
     {
-        $this->requestParamsPath[$paramName] = $paramValue;
+        \preg_match_all('|([^/]+)/?|', \explode('?', $endpointData['endpointUri'])[0], $matches);
+
+        if (isset($matches[1])) {
+            $matchesCount = count($matches[1]);
+
+            for ($i = 0; $i < $matchesCount; $i++) {
+                $hasOpeningBracket = \strpos($matches[1][$i], '{') !== false;
+                $hasClosingBracket = \strpos($matches[1][$i], '}') !== false;
+
+                if ($hasOpeningBracket && $hasClosingBracket) {
+                    $paramName = \str_replace(['{', '}'], '', $matches[1][$i]);
+                    $paramValue = $this->pathArray[$i];
+                    $this->requestParamsPath[$paramName] = $this->parseValue($paramValue);
+                }
+            }
+        }
+    }
+
+    /**
+     * Set request query params
+     *
+     * @param array $endpointData
+     * @codeCoverageIgnore
+     */
+    public function setRequestQueryParams(array $endpointData): void
+    {
+        $uriExploded = \explode('?', $endpointData['endpointUri']);
+
+        if (isset($uriExploded[1])) {
+            \preg_match_all('|([^=]+)=|', $uriExploded[1], $matches);
+
+            if (isset($matches[1])) {
+                foreach ($matches[1] as $match) {
+                    $paramName = $match;
+                    $paramValue = \filter_input(\INPUT_GET, $paramName, \FILTER_DEFAULT);
+                    $this->requestParamsQuery[$paramName] = $this->parseValue($paramValue);
+                }
+            }
+        }
     }
 
     /**
@@ -215,25 +242,8 @@ class Request
     }
 
     /**
-     * Sets request query params
-     *
-     * @codeCoverageIgnore
-     */
-    private function setQueryParams(): void
-    {
-        foreach ($_GET as $paramName => $paramValue) {
-            if ($paramName !== 'body') {
-                $paramValue = filter_input(\INPUT_GET, $paramName, \FILTER_DEFAULT);
-
-                $this->requestParamsQuery[$paramName] = $paramValue;
-            }
-        }
-    }
-
-    /**
      * Sets request body
      *
-     * @throws ResponseException
      * @codeCoverageIgnore
      */
     private function setRequestBody(): void
@@ -241,23 +251,44 @@ class Request
         switch ($this->requestMethod) {
             case 'GET':
                 if (filter_has_var(\INPUT_GET, 'body')) {
-                    $this->requestBody = filter_input(\INPUT_GET, 'body', \FILTER_DEFAULT);
+                    $requestBody = filter_input(\INPUT_GET, 'body', \FILTER_DEFAULT);
+                    $this->requestBody = $this->parseValue($requestBody);
                 }
                 break;
             default:
                 $phpInput = \file_get_contents('php://input');
                 if ($phpInput !== false && $phpInput !== '') {
-                    $this->requestBody = $phpInput;
+                    $this->requestBody = $this->parseValue($phpInput);
                 }
                 break;
         }
+    }
 
-        if ($this->requestBody !== null && preg_match('/^\[|{/', $this->requestBody)) {
-            try {
-                $this->requestBody = $this->base->decode((string)$this->requestBody);
-            } catch (\Exception $e) {
-                throw new ResponseException(400, null, ['message' => 'Request body parse error']);
-            }
+    /**
+     * Parses value
+     *
+     * @param $paramValue
+     * @return array|bool|float|int|null|\stdClass|string
+     * @codeCoverageIgnore
+     */
+    private function parseValue($paramValue)
+    {
+        if (is_null($paramValue) || $paramValue === '' || $paramValue === 'null') {
+            return null;
         }
+        if (preg_match('/^\d+$/', $paramValue)) {
+            return (int)$paramValue;
+        }
+        if (preg_match('/^\d+(\.\d+)?$/', $paramValue)) {
+            return (float)$paramValue;
+        }
+        if (preg_match('/^(false|true)?$/i', $paramValue)) {
+            return (bool)$paramValue;
+        }
+        if (preg_match('/^\[|{/', $paramValue) && preg_match('/\]|}$/', $paramValue)) {
+            return $this->base->decode($paramValue);
+        }
+
+        return (string)$paramValue;
     }
 }

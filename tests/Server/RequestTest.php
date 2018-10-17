@@ -45,11 +45,6 @@ class RequestTest extends TestCase
         $this->assertEquals($this->request->getDefaultAuthProvider(), $authProvider);
     }
 
-    public function testGetPathArray()
-    {
-        $this->assertEquals($this->request->getPathArray(), []);
-    }
-
     public function testGetRequestMethod()
     {
         $this->assertEquals($this->request->getRequestHttpMethod(), 'get');
@@ -65,13 +60,12 @@ class RequestTest extends TestCase
         $this->assertEquals($this->request->getRequestControllerName(), '');
     }
 
-    public function testSetGetRequestUrlParams()
+    public function testGetRequestPathParams()
     {
-        $this->request->setPathParam('a', 1);
-        $this->assertEquals($this->request->getRequestPathParams(), ['a' => 1]);
+        $this->assertEquals($this->request->getRequestPathParams(), []);
     }
 
-    public function testGetRequestGetParams()
+    public function testGetRequestQueryParams()
     {
         $this->assertEquals($this->request->getRequestQueryParams(), []);
     }

@@ -101,7 +101,7 @@ class Browser
     {
         $ret = '';
         try {
-            $controllerMap = $this->base->decode($this->base->fileRead($controllerMapFile));
+            $controllerMap = $this->base->decodeAsArray($this->base->fileRead($controllerMapFile));
             $controllerUris = array_column($controllerMap, 'endpointUri');
 
             array_multisort($controllerUris, SORT_ASC, SORT_STRING, $controllerMap, SORT_ASC);
