@@ -41,12 +41,8 @@ class Api extends AbstractController
      */
     protected function rebuildEndpointsMap(): Response
     {
-        try {
-            $mapBuilder = new MapBuilder();
-            $result = $mapBuilder->build();
-        } catch (ResponseException $e) {
-            throw $e;
-        }
+        $mapBuilder = new MapBuilder();
+        $result = $mapBuilder->build();
 
         return new Response(200, $result);
     }

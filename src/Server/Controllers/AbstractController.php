@@ -53,6 +53,7 @@ class AbstractController
      */
     public function getResponse(): Response
     {
+        $requestUri = $this->request->getRequestUri();
         $endpointMap = $this->getControllerMap();
         $endpointAuthProvider = 'none';
         $endpointInput = [];
@@ -60,7 +61,7 @@ class AbstractController
 
         foreach ($endpointMap as $endpointData) {
             $httpMethodMatched = ($endpointData['endpointHttpMethod'] === $this->request->getRequestHttpMethod());
-            $uriMatched = \preg_match($endpointData['endpointUriPattern'], $this->request->getRequestUri());
+            $uriMatched = \preg_match($endpointData['endpointUriPattern'], $requestUri);
 
             if ($httpMethodMatched && $uriMatched) {
                 $endpointAuthProvider = $endpointData['endpointAuthProvider'];
@@ -75,18 +76,30 @@ class AbstractController
         // Handle authorization
         $isAuthorized = $this->isAuthorized($endpointAuthProvider);
         if ($isAuthorized === false) {
-            throw new ResponseException(401, null, ['message' => 'User authorization required']);
+            throw new ResponseException(
+                401,
+                null,
+                ['message' => 'User authorization required']
+            );
         }
 
         // Validate input
         $inputErrors = $this->validateInput($endpointInput);
         if (count($inputErrors) > 0) {
-            throw new ResponseException(400, null, $inputErrors);
+            throw new ResponseException(
+                400,
+                null,
+                $inputErrors
+            );
         }
 
         // Invoke endpoint method
         if ($endpointMethodName === null) {
-            throw new ResponseException(404, null, ['message' => $this->request->getRequestUri()]);
+            throw new ResponseException(
+                404,
+                null,
+                ['message' => \sprintf('No method matching uri: %s', $requestUri)]
+            );
         }
 
         return call_user_func([$this, $endpointMethodName]);
@@ -98,29 +111,26 @@ class AbstractController
      */
     private function getControllerMap(): array
     {
+        $requestUri = $this->request->getRequestUri();
         $mapFilePath = $this->base->getMapFilePath();
         // Load method map file for current controller
         if (!$this->base->fileExists($mapFilePath)) {
             throw new ResponseException(
                 500,
                 null,
-                [
-                    'message' => \sprintf(
-                        'Method map file is missing for route: %s',
-                        $this->request->getRequestUri()
-                    )
-                ]
+                ['message' => \sprintf('Method map file is missing for route: %s', $requestUri)]
             );
         }
-        try {
-            return $this->base->decodeAsArray($this->base->fileRead($mapFilePath));
-        } catch (\Exception $e) {
+
+        $map = $this->base->decodeAsArray($this->base->fileRead($mapFilePath));
+        if ($map === false) {
             throw new ResponseException(
                 500,
                 null,
                 ['message' => 'Method map file decoding error']
             );
         }
+        return $map;
     }
 
     /**
@@ -166,12 +176,7 @@ class AbstractController
             throw new ResponseException(
                 500,
                 null,
-                [
-                    'message' => \sprintf(
-                        '%s has to be an instance of AbstractAuthProvider',
-                        $authProvider
-                    )
-                ]
+                ['message' => \sprintf('%s has to be an instance of AbstractAuthProvider', $authProvider)]
             );
         }
         return $authProviderClass->isAuthorized();

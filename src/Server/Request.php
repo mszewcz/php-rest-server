@@ -12,7 +12,6 @@ namespace MS\RestServer\Server;
 
 use MS\RestServer\Base;
 use MS\RestServer\Server\Auth\AbstractAuthProvider;
-use MS\RestServer\Server\Exceptions\ResponseException;
 
 
 class Request
@@ -60,8 +59,6 @@ class Request
 
     /**
      * Request constructor.
-     *
-     * @throws ResponseException
      */
     public function __construct()
     {

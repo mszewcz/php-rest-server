@@ -114,14 +114,9 @@ class Server
     {
         $this->base = Base::getInstance();
         $this->headers = new Headers($this->defaultHeaders);
-
-        try {
-            $this->request = new Request();
-            $this->requestMethod = $this->request->getRequestHttpMethod();
-            $this->requestUri = $this->request->getRequestUri();
-        } catch (ResponseException $e) {
-            $this->getResponseException($e);
-        }
+        $this->request = new Request();
+        $this->requestMethod = $this->request->getRequestHttpMethod();
+        $this->requestUri = $this->request->getRequestUri();
     }
 
     /**
@@ -142,6 +137,9 @@ class Server
         if ($this->requestMethod === 'OPTIONS') {
             $this->sendHeaders();
             return null;
+        }
+        if ($this->requestUri === '/') {
+            return '';
         }
         if (preg_match('|^'.$this->base->getApiBrowserUri().'/?$|i', $this->requestUri)) {
             $browser = new Browser();
@@ -195,13 +193,17 @@ class Server
         $definitionsDir = $this->base->getDefinitionsDir();
 
         foreach ($controllers as $controller) {
-            if (stripos($this->requestUri, $controller->uri) === 0) {
+            if (preg_match('/^\\'.$controller->uri.'(\/|$)/i', $this->requestUri)) {
                 $controllerClass = (string)$controller->class;
                 $mapFile = $this->base->getSafeFileName($controller->uri);
                 $mapFilePath = \sprintf('%s%s.json', $definitionsDir, $mapFile);
 
                 if (!class_exists($controllerClass)) {
-                    throw new ResponseException(500, null, ['message' => 'Controller class not found']);
+                    throw new ResponseException(
+                        500,
+                        null,
+                        ['message' => 'Controller class not found']
+                    );
                 }
                 if (!$this->base->fileExists($mapFilePath)) {
                     $mapBuilder = new MapBuilder();
@@ -215,7 +217,7 @@ class Server
         throw new ResponseException(
             404,
             null,
-            ['message' => \sprintf('No controller matching uri: \'/%s\'', $this->requestUri)]
+            ['message' => \sprintf('No controller matching uri: \'%s\'', $this->requestUri)]
         );
     }
 
@@ -236,12 +238,7 @@ class Server
         $this->headers->addHeaders(['name' => $code, 'value' => sprintf('HTTP/1.1 %s %s', $code, $status)]);
 
         if (is_array($body) || is_object($body)) {
-            try {
-                $body = $this->base->encode($body);
-            } catch (\Exception $e) {
-                $this->headers->addHeaders(['name' => 500, 'value' => 'HTTP/1.1 500 Internal Server Error']);
-                $body = '{"message" => "Error while encoding response"}';
-            }
+            $body = $this->base->encode($body);
         }
 
         return $body;
@@ -268,13 +265,7 @@ class Server
         if (\count($errors) > 0) {
             $body['errors'] = $errors;
         }
-        try {
-            $body = $this->base->encode($body);
-        } catch (\Exception $exception) {
-            $this->headers->addHeaders(['name' => 500, 'value' => 'HTTP/1.1 500 Internal Server Error']);
-            $body = '{"message" => "Error while encoding response exception"}';
-        }
 
-        return $body;
+        return $this->base->encode($body);
     }
 }
