@@ -173,7 +173,7 @@ class InputPathValidator
     private function validateModelType(array $paramData): array
     {
         $paramName = $paramData['paramName'];
-        $paramValue = $this->pathParams[$paramName];;
+        $paramValue = $this->pathParams[$paramName];
         $modelClass = $paramData['paramType'];
         $modelName = explode('\\', $modelClass);
         $modelName = array_pop($modelName);
