@@ -10,10 +10,15 @@ declare(strict_types=1);
 
 namespace MS\RestServer;
 
+use MS\LightFramework\Base;
+use MS\LightFramework\Config\AbstractConfig;
+use MS\LightFramework\Config\Factory;
+use MS\LightFramework\Filesystem\File;
+use MS\LightFramework\Filesystem\FileName;
 use MS\RestServer\Server\Auth\AbstractAuthProvider;
 use MS\RestServer\Server\Controllers\AbstractController;
+use MS\RestServer\Server\MapBuilder;
 use MS\RestServer\Server\Request;
-use MS\RestServer\Server\Response;
 use MS\RestServer\Server\Exceptions\ResponseException;
 use MS\RestServer\Shared\Headers;
 use MS\Json\Utils\Utils;
@@ -24,17 +29,45 @@ use MS\Json\Utils\Utils;
 class Server
 {
     /**
-     * @var Utils
+     * @var Base
      */
-    private $utils = null;
+    private $base;
     /**
-     * @var array
+     * @var AbstractConfig
      */
-    private $request = [];
+    private $config;
     /**
      * @var Headers
      */
     private $headers;
+    /**
+     * @var Request
+     */
+    private $request;
+    /**
+     * @var Utils
+     */
+    private $utils;
+    /**
+     * @var string
+     */
+    private $requestMethod = 'GET';
+    /**
+     * @var string
+     */
+    private $requestUri = '/';
+    /**
+     * @var string
+     */
+    private $apiBrowserUri = '/api-browser';
+    /**
+     * @var string
+     */
+    private $definitionsDir = '%DOCUMENT_ROOT%/definitions/';
+    /**
+     * @var array
+     */
+    private $controllers = [];
     /**
      * @var array
      */
@@ -42,10 +75,6 @@ class Server
         ['name' => 'Content-Type', 'value' => 'application/json; charset=utf-8'],
         ['name' => 'Access-Control-Allow-Origin', 'value' => '*'],
     ];
-    /**
-     * @var array
-     */
-    private $controllers = [];
     /**
      * @var array
      */
@@ -109,27 +138,21 @@ class Server
      */
     public function __construct()
     {
-        $this->utils = new Utils();
+        $this->base = Base::getInstance();
+        $this->config = Factory::read($_ENV['CONFIG_FILE_SERVER']);
         $this->headers = new Headers($this->defaultHeaders);
+        $this->utils = new Utils();
+
+        $this->apiBrowserUri = $this->config->apiBrowserUri;
+        $this->controllers = $this->config->controllers;
+        $this->definitionsDir = $this->base->parsePath($this->config->definitionsDirectory);
 
         try {
             $this->request = new Request();
+            $this->requestMethod = $this->request->getRequestHttpMethod();
+            $this->requestUri = $this->request->getRequestUri();
         } catch (ResponseException $e) {
-            $this->printResponseException($e);
-        }
-    }
-
-    /**
-     * Adds server controller
-     *
-     * @param string $controllerName
-     * @param string $controllerClass
-     */
-    public function addController(string $controllerName = null, string $controllerClass = null): void
-    {
-        if ($controllerName !== null && $controllerClass !== null) {
-            $this->controllers[$controllerName] = $controllerClass;
-            $this->request->setControllersMap($this->controllers);
+            $this->getResponseException($e);
         }
     }
 
@@ -145,21 +168,28 @@ class Server
 
     /**
      * Handles request
+     *
+     * @return null|string
      */
-    public function handleRequest(): void
+    public function getResponse(): ?string
     {
-        $requestHttpMethod = $this->request->getRequestHttpMethod();
-
-        if ($requestHttpMethod === 'OPTIONS') {
+        if ($this->requestMethod === 'OPTIONS') {
             $this->sendHeaders();
-            return;
+            return null;
+        }
+        if (preg_match('|^'.$this->apiBrowserUri.'/?$|i', $this->requestUri)) {
+            $browser = new Browser();
+            return $browser->display();
         }
 
         try {
-            echo $this->printResponseBody($this->getResponse());
+            $response = $this->getResponseBody();
         } catch (ResponseException $e) {
-            echo $this->printResponseException($e);
+            $response =$this->getResponseException($e);
         }
+
+        $this->sendHeaders();
+        return $response;
     }
 
     /**
@@ -178,57 +208,60 @@ class Server
     }
 
     /**
-     * Returns server response
-     *
-     * @return Response
-     * @throws ResponseException
-     */
-    private function getResponse(): Response
-    {
-        $controllerName = $this->request->getRequestControllerName();
-
-        if (!array_key_exists($controllerName, $this->controllers)) {
-            throw new ResponseException(404, null, ['message' => sprintf('No controller for \'/%s\' has been registered', $controllerName)]);
-        }
-        if (!class_exists($this->controllers[$controllerName])) {
-            throw new ResponseException(500, null, ['message' => 'Controller class not found']);
-        }
-
-        /**
-         * @var AbstractController $controller
-         */
-        $controller = new $this->controllers[$controllerName]($this->request);
-        return $controller->getResponse();
-    }
-
-    /**
      * Returns response status
      *
      * @param int $code
      * @return string
      */
-    public function getStatus(int $code = 0): string
+    private function getStatus(int $code = 0): string
     {
         return isset($this->statuses[$code]) ? $this->statuses[$code] : '';
+    }
+
+
+    /**
+     * @return AbstractController
+     * @throws ResponseException
+     */
+    private function getController(): AbstractController
+    {
+        foreach ($this->controllers as $controller) {
+            if (stripos($this->requestUri, $controller->uri) === 0) {
+                $controllerClass = (string)$controller->class;
+                $mapFile = FileName::getSafe($controller->uri);
+                $mapFilePath = \sprintf('%s%s.json', $this->definitionsDir, $mapFile);
+
+                if (!class_exists($controllerClass)) {
+                    throw new ResponseException(500, null, ['message' => 'Controller class not found']);
+                }
+                if (!File::exists($mapFilePath)) {
+                    $mapBuilder = new MapBuilder();
+                    $mapBuilder->build();
+                }
+                $this->request->setMapFilePath($mapFilePath);
+
+                return new $controllerClass($this->request);
+            }
+        }
+        throw new ResponseException(404, null, ['message' => \sprintf('No controller matching uri: \'/%s\'', $this->requestUri)]);
     }
 
     /**
      * Prints response body
      *
-     * @param Response $response
-     * @return string
+     * @throws ResponseException
      */
-    private function printResponseBody(Response $response): string
+    private function getResponseBody()
     {
+        $controller = $this->getController();
+        $response = $controller->getResponse();
+
         $code = $response->getCode();
         $status = $this->getStatus($code);
         $body = $response->getBody();
 
         $this->headers->addHeaders(['name' => $code, 'value' => sprintf('HTTP/1.1 %s %s', $code, $status)]);
 
-        if (!is_array($body) && !is_object($body)) {
-            $body = (string)$body;
-        }
         if (is_array($body) || is_object($body)) {
             try {
                 $body = $this->utils->encode($body);
@@ -238,7 +271,6 @@ class Server
             }
         }
 
-        $this->sendHeaders();
         return $body;
     }
 
@@ -248,7 +280,7 @@ class Server
      * @param ResponseException $exception
      * @return string
      */
-    private function printResponseException(ResponseException $exception): string
+    private function getResponseException(ResponseException $exception): string
     {
         $code = $exception->getCode();
         $status = $this->getStatus($code);
@@ -270,7 +302,6 @@ class Server
             $body = '{"message" => "Error while encoding response exception"}';
         }
 
-        $this->sendHeaders();
         return $body;
     }
 }

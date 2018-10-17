@@ -18,7 +18,7 @@ use MS\RestServer\Server\Response;
 /**
  * @codeCoverageIgnore
  */
-class Server extends AbstractController
+class Api extends AbstractController
 {
     /**
      * Server constructor.
@@ -33,7 +33,7 @@ class Server extends AbstractController
     /**
      * @api:desc Re-builds server endpoints' map
      * @api:method get
-     * @api:uri /server/rebuildEndpointsMap
+     * @api:uri /api/rebuildEndpointsMap
      * @api:output MS\RestServer\Server\Models\ServerControllerModel[]
      *
      * @return Response
@@ -41,15 +41,9 @@ class Server extends AbstractController
      */
     protected function rebuildEndpointsMap(): Response
     {
-        $mapBuilder = new MapBuilder();
-        $controllersMap = $this->request->getControllersMap();
-
-        foreach ($controllersMap as $controllerName => $controllerClass) {
-            $mapBuilder->addController($controllerName, $controllerClass);
-        }
-
         try {
-            $result = $mapBuilder->buildMaps();
+            $mapBuilder = new MapBuilder();
+            $result = $mapBuilder->build();
         } catch (ResponseException $e) {
             throw $e;
         }

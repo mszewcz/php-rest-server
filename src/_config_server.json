@@ -1,0 +1,16 @@
+{
+    "apiBrowserUri": "/api-browser",
+    "definitionsDirectory": "%DOCUMENT_ROOT%/definitions/",
+    "controllers": [
+        {
+            "name": "Api",
+            "uri": "/api",
+            "class": "\\MS\\RestServer\\Server\\Controllers\\Api"
+        },
+        {
+            "name": "Test",
+            "uri": "/test",
+            "class": "\\MS\\RestServer\\Server\\Controllers\\Test"
+        }
+    ]
+}

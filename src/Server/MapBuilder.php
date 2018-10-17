@@ -12,7 +12,10 @@ namespace MS\RestServer\Server;
 
 use MS\Json\Utils\Utils;
 use MS\LightFramework\Base;
+use MS\LightFramework\Config\AbstractConfig;
+use MS\LightFramework\Config\Factory;
 use MS\LightFramework\Filesystem\File;
+use MS\LightFramework\Filesystem\FileName;
 use MS\RestServer\Server\Exceptions\MapBuilderException;
 use MS\RestServer\Server\Exceptions\ResponseException;
 
@@ -22,36 +25,35 @@ class MapBuilder
     /**
      * @var Base
      */
-    private $frameworkBase;
+    private $base;
+    /**
+     * @var AbstractConfig
+     */
+    private $config;
     /**
      * @var Utils
      */
     private $utils;
+    /**
+     * @var string
+     */
+    private $definitionsDir;
     /**
      * @var array
      */
     private $controllers = [];
 
     /**
-     * MapBuilder constructor.
+     * MapBuilder constructor
      */
     public function __construct()
     {
-        $this->frameworkBase = Base::getInstance();
+        $this->base = Base::getInstance();
+        $this->config = Factory::read($_ENV['CONFIG_FILE_SERVER']);
         $this->utils = new Utils();
-    }
 
-    /**
-     * Adds controller
-     *
-     * @param string|null $controllerName
-     * @param string|null $controllerClass
-     */
-    public function addController(string $controllerName = null, string $controllerClass = null): void
-    {
-        if ($controllerName !== null && $controllerClass !== null) {
-            $this->controllers[$controllerName] = $controllerClass;
-        }
+        $this->controllers = $this->config->controllers;
+        $this->definitionsDir = $this->base->parsePath($this->config->definitionsDirectory);
     }
 
     /**
@@ -60,11 +62,11 @@ class MapBuilder
      * @return array
      * @throws ResponseException
      */
-    public function buildMaps(): array
+    public function build(): array
     {
         $result = [];
-        foreach ($this->controllers as $controllerName => $controllerClass) {
-            $result[] = $this->buildControllerMap($controllerName, $controllerClass);
+        foreach ($this->controllers as $controller) {
+            $result[] = $this->buildControllerMap($controller);
         }
         return $result;
     }
@@ -72,16 +74,19 @@ class MapBuilder
     /**
      * Builds single controller's map
      *
-     * @param string $controllerName
-     * @param string $controllerClass
+     * @param AbstractConfig $controller
      * @return array
      * @throws ResponseException
      */
-    private function buildControllerMap(string $controllerName = '', string $controllerClass = ''): array
+    private function buildControllerMap(AbstractConfig $controller): array
     {
         $endpointMap = [];
 
         try {
+            $controllerClass = (string)$controller->class;
+            $mapFile = FileName::getSafe($controller->uri);
+            $mapFilePath = \sprintf('%s%s.json', $this->definitionsDir, $mapFile);
+
             $classReflection = new \ReflectionClass($controllerClass);
             $methods = $classReflection->getMethods(\ReflectionMethod::IS_PROTECTED);
 
@@ -139,7 +144,7 @@ class MapBuilder
             // @codeCoverageIgnoreEnd
         }
 
-        File::write(sprintf('%s/mapFiles/%s.json', $this->frameworkBase->parsePath('%DOCUMENT_ROOT%'), $controllerName), $endpointMapEncoded);
+        File::write($mapFilePath, $endpointMapEncoded);
         return $endpointMap;
     }
 

@@ -19,9 +19,9 @@ use MS\RestServer\Server\Exceptions\ResponseException;
 class Request
 {
     /**
-     * @var array
+     * @var string
      */
-    private $controllersMap = [];
+    private $mapFilePath = '';
     /**
      * @var string
      */
@@ -71,16 +71,6 @@ class Request
         $this->setRequestController();
         $this->setQueryParams();
         $this->setRequestBody();
-    }
-
-    /**
-     * Returns controller map
-     *
-     * @return array
-     */
-    public function getControllersMap(): array
-    {
-        return $this->controllersMap;
     }
 
     /**
@@ -162,13 +152,23 @@ class Request
     }
 
     /**
+     * Returns path to map file
+     *
+     * @return string
+     */
+    public function getMapFilePath(): string
+    {
+        return $this->mapFilePath;
+    }
+
+    /**
      * Sets controller map
      *
-     * @param array $controllersMap
+     * @param string $mapFilePath
      */
-    public function setControllersMap(array $controllersMap): void
+    public function setMapFilePath(string $mapFilePath): void
     {
-        $this->controllersMap = $controllersMap;
+        $this->mapFilePath = $mapFilePath;
     }
 
     /**

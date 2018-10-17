@@ -11,9 +11,7 @@ declare(strict_types=1);
 require_once \realpath(\dirname(__FILE__) . '/../../') . '/vendor/autoload.php';
 
 $_ENV['CONFIG_FILE_FRAMEWORK'] = \realpath(\dirname(__FILE__) . '/../../') . '/src/_config_framework.json';
+$_ENV['CONFIG_FILE_SERVER'] = \realpath(\dirname(__FILE__) . '/../../') . '/src/_config_server.json';
 
 $server = new \MS\RestServer\Server();
-$server->addController('server', '\\MS\\RestServer\\Server\\Controllers\\Server');
-$server->addController('test', '\\MS\\RestServer\\Server\\Controllers\\Test');
-$server->handleRequest();
-
+echo filter_var($server->getResponse(), FILTER_DEFAULT);

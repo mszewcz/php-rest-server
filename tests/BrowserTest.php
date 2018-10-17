@@ -11,6 +11,9 @@ declare(strict_types=1);
 use MS\RestServer\Browser;
 use PHPUnit\Framework\TestCase;
 
+$_ENV['CONFIG_FILE_SERVER'] = \realpath(\dirname(__FILE__) . '/../') . '/src/_config_server.json';
+
+
 class BrowserTest extends TestCase
 {
     public function setUp()
@@ -21,11 +24,9 @@ class BrowserTest extends TestCase
     {
     }
 
-    public function testAddController()
+    public function testDisplay()
     {
         $browser = new Browser();
-        $browser->addController('Server', '\\MS\\RestServer\\Server\\Controllers\\Server');
-        $browser->addController('Test', '\\MS\\RestServer\\Server\\Controllers\\Test');
         $result = $browser->display();
         $this->assertNotEmpty($result);
     }

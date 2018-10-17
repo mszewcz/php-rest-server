@@ -38,15 +38,6 @@ class RequestTest extends TestCase
     {
     }
 
-    public function testSetGetControllersMap()
-    {
-        $map = [
-            'system' => '\\MS\\RestServer\\Server\\Controllers\\Test'
-        ];
-        $this->request->setControllersMap($map);
-        $this->assertEquals($this->request->getControllersMap(), $map);
-    }
-
     public function testSetGetRequestAuthProvider()
     {
         $authProvider = new TestAuthProvider();
