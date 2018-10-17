@@ -71,7 +71,12 @@ class InputQueryValidator
     {
         $paramName = $paramData['paramName'];
         $paramType = $paramData['paramType'];
+        $paramRequired = $paramData['paramRequired'] === true;
         $paramValue = $this->queryParams[$paramName];
+
+        if ($paramRequired && is_null($paramValue)) {
+            return 'To pole jest wymagane';
+        }
 
         switch ($paramType) {
             case 'any':

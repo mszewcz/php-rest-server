@@ -74,166 +74,288 @@ class InputBodyValidator
      */
     private function validateType(string $variableType, $variableValue): array
     {
-        $errors = [];
-
         switch ($variableType) {
             case 'any':
-                if ($variableValue === 'null') {
-                    $errors['body'] = 'Wymagana zmienna';
-                }
-                break;
             case 'any[]':
-                if (!is_array($variableValue)) {
-                    $errors['body'] = 'Wymagana tablica zmiennych';
-                }
-                foreach ($variableValue as $index => $bodyItem) {
-                    if (!is_int($index)) {
-                        $errors['body'] = 'Wymagana tablica zmiennych';
-                    }
-                    if ($bodyItem === 'null') {
-                        $errors['body'][$index] = 'Wymagana zmienna';
-                    }
-                }
-                break;
+                return $this->validateAny($variableType, $variableValue);
             case 'int':
             case 'integer':
-                if (!is_numeric($variableValue) && !is_int($variableValue)) {
-                    $errors['body'] = 'Wymagana liczba całkowita';
-                }
-                break;
             case 'int[]':
             case 'integer[]':
-                if (!is_array($variableValue)) {
-                    $errors['body'] = 'Wymagana tablica liczb całkowitych';
-                }
-                foreach ($variableValue as $index => $bodyItem) {
-                    if (!is_int($index)) {
-                        $errors['body'] = 'Wymagana tablica liczb całkowitych';
-                    }
-                    if (!is_numeric($bodyItem) && !is_int($bodyItem)) {
-                        $errors['body'][$index] = 'Wymagana liczba całkowita';
-                    }
-                }
-                break;
+                return $this->validateInteger($variableType, $variableValue);
             case 'double':
-                if (!is_numeric($variableValue) && !is_double($variableValue)) {
-                    $errors['body'] = 'Wymagana liczba zmiennoprzecinkowa';
-                }
-                break;
             case 'double[]':
-                if (!is_array($variableValue)) {
-                    $errors['body'] = 'Wymagana tablica liczb zmiennoprzecinkowych';
-                }
-                foreach ($variableValue as $index => $bodyItem) {
-                    if (!is_int($index)) {
-                        $errors['body'] = 'Wymagana tablica liczb zmiennoprzecinkowych';
-                    }
-                    if (!is_numeric($bodyItem) && !is_double($bodyItem)) {
-                        $errors['body'][$index] = 'Wymagana liczba zmiennoprzecinkowa';
-                    }
-                }
-                break;
+                return $this->validateDouble($variableType, $variableValue);
             case 'float':
-                if (!is_numeric($variableValue) && !is_float($variableValue)) {
-                    $errors['body'] = 'Wymagana liczba zmiennoprzecinkowa';
-                }
-                break;
             case 'float[]':
-                if (!is_array($variableValue)) {
-                    $errors['body'] = 'Wymagana tablica liczb zmiennoprzecinkowych';
-                }
-                foreach ($variableValue as $index => $bodyItem) {
-                    if (!is_int($index)) {
-                        $errors['body'] = 'Wymagana tablica liczb zmiennoprzecinkowych';
-                    }
-                    if (!is_numeric($bodyItem) && !is_float($bodyItem)) {
-                        $errors['body'][$index] = 'Wymagana liczba zmiennoprzecinkowa';
-                    }
-                }
-                break;
+                return $this->validateFloat($variableType, $variableValue);
             case 'bool':
             case 'boolean':
-                if (!is_bool($variableValue)) {
-                    $errors['body'] = 'Wymagana zmienna logiczna';
-                }
-                break;
             case 'bool[]':
             case 'boolean[]':
-                if (!is_array($variableValue)) {
-                    $errors['body'] = 'Wymagana tablica zmiennych logicznych';
-                }
-                foreach ($variableValue as $index => $bodyItem) {
-                    if (!is_int($index)) {
-                        $errors['body'] = 'Wymagana tablica zmiennych logicznych';
-                    }
-                    if (!is_bool($bodyItem)) {
-                        $errors['body'][$index] = 'Wymagana zmienna logiczna';
-                    }
-                }
-                break;
+                return $this->validateBoolean($variableType, $variableValue);
             case 'string':
-                if (!is_string($variableValue)) {
-                    $errors['body'] = 'Wymagany ciąg znaków';
-                }
-                break;
             case 'string[]':
-                if (!is_array($variableValue)) {
-                    $errors['body'] = 'Wymagana tablica ciągów znaków';
-                }
-                foreach ($variableValue as $index => $bodyItem) {
-                    if (!is_int($index)) {
-                        $errors['body'] = 'Wymagana tablica ciągów znaków';
-                    }
-                    if (!is_string($bodyItem) || is_numeric($bodyItem)) {
-                        $errors['body'][$index] = 'Wymagany ciąg znaków';
-                    }
-                }
-                break;
+                return $this->validateString($variableType, $variableValue);
             case 'array':
-                if (!is_array($variableValue)) {
-                    $errors['body'] = 'Wymagana tablica';
-                }
-                foreach ($variableValue as $index => $bodyItem) {
-                    if (!is_int($index)) {
-                        $errors['body'] = 'Wymagana tablica';
-                    }
-                }
-                break;
+            case 'array[]':
+                return $this->validateArray($variableType, $variableValue);
             default:
-                if (stripos($variableType, '[]') !== false) {
-                    if (!is_array($variableValue)) {
-                        $errors['body'] = \sprintf('Wymagana tablica %s', $variableType);
-                    }
-                    $modelName = str_replace('[]', '', $variableType);
-                    foreach ($variableValue as $index => $bodyItem) {
-                        if (!is_int($index)) {
-                            $errors['body'] = \sprintf('Wymagana tablica %s', $variableType);
-                        }
-                        if (is_int($index)) {
-                            /**
-                             * @var $tmpModel AbstractModel
-                             */
-                            $tmpModel = new $modelName($bodyItem);
-                            $validationErrors = $tmpModel->validate();
-                            foreach ($validationErrors as $propName => $propError) {
-                                $errors['body'][$index][$propName] = $propError;
-                            }
-                        }
-                    }
+                return $this->validateModel($variableType, $variableValue);
+        }
+    }
+
+    /**
+     * @param $paramValue
+     * @param string $paramType
+     * @return array
+     */
+    private function validateAny(string $paramType, $paramValue): array
+    {
+        $errors = [];
+
+        if (stripos($paramType, '[]') !== false) {
+            if (!$this->isValidArray($paramValue)) {
+                $errors['body'] = 'Wymagana tablica zmiennych';
+                return $errors;
+            }
+            foreach ($paramValue as $index => $value) {
+                if ($value === 'null') {
+                    $errors['body'][$index] = 'Wymagana zmienna';
                 }
-                if (stripos($variableType, '[]') === false) {
-                    /**
-                     * @var $tmpModel AbstractModel
-                     */
-                    $tmpModel = new $variableType($variableValue);
-                    $validationErrors = $tmpModel->validate();
-                    foreach ($validationErrors as $propName => $propError) {
-                        $errors['body'][$propName] = $propError;
-                    }
-                }
-                break;
+            }
+            return $errors;
         }
 
+        if ($paramValue === 'null') {
+            $errors['body'] = 'Wymagana zmienna';
+        }
         return $errors;
+    }
+
+    /**
+     * @param $paramValue
+     * @param string $paramType
+     * @return array
+     */
+    private function validateInteger(string $paramType, $paramValue): array
+    {
+        $errors = [];
+
+        if (stripos($paramType, '[]') !== false) {
+            if (!$this->isValidArray($paramValue)) {
+                $errors['body'] = 'Wymagana tablica liczb całkowitych';
+                return $errors;
+            }
+            foreach ($paramValue as $index => $value) {
+                if (!is_numeric($value) && !is_int($value)) {
+                    $errors['body'][$index] = 'Wymagana liczba całkowita';
+                }
+            }
+            return $errors;
+        }
+
+        if (!is_numeric($paramValue) && !is_int($paramValue)) {
+            $errors['body'] = 'Wymagana liczba całkowita';
+        }
+        return $errors;
+    }
+
+    /**
+     * @param $paramValue
+     * @param string $paramType
+     * @return array
+     */
+    private function validateDouble(string $paramType, $paramValue): array
+    {
+        $errors = [];
+
+        if (stripos($paramType, '[]') !== false) {
+            if (!$this->isValidArray($paramValue)) {
+                $errors['body'] = 'Wymagana tablica liczb zmiennoprzecinkowych';
+                return $errors;
+            }
+            foreach ($paramValue as $index => $value) {
+                if (!is_numeric($value) && !is_double($value)) {
+                    $errors['body'][$index] = 'Wymagana liczba zmiennoprzecinkowa';
+                }
+            }
+            return $errors;
+        }
+
+        if (!is_numeric($paramValue) && !is_double($paramValue)) {
+            $errors['body'] = 'Wymagana liczba zmiennoprzecinkowa';
+        }
+        return $errors;
+    }
+
+    /**
+     * @param $paramValue
+     * @param string $paramType
+     * @return array
+     */
+    private function validateFloat(string $paramType, $paramValue): array
+    {
+        $errors = [];
+
+        if (stripos($paramType, '[]') !== false) {
+            if (!$this->isValidArray($paramValue)) {
+                $errors['body'] = 'Wymagana tablica liczb zmiennoprzecinkowych';
+                return $errors;
+            }
+            foreach ($paramValue as $index => $value) {
+                if (!is_numeric($value) && !is_float($value)) {
+                    $errors['body'][$index] = 'Wymagana liczba zmiennoprzecinkowa';
+                }
+            }
+            return $errors;
+        }
+
+        if (!is_numeric($paramValue) && !is_float($paramValue)) {
+            $errors['body'] = 'Wymagana liczba zmiennoprzecinkowa';
+        }
+        return $errors;
+    }
+
+    /**
+     * @param $paramValue
+     * @param string $paramType
+     * @return array
+     */
+    private function validateBoolean(string $paramType, $paramValue): array
+    {
+        $errors = [];
+
+        if (stripos($paramType, '[]') !== false) {
+            if (!$this->isValidArray($paramValue)) {
+                $errors['body'] = 'Wymagana tablica zmiennych logicznych';
+                return $errors;
+            }
+            foreach ($paramValue as $index => $value) {
+                if (!is_bool($value)) {
+                    $errors['body'][$index] = 'Wymagana zmienna logiczna';
+                }
+            }
+            return $errors;
+        }
+
+        if (!is_bool($paramValue)) {
+            $errors['body'] = 'Wymagana zmienna logiczna';
+        }
+        return $errors;
+    }
+
+    /**
+     * @param $paramValue
+     * @param string $paramType
+     * @return array
+     */
+    private function validateString(string $paramType, $paramValue): array
+    {
+        $errors = [];
+
+        if (stripos($paramType, '[]') !== false) {
+            if (!$this->isValidArray($paramValue)) {
+                $errors['body'] = 'Wymagana tablica ciągów znaków';
+                return $errors;
+            }
+            foreach ($paramValue as $index => $value) {
+                if (!is_string($value)) {
+                    $errors['body'][$index] = 'Wymagany ciąg znaków';
+                }
+            }
+            return $errors;
+        }
+
+        if (!is_string($paramValue)) {
+            $errors['body'] = 'Wymagany ciąg znaków';
+        }
+        return $errors;
+    }
+
+    /**
+     * @param $paramValue
+     * @param string $paramType
+     * @return array
+     */
+    private function validateArray(string $paramType, $paramValue): array
+    {
+        $errors = [];
+
+        if (stripos($paramType, '[]') !== false) {
+            if (!$this->isValidArray($paramValue)) {
+                $errors['body'] = 'Wymagana tablica tablic';
+                return $errors;
+            }
+            foreach ($paramValue as $index => $value) {
+                if (!$this->isValidArray($value)) {
+                    $errors['body'][$index] = 'Wymagana tablica';
+                }
+            }
+            return $errors;
+        }
+
+        if (!$this->isValidArray($paramValue)) {
+            $errors['body'] = 'Wymagana tablica';
+        }
+        return $errors;
+    }
+
+    /**
+     * @param $paramValue
+     * @param string $paramType
+     * @return array
+     */
+    private function validateModel(string $paramType, $paramValue): array
+    {
+        $errors = [];
+
+        if (stripos($paramType, '[]') !== false) {
+            $modelName = str_replace('[]', '', $paramType);
+
+            if (!$this->isValidArray($paramValue)) {
+                $errors['body'] = \sprintf('Wymagana tablica %s', $modelName);
+                return $errors;
+            }
+            foreach ($paramValue as $index => $value) {
+                /**
+                 * @var $tmpModel AbstractModel
+                 */
+                $tmpModel = new $modelName($value);
+                $validationErrors = $tmpModel->validate();
+                foreach ($validationErrors as $propName => $propError) {
+                    $errors['body'][$index][$propName] = $propError;
+                }
+            }
+            return $errors;
+        }
+
+        /**
+         * @var $tmpModel AbstractModel
+         */
+        $tmpModel = new $paramType($paramValue);
+        $validationErrors = $tmpModel->validate();
+        foreach ($validationErrors as $propName => $propError) {
+            $errors['body'][$propName] = $propError;
+        }
+        return $errors;
+    }
+
+    /**
+     * @param $paramValue
+     * @return bool
+     */
+    private function isValidArray($paramValue): bool
+    {
+        if (!is_array($paramValue)) {
+            return false;
+        }
+        $arrayKeys = \array_keys($paramValue);
+        foreach ($arrayKeys as $key) {
+            if (!is_int($key)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
