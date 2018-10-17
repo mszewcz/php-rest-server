@@ -13,8 +13,18 @@ namespace MS\RestServer\Server\Helpers;
 
 class DataTypeHelper
 {
-    private $simpleTypes = ['any', 'array', 'bool', 'boolean', 'double', 'float', 'int', 'integer', 'string'];
-    private $simpleArrayTypes = ['any[]', 'array[]', 'bool[]', 'boolean[]', 'double[]', 'float[]', 'int[]', 'integer[]', 'string[]'];
+    /**
+     * @var array
+     */
+    private $simpleTypes = [
+        'any', 'array', 'bool', 'boolean', 'double', 'float', 'int', 'integer', 'string'
+    ];
+    /**
+     * @var array
+     */
+    private $simpleArrayTypes = [
+        'any[]', 'array[]', 'bool[]', 'boolean[]', 'double[]', 'float[]', 'int[]', 'integer[]', 'string[]'
+    ];
 
     /**
      * DataTypeHelper constructor.
@@ -35,7 +45,25 @@ class DataTypeHelper
         if (in_array($type, $this->simpleArrayTypes)) {
             return sprintf('Array&lt;%s&gt;', str_replace('[]', '', $type));
         }
-        return stripos($type, '[]') !== false ? 'Array&lt;Model&gt;' : 'Model';
+
+        $type = $this->getModelName($type);
+
+        if ($this->isArrayType($type)) {
+            return \sprintf('Array&lt;%s&gt;', \str_replace('[]', '', $type));
+        }
+        return $type;
+    }
+
+    /**
+     * Returns simple model name
+     *
+     * @param string $type
+     * @return string
+     */
+    public function getSimpleModelName(string $type): string
+    {
+        $modelName = $this->getModelName($type);
+        return \str_replace('[]', '', $modelName);
     }
 
     /**
@@ -54,9 +82,19 @@ class DataTypeHelper
 
     /**
      * @param string $type
+     * @return string
+     */
+    private function getModelName(string $type): string
+    {
+        $typeExploded = explode('\\', $type);
+        return array_pop($typeExploded);
+    }
+
+    /**
+     * @param string $type
      * @return bool
      */
-    public function isArrayType(string $type): bool {
+    private function isArrayType(string $type): bool {
         return stripos($type, '[]') !== false;
     }
 }

@@ -11,27 +11,33 @@ declare(strict_types=1);
 namespace MS\RestServer\Browser;
 
 
+use MS\RestServer\Server\Helpers\DataTypeHelper;
+
 class ModelDescriber
 {
+    /**
+     * @var DataTypeHelper
+     */
+    private $dataTypeHelper;
     /**
      * ModelDescriber constructor.
      */
     public function __construct()
     {
+        $this->dataTypeHelper = new DataTypeHelper();
     }
 
     /**
      * Describes model
      *
      * @param string $modelType
-     * @param bool $showAsSimpleModel
      * @return array
      * @codeCoverageIgnore
      */
-    public function describe(string $modelType, bool $showAsSimpleModel = false): array
+    public function describeModel(string $modelType): array
     {
         $modelClass = \str_replace('[]', '', $modelType);
-        $modelName = $this->getModelName($modelType, $showAsSimpleModel);
+        $modelName = $this->dataTypeHelper->getDataType($modelType);
         $describedModels = [$modelName => []];
 
         try {
@@ -44,23 +50,13 @@ class ModelDescriber
 
                     if ($propertyDoc) {
                         $propertyName = $this->getPropertyName($classProperty, $propertyDoc);
-                        $propertyType = $this->getPropertyDataType($propertyDoc);
-                        $propertyDataType = $this->getPropertySimpleType($propertyType);
+                        $propertyClass = $this->getPropertyType($propertyDoc);
+                        $propertyType = $this->dataTypeHelper->getDataType($propertyClass);
                         $propertyOptional = $this->isPropertyOptional($propertyDoc);
+                        $isDataTypeModel = $this->dataTypeHelper->isModelType($propertyClass);
 
-                        $isDataTypeModel = $propertyDataType === 'Model';
-                        $isDataTypeArray = $propertyDataType === 'Array&lt;Model&gt;';
-
-                        if ($isDataTypeModel || $isDataTypeArray) {
-                            $propertyClass = $propertyType;
-                            $propertyClassEx = explode('\\', $propertyClass);
-
-                            $propertyType = array_pop($propertyClassEx);
-                            if ($isDataTypeArray) {
-                                $propertyType = \sprintf('Array&lt;%s&gt;', \str_replace('[]', '', $propertyType));
-                            }
-
-                            $subModel = $this->describe($propertyClass, true);
+                        if ($isDataTypeModel) {
+                            $subModel = $this->describeSubModel($propertyClass);
                             foreach ($subModel as $subModelName => $subModelProps) {
                                 $describedModels[$subModelName] = $subModelProps;
                             }
@@ -81,23 +77,52 @@ class ModelDescriber
     }
 
     /**
-     * Returns model name
+     * Describes model
      *
      * @param string $modelType
-     * @param bool $showAsSimpleModel
-     * @return string
+     * @return array
+     * @codeCoverageIgnore
      */
-    private function getModelName(string $modelType, bool $showAsSimpleModel): string
+    public function describeSubModel(string $modelType): array
     {
-        $modelTypeExploded = explode('\\', $modelType);
-        $modelName = array_pop($modelTypeExploded);
+        $modelClass = \str_replace('[]', '', $modelType);
+        $modelName = $this->dataTypeHelper->getSimpleModelName($modelType);
+        $describedModels = [$modelName => []];
 
-        if ($showAsSimpleModel) {
-            return \str_replace('[]', '', $modelName);
+        try {
+            $reflectionClass = new \ReflectionClass($modelClass);
+            $classProperties = $reflectionClass->getProperties();
+
+            foreach ($classProperties as $classProperty) {
+                if ($classProperty->isPublic()) {
+                    $propertyDoc = $classProperty->getDocComment();
+
+                    if ($propertyDoc) {
+                        $propertyName = $this->getPropertyName($classProperty, $propertyDoc);
+                        $propertyClass = $this->getPropertyType($propertyDoc);
+                        $propertyType = $this->dataTypeHelper->getDataType($propertyClass);
+                        $propertyOptional = $this->isPropertyOptional($propertyDoc);
+                        $isDataTypeModel = $this->dataTypeHelper->isModelType($propertyClass);
+
+                        if ($isDataTypeModel) {
+                            $subModel = $this->describeSubModel($propertyClass);
+                            foreach ($subModel as $subModelName => $subModelProps) {
+                                $describedModels[$subModelName] = $subModelProps;
+                            }
+                        }
+
+                        $describedModels[$modelName][] = [
+                            'propertyName'     => $propertyName,
+                            'propertyType'     => $propertyType,
+                            'propertyOptional' => $propertyOptional
+                        ];
+                    }
+                }
+            }
+        } catch (\Exception $e) {
         }
 
-        $isSimpleTypeArray = $this->getPropertySimpleType($modelType) === 'Array&lt;Model&gt;';
-        return $isSimpleTypeArray ? \sprintf('Array&lt;%s&gt;', \str_replace('[]', '', $modelName)) : $modelName;
+        return $describedModels;
     }
 
     /**
@@ -120,50 +145,11 @@ class ModelDescriber
      * @param string $propertyDoc
      * @return string
      */
-    private function getPropertyDataType(string $propertyDoc): string
+    private function getPropertyType(string $propertyDoc): string
     {
         \preg_match('/^[^\*]+\*[^@]+@api:type (.*?)[\r\n]?$/mi', $propertyDoc, $matches);
         return isset($matches[1]) ? $matches[1] : 'string';
     }
-
-    /**
-     * Returns property simple type
-     *
-     * @param string $propertyType
-     * @return string
-     * @codeCoverageIgnore
-     */
-    private function getPropertySimpleType(string $propertyType): string
-    {
-        switch ($propertyType) {
-            case 'int':
-            case 'integer':
-            case 'double':
-            case 'float':
-            case 'bool':
-            case 'boolean':
-            case 'string':
-            case 'array':
-            case 'any':
-                return $propertyType;
-                break;
-            case 'int[]':
-            case 'integer[]':
-            case 'double[]':
-            case 'float[]':
-            case 'bool[]':
-            case 'boolean[]':
-            case 'string[]':
-            case 'array[]':
-            case 'any[]':
-                return \sprintf('Array&lt;%s&gt;', \str_replace('[]', '', $propertyType));
-                break;
-            default:
-                return \stripos($propertyType, '[]') !== false ? 'Array&lt;Model&gt;' : 'Model';
-                break;
-        }
-    }
-
 
     /**
      * Returns whether property is optional

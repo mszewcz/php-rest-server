@@ -306,7 +306,7 @@ class Browser
     private function describeModel(string $paramType): string
     {
         $modelDescriber = new ModelDescriber();
-        $describedModels = $modelDescriber->describe($paramType);
+        $describedModels = $modelDescriber->describeModel($paramType);
         $ret = [];
 
         foreach ($describedModels as $describedModelName => $describedModelProps) {

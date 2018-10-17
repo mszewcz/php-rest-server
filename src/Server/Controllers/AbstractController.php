@@ -155,51 +155,49 @@ class AbstractController
      */
     private function isAuthorized(string $authProvider): bool
     {
-        switch ($authProvider) {
-            case 'false':
-            case 'no':
-            case 'none':
-                $isAuthorized = true;
-                break;
-            case 'true':
-            case 'yes':
-            case 'default':
-                $authProvider = $this->request->getDefaultAuthProvider();
-                if ($authProvider === null) {
-                    throw new ResponseException(
-                        500,
-                        null,
-                        ['message' => 'Default auth provider is not set']
-                    );
-                }
-                $isAuthorized = $authProvider->isAuthorized();
-                break;
-            default:
-                if (!class_exists($authProvider)) {
-                    throw new ResponseException(
-                        500,
-                        null,
-                        ['message' => \sprintf('%s class does not exist', $authProvider)]
-                    );
-                }
-                $authProviderClass = new $authProvider;
-                if (!($authProviderClass instanceof AbstractAuthProvider)) {
-                    throw new ResponseException(
-                        500,
-                        null,
-                        [
-                            'message' => \sprintf(
-                                '%s has to be an instance of AbstractAuthProvider',
-                                $authProvider
-                            )
-                        ]
-                    );
-                }
-                $isAuthorized = $authProviderClass->isAuthorized();
-                break;
+        $noAuthProvider = ['false', 'no', 'none'];
+        $defaultAuthProvider = ['true', 'yes', 'default'];
+
+        // No Auth Provider
+        if (in_array($authProvider, $noAuthProvider)) {
+            return true;
         }
 
-        return $isAuthorized;
+        // Default Auth Provider
+        if (in_array($authProvider, $defaultAuthProvider)) {
+            $authProvider = $this->request->getDefaultAuthProvider();
+            if ($authProvider === null) {
+                throw new ResponseException(
+                    500,
+                    null,
+                    ['message' => 'Default auth provider is not set']
+                );
+            }
+            return $authProvider->isAuthorized();
+        }
+
+        // Custom Auth Provider
+        if (!class_exists($authProvider)) {
+            throw new ResponseException(
+                500,
+                null,
+                ['message' => \sprintf('%s class does not exist', $authProvider)]
+            );
+        }
+        $authProviderClass = new $authProvider;
+        if (!($authProviderClass instanceof AbstractAuthProvider)) {
+            throw new ResponseException(
+                500,
+                null,
+                [
+                    'message' => \sprintf(
+                        '%s has to be an instance of AbstractAuthProvider',
+                        $authProvider
+                    )
+                ]
+            );
+        }
+        return $authProviderClass->isAuthorized();
     }
 
     /**
