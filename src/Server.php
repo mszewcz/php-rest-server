@@ -214,7 +214,11 @@ class Server
                 return new $controllerClass($this->request);
             }
         }
-        throw new ResponseException(404, null, ['message' => \sprintf('No controller matching uri: \'/%s\'', $this->requestUri)]);
+        throw new ResponseException(
+            404,
+            null,
+            ['message' => \sprintf('No controller matching uri: \'/%s\'', $this->requestUri)]
+        );
     }
 
     /**

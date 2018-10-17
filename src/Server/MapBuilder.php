@@ -82,16 +82,35 @@ class MapBuilder
 
                 // @codeCoverageIgnoreStart
                 if ($endpointHttpMethod === null) {
-                    $message = sprintf('[%s::%s()] @api:method not found or invalid', $controllerClass, $endpointMethodName);
+                    $message = \sprintf(
+                        '[%s::%s()] @api:method not found or invalid',
+                        $controllerClass,
+                        $endpointMethodName
+                    );
                     throw new MapBuilderException($message);
                 }
+
                 if ($endpointUri === null) {
-                    $message = sprintf('[%s::%s()] @api:uri not found or invalid', $controllerClass, $endpointMethodName);
+                    $message = \sprintf(
+                        '[%s::%s()] @api:uri not found or invalid',
+                        $controllerClass,
+                        $endpointMethodName
+                    );
                     throw new MapBuilderException($message);
                 }
+
                 foreach ($endpointMap as $existingEndpoint) {
-                    if ($existingEndpoint['endpointHttpMethod'] === $endpointHttpMethod && $existingEndpoint['endpointUri'] === $endpointUri) {
-                        $message = \sprintf('[%s::%s()] method for \'%s %s\' already assigned.', $controllerClass, $endpointMethodName, \strtoupper($endpointHttpMethod), $endpointUri);
+                    $httpMethodMatched = $existingEndpoint['endpointHttpMethod'] === $endpointHttpMethod;
+                    $uriMatched = $existingEndpoint['endpointUri'] === $endpointUri;
+
+                    if ($httpMethodMatched && $uriMatched) {
+                        $message = \sprintf(
+                            '[%s::%s()] method for \'%s %s\' already assigned.',
+                            $controllerClass,
+                            $endpointMethodName,
+                            \strtoupper($endpointHttpMethod),
+                            $endpointUri
+                        );
                         throw new MapBuilderException($message);
                     }
                 }
@@ -129,36 +148,36 @@ class MapBuilder
     /**
      * Returns endpoint description
      *
-     * @param string $docComment
+     * @param string $text
      * @return string
      */
-    private function getEndpointDescription(string $docComment): string
+    private function getEndpointDescription(string $text): string
     {
-        \preg_match('/^[^\*]+\*[^@]+@api:desc (.*?)[\r\n]?$/mi', $docComment, $matches);
+        \preg_match('/^[^\*]+\*[^@]+@api:desc (.*?)[\r\n]?$/mi', $text, $matches);
         return isset($matches[1]) ? $matches[1] : '';
     }
 
     /**
      * Returns endpoint http method
      *
-     * @param string $docComment
+     * @param string $text
      * @return null|string
      */
-    private function getEndpointHttpMethod(string $docComment): ?string
+    private function getEndpointHttpMethod(string $text): ?string
     {
-        \preg_match('/^[^\*]+\*[^@]+@api:method[^\/]+(get|post|put|delete)[\r\n]?$/mi', $docComment, $matches);
+        \preg_match('/^[^\*]+\*[^@]+@api:method[^\/]+(get|post|put|delete)[\r\n]?$/mi', $text, $matches);
         return isset($matches[1]) ? $matches[1] : null;
     }
 
     /**
      * Returns endpoint uri
      *
-     * @param string $docComment
+     * @param string $text
      * @return null|string
      */
-    private function getEndpointUri(string $docComment): ?string
+    private function getEndpointUri(string $text): ?string
     {
-        \preg_match('/^[^\*]+\*[^@]+@api:uri[^\/]+(.*?)[\r\n]?$/mi', $docComment, $matches);
+        \preg_match('/^[^\*]+\*[^@]+@api:uri[^\/]+(.*?)[\r\n]?$/mi', $text, $matches);
         return isset($matches[1]) ? $matches[1] : null;
     }
 
@@ -170,7 +189,7 @@ class MapBuilder
      */
     private function getEndpointUriPattern(?string $endpointUri): ?string
     {
-        $endpointUriPattern = \preg_replace('/\/({[^}]+})/', '/([^/]+)', \sprintf('%s', $endpointUri));
+        $endpointUriPattern = \preg_replace('/\/({[^}]+})/', '/([^/]+)', $endpointUri);
         $endpointUriPattern = \preg_replace('/=({[^}]+})/', '=([^&]+)', $endpointUriPattern);
         $endpointUriPattern = \str_replace('?', '\\?', $endpointUriPattern);
         return \sprintf('|^%s$|i', $endpointUriPattern);
@@ -179,18 +198,22 @@ class MapBuilder
     /**
      * Returns endpoint input
      *
-     * @param null|string $docComment
+     * @param null|string $text
      * @return array
      */
-    private function getEndpointInput(?string $docComment): array
+    private function getEndpointInput(?string $text): array
     {
         $endpointInput = [];
 
-        \preg_match_all('/^[^\*]+\*[^@]+@api:input:(path|query|body) (.*?)[\r\n]?$/mi', $docComment, $matches);
+        \preg_match_all('/^[^\*]+\*[^@]+@api:input:(path|query|body) (.*?)[\r\n]?$/mi', $text, $matches);
         if (\count($matches) > 0) {
             foreach ($matches[1] as $key => $value) {
                 $param = explode(':', $matches[2][$key]);
-                $endpointInput[$value][] = ['paramName' => $param[0], 'paramType' => $param[1], 'paramRequired' => $param[2] === 'required'];
+                $endpointInput[$value][] = [
+                    'paramName' => $param[0],
+                    'paramType' => $param[1],
+                    'paramRequired' => $param[2] === 'required'
+                ];
             }
         }
 
@@ -200,24 +223,24 @@ class MapBuilder
     /**
      * Returns endpoint output
      *
-     * @param null|string $docComment
+     * @param null|string $text
      * @return null|string
      */
-    private function getEndpointOutput(?string $docComment): ?string
+    private function getEndpointOutput(?string $text): ?string
     {
-        \preg_match('/^[^\*]+\*[^@]+@api:output (.*?)[\r\n]?$/mi', $docComment, $matches);
+        \preg_match('/^[^\*]+\*[^@]+@api:output (.*?)[\r\n]?$/mi', $text, $matches);
         return isset($matches[1]) ? $matches[1] : null;
     }
 
     /**
      * Returns endpoint auth provider
      *
-     * @param null|string $docComment
+     * @param null|string $text
      * @return null|string
      */
-    private function getEndpointAuthProvider(?string $docComment): ?string
+    private function getEndpointAuthProvider(?string $text): ?string
     {
-        \preg_match('/^[^\*]+\*[^@]+@api:auth (.*?)[\r\n]?$/mi', $docComment, $matches);
+        \preg_match('/^[^\*]+\*[^@]+@api:auth (.*?)[\r\n]?$/mi', $text, $matches);
         return isset($matches[1]) ? $matches[1] : 'none';
     }
 }

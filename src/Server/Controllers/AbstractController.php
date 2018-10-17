@@ -100,12 +100,25 @@ class AbstractController
         $mapFilePath = $this->base->getMapFilePath();
         // Load method map file for current controller
         if (!$this->base->fileExists($mapFilePath)) {
-            throw new ResponseException(500, sprintf('Method map file is missing for route: %s', $this->request->getRequestUri()));
+            throw new ResponseException(
+                500,
+                null,
+                [
+                    'message' => \sprintf(
+                        'Method map file is missing for route: %s',
+                        $this->request->getRequestUri()
+                    )
+                ]
+            );
         }
         try {
             return $this->base->decode($this->base->fileRead($mapFilePath));
         } catch (\Exception $e) {
-            throw new ResponseException(500, null, ['message' => 'Method map file decoding error']);
+            throw new ResponseException(
+                500,
+                null,
+                ['message' => 'Method map file decoding error']
+            );
         }
     }
 
@@ -122,9 +135,10 @@ class AbstractController
             $matchesCount = count($matches[1]);
 
             for ($i = 0; $i < $matchesCount; $i++) {
-                $isParam = strpos($matches[1][$i], '{') !== false && strpos($matches[1][$i], '}') !== false;
+                $hasOpeningBracket = strpos($matches[1][$i], '{') !== false;
+                $hasClosingBracket = strpos($matches[1][$i], '}') !== false;
 
-                if ($isParam) {
+                if ($hasOpeningBracket && $hasClosingBracket) {
                     $paramName = str_replace(['{', '}'], '', $matches[1][$i]);
                     $this->request->setPathParam($paramName, $this->request->getPathArray()[$i]);
                 }
@@ -152,17 +166,34 @@ class AbstractController
             case 'default':
                 $authProvider = $this->request->getDefaultAuthProvider();
                 if ($authProvider === null) {
-                    throw new ResponseException(500, null, ['message' => 'Default auth provider is not set']);
+                    throw new ResponseException(
+                        500,
+                        null,
+                        ['message' => 'Default auth provider is not set']
+                    );
                 }
                 $isAuthorized = $authProvider->isAuthorized();
                 break;
             default:
                 if (!class_exists($authProvider)) {
-                    throw new ResponseException(500, null, ['message' => sprintf('%s class does not exist', $authProvider)]);
+                    throw new ResponseException(
+                        500,
+                        null,
+                        ['message' => \sprintf('%s class does not exist', $authProvider)]
+                    );
                 }
                 $authProviderClass = new $authProvider;
                 if (!($authProviderClass instanceof AbstractAuthProvider)) {
-                    throw new ResponseException(500, null, ['message' => sprintf('%s has to be an instance of AbstractAuthProvider', $authProvider)]);
+                    throw new ResponseException(
+                        500,
+                        null,
+                        [
+                            'message' => \sprintf(
+                                '%s has to be an instance of AbstractAuthProvider',
+                                $authProvider
+                            )
+                        ]
+                    );
                 }
                 $isAuthorized = $authProviderClass->isAuthorized();
                 break;

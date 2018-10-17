@@ -12,6 +12,7 @@ namespace MS\RestServer;
 
 use MS\LightFramework\Html\Tags;
 use MS\RestServer\Browser\ModelDescriber;
+use MS\RestServer\Server\Helpers\DataTypeHelper;
 
 
 class Browser
@@ -20,6 +21,10 @@ class Browser
      * @var Base
      */
     private $base;
+    /**
+     * @var DataTypeHelper
+     */
+    private $dataTypeHelper;
 
     /**
      * Browser constructor.
@@ -27,6 +32,7 @@ class Browser
     public function __construct()
     {
         $this->base = Base::getInstance();
+        $this->dataTypeHelper = new DataTypeHelper();
     }
 
     /**
@@ -36,7 +42,10 @@ class Browser
     {
         $head = [
             Tags::title('API Browser'),
-            Tags::link('', ['type' => 'text/css', 'rel' => 'stylesheet', 'href' => '/assets/css/browser.css?t=' . time()]),
+            Tags::link(
+                '',
+                ['type' => 'text/css', 'rel' => 'stylesheet', 'href' => '/assets/css/browser.css?t=' . time()]
+            )
         ];
         $body = [
             Tags::header('API Browser'),
@@ -104,7 +113,7 @@ class Browser
                 }
 
                 $endpointHeading = [];
-                $endpointHeading[] = Tags::div(strtoupper($endpointData['endpointHttpMethod']), ['class' => 'http-method']);
+                $endpointHeading[] = Tags::div($endpointData['endpointHttpMethod'], ['class' => 'http-method']);
                 $endpointHeading[] = Tags::div($endpointData['endpointUri'] . $authIcon, ['class' => 'uri']);
 
                 $request = [];
@@ -125,7 +134,9 @@ class Browser
                 $endpoint = [];
                 $endpoint[] = Tags::div(implode(Tags::CRLF, $endpointHeading), ['class' => 'endpoint__heading']);
                 $endpoint[] = Tags::div(implode(Tags::CRLF, $endpointDetails), ['class' => 'endpoint__details']);
-                $ret .= Tags::div(implode(Tags::CRLF, $endpoint), ['class' => 'endpoint endpoint-' . $endpointData['endpointHttpMethod']]);
+                $ret .= Tags::div(
+                    implode(Tags::CRLF, $endpoint),
+                    ['class' => 'endpoint endpoint-' . $endpointData['endpointHttpMethod']]);
             }
         } catch (\Exception $e) {
         }
@@ -181,7 +192,7 @@ class Browser
             foreach ($endpointData['endpointInput']['path'] as $inputPath) {
                 $paramName = $inputPath['paramName'];
                 $paramType = 'path';
-                $paramDataType = $this->getParamDataType($inputPath['paramType']);
+                $paramDataType = $this->dataTypeHelper->getDataType($inputPath['paramType']);
                 $paramRequired = $inputPath['paramRequired'] === true ? 'Y' : 'N';
 
                 $row = [];
@@ -207,7 +218,7 @@ class Browser
             foreach ($endpointData['endpointInput']['query'] as $inputQuery) {
                 $paramName = $inputQuery['paramName'];
                 $paramType = 'query';
-                $paramDataType = $this->getParamDataType($inputQuery['paramType']);
+                $paramDataType = $this->dataTypeHelper->getDataType($inputQuery['paramType']);
                 $paramRequired = $inputQuery['paramRequired'] === true ? 'Y' : 'N';
 
                 $row = [];
@@ -233,8 +244,10 @@ class Browser
             foreach ($endpointData['endpointInput']['body'] as $inputBody) {
                 $paramName = $endpointData['endpointHttpMethod'] === 'get' ? 'body' : '-';
                 $paramType = $endpointData['endpointHttpMethod'] === 'get' ? 'query' : 'body';
-                $paramDataType = $this->getParamDataType($inputBody['paramType']);
-                $paramDataType = stripos($paramDataType, 'Model') !== false ? $this->describeModel($inputBody['paramType']) : $paramDataType;
+                $paramDataType = $this->dataTypeHelper->getDataType($inputBody['paramType']);
+                if ($this->dataTypeHelper->isModelType($inputBody['paramType'])) {
+                    $paramDataType = $this->describeModel($inputBody['paramType']);
+                }
                 $paramRequired = $inputBody['paramRequired'] === true ? 'Y' : 'N';
 
                 $row = [];
@@ -271,8 +284,10 @@ class Browser
             return Tags::div(implode(Tags::CRLF, $responseSpec), ['class' => 'table']);
         }
 
-        $paramDataType = $this->getParamDataType($endpointData['endpointOutput']);
-        $paramDataType = stripos($paramDataType, 'Model') !== false ? $this->describeModel($endpointData['endpointOutput']) : $paramDataType;
+        $paramDataType = $this->dataTypeHelper->getDataType($endpointData['endpointOutput']);
+        if ($this->dataTypeHelper->isModelType($endpointData['endpointOutput'])) {
+            $paramDataType = $this->describeModel($endpointData['endpointOutput']);
+        }
 
         $row = [];
         $row[] = Tags::div($paramDataType, ['class' => 'p-data-type']);
@@ -281,42 +296,6 @@ class Browser
         return Tags::div(implode(Tags::CRLF, $responseSpec), ['class' => 'table']);
     }
 
-    /**
-     * Returns param type
-     *
-     * @param string $paramType
-     * @return string
-     * @codeCoverageIgnore
-     */
-    private function getParamDataType(string $paramType): string
-    {
-        switch ($paramType) {
-            case 'int':
-            case 'integer':
-            case 'double':
-            case 'float':
-            case 'bool':
-            case 'boolean':
-            case 'string':
-            case 'array':
-            case 'any':
-                return $paramType;
-                break;
-            case 'int[]':
-            case 'integer[]':
-            case 'double[]':
-            case 'float[]':
-            case 'bool[]':
-            case 'boolean[]':
-            case 'string[]':
-            case 'any[]':
-                return sprintf('Array&lt;%s&gt;', str_replace('[]', '', $paramType));
-                break;
-            default:
-                return stripos($paramType, '[]') !== false ? 'Array&lt;Model&gt;' : 'Model';
-                break;
-        }
-    }
 
     /**
      * Describes data model
@@ -337,7 +316,9 @@ class Browser
                 $propName = Tags::b($describedModelProp['propertyName']);
                 $propType = $describedModelProp['propertyType'];
                 $propOpt = $describedModelProp['propertyOptional'] ? '?' : '';
-                $propDesc = $describedModelProp['propertyName'] !== '' ? \sprintf('%s%s: %s;', $propName, $propOpt, $propType) : \sprintf('%s;', $propType);
+                $propDesc = $describedModelProp['propertyName'] !== ''
+                    ? \sprintf('%s%s: %s;', $propName, $propOpt, $propType)
+                    : \sprintf('%s;', $propType);
 
                 $ret[] = Tags::div($propDesc, ['class' => 'm-prop']);
             }
