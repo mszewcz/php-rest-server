@@ -136,10 +136,8 @@ class Server
 
     /**
      * Handles request
-     *
-     * @return null|string
      */
-    public function getResponse(): ?string
+    public function getResponse()
     {
         if ($this->requestMethod === 'OPTIONS') {
             $this->sendHeaders();

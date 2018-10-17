@@ -74,35 +74,36 @@ class InputBodyValidator
      */
     private function validateType(string $variableType, $variableValue): array
     {
-        switch ($variableType) {
-            case 'any':
-            case 'any[]':
-                return $this->validateAny($variableType, $variableValue);
-            case 'int':
-            case 'integer':
-            case 'int[]':
-            case 'integer[]':
-                return $this->validateInteger($variableType, $variableValue);
-            case 'double':
-            case 'double[]':
-                return $this->validateDouble($variableType, $variableValue);
-            case 'float':
-            case 'float[]':
-                return $this->validateFloat($variableType, $variableValue);
-            case 'bool':
-            case 'boolean':
-            case 'bool[]':
-            case 'boolean[]':
-                return $this->validateBoolean($variableType, $variableValue);
-            case 'string':
-            case 'string[]':
-                return $this->validateString($variableType, $variableValue);
-            case 'array':
-            case 'array[]':
-                return $this->validateArray($variableType, $variableValue);
-            default:
-                return $this->validateModel($variableType, $variableValue);
+        $typesAny = ['any', 'any[]'];
+        $typesInteger = ['int', 'int[]', 'integer', 'integer[]'];
+        $typesDouble = ['double', 'double[]'];
+        $typesFloat = ['float', 'float[]'];
+        $typesBoolean = ['bool', 'bool[]', 'boolean', 'boolean[]'];
+        $typesString = ['string', 'string[]'];
+        $typesArray = ['array', 'array[]'];
+
+        if (in_array($variableType, $typesAny)) {
+            return $this->validateAny($variableType, $variableValue);
         }
+        if (in_array($variableType, $typesInteger)) {
+            return $this->validateInteger($variableType, $variableValue);
+        }
+        if (in_array($variableType, $typesDouble)) {
+            return $this->validateDouble($variableType, $variableValue);
+        }
+        if (in_array($variableType, $typesFloat)) {
+            return $this->validateFloat($variableType, $variableValue);
+        }
+        if (in_array($variableType, $typesBoolean)) {
+            return $this->validateBoolean($variableType, $variableValue);
+        }
+        if (in_array($variableType, $typesString)) {
+            return $this->validateString($variableType, $variableValue);
+        }
+        if (in_array($variableType, $typesArray)) {
+            return $this->validateArray($variableType, $variableValue);
+        }
+        return $this->validateModel($variableType, $variableValue);
     }
 
     /**
