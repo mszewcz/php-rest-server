@@ -25,7 +25,7 @@ class Headers
      */
     public function __construct(array $defaultHeaders = [])
     {
-        if (\count($defaultHeaders)>0) {
+        if (count($defaultHeaders)>0) {
             $this->addHeaders($defaultHeaders);
         }
     }

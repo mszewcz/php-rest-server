@@ -48,6 +48,10 @@ class ServerEndpointModel extends AbstractModel
      * @api:type string
      */
     public $endpointAuthProvider;
+    /**
+     * @api:type boolean
+     */
+    public $endpointHidden;
 
     /**
      * ServerEndpointModel constructor.

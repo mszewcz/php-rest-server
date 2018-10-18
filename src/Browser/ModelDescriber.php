@@ -135,7 +135,7 @@ class ModelDescriber
     private function getPropertyName(\ReflectionProperty $classProperty, string $propertyDoc): string
     {
         $propertyName = $classProperty->getName();
-        \preg_match('/^[^\*]+\*[^@]+@api:name(.*?)[\r\n]?$/mi', $propertyDoc, $matches);
+        preg_match('/^[^\*]+\*[^@]+@api:name(.*?)[\r\n]?$/mi', $propertyDoc, $matches);
         return isset($matches[1]) ? $matches[1] : $propertyName;
     }
 
@@ -147,7 +147,7 @@ class ModelDescriber
      */
     private function getPropertyType(string $propertyDoc): string
     {
-        \preg_match('/^[^\*]+\*[^@]+@api:type (.*?)[\r\n]?$/mi', $propertyDoc, $matches);
+        preg_match('/^[^\*]+\*[^@]+@api:type (.*?)[\r\n]?$/mi', $propertyDoc, $matches);
         return isset($matches[1]) ? $matches[1] : 'string';
     }
 
@@ -159,7 +159,7 @@ class ModelDescriber
      */
     private function isPropertyOptional(string $propertyDoc): bool
     {
-        \preg_match('/^[^\*]+\*[^@]+@api:optional(.*?)[\r\n]?$/mi', $propertyDoc, $matches);
+        preg_match('/^[^\*]+\*[^@]+@api:optional(.*?)[\r\n]?$/mi', $propertyDoc, $matches);
         return isset($matches[1]) ? true : false;
     }
 }

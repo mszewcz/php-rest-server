@@ -155,10 +155,10 @@ class Request
      */
     public function setRequestPathParams(array $endpointData): void
     {
-        \preg_match_all('|([^/]+)/?|', explode('?', $endpointData['endpointUri'])[0], $matches);
+        preg_match_all('|([^/]+)/?|', explode('?', $endpointData['endpointUri'])[0], $matches);
 
         if (isset($matches[1])) {
-            $matchesCount = \count($matches[1]);
+            $matchesCount = count($matches[1]);
 
             for ($i = 0; $i < $matchesCount; $i++) {
                 $hasOpeningBracket = strpos($matches[1][$i], '{') !== false;
@@ -184,12 +184,12 @@ class Request
         $uriExploded = explode('?', $endpointData['endpointUri']);
 
         if (isset($uriExploded[1])) {
-            \preg_match_all('|([^=]+)=|', $uriExploded[1], $matches);
+            preg_match_all('|([^=]+)=|', $uriExploded[1], $matches);
 
             if (isset($matches[1])) {
                 foreach ($matches[1] as $match) {
                     $paramName = $match;
-                    $paramValue = \filter_input(\INPUT_GET, $paramName, \FILTER_DEFAULT);
+                    $paramValue = filter_input(INPUT_GET, $paramName, FILTER_DEFAULT);
                     $this->requestParamsQuery[$paramName] = $this->parseValue($paramValue);
                 }
             }
@@ -201,7 +201,7 @@ class Request
      */
     private function setRequestMethod(): void
     {
-        $this->requestMethod = \filter_input(\INPUT_SERVER, 'REQUEST_METHOD', \FILTER_DEFAULT);
+        $this->requestMethod = filter_input(INPUT_SERVER, 'REQUEST_METHOD', FILTER_DEFAULT);
     }
 
     /**
@@ -211,20 +211,20 @@ class Request
      */
     private function setRequestUri(): void
     {
-        $scriptName = \filter_input(\INPUT_SERVER, 'SCRIPT_NAME', \FILTER_DEFAULT);
-        $requestUri = \filter_input(\INPUT_SERVER, 'REQUEST_URI', \FILTER_DEFAULT);
-        $phpSelf = \filter_input(\INPUT_SERVER, 'PHP_SELF', \FILTER_DEFAULT);
+        $scriptName = filter_input(INPUT_SERVER, 'SCRIPT_NAME', FILTER_DEFAULT);
+        $requestUri = filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_DEFAULT);
+        $phpSelf = filter_input(INPUT_SERVER, 'PHP_SELF', FILTER_DEFAULT);
 
         $scriptDir = explode('/', $scriptName);
         array_pop($scriptDir);
-        $scriptDir = \implode('/', $scriptDir);
+        $scriptDir = implode('/', $scriptDir);
 
-        $this->pathInfo = \filter_has_var(\INPUT_SERVER, 'PATH_INFO')
-            ? \filter_input(\INPUT_SERVER, 'PATH_INFO', \FILTER_DEFAULT)
+        $this->pathInfo = filter_has_var(INPUT_SERVER, 'PATH_INFO')
+            ? filter_input(INPUT_SERVER, 'PATH_INFO', FILTER_DEFAULT)
             : str_replace($scriptName, '', $phpSelf);
 
         $this->pathArray = explode('/', $this->pathInfo);
-        \array_shift($this->pathArray);
+        array_shift($this->pathArray);
 
         $this->requestUri = str_replace($scriptDir, '', $requestUri);
     }
@@ -235,7 +235,7 @@ class Request
     private function setRequestController(): void
     {
         $pathArray = $this->pathArray;
-        $this->requestController = \array_shift($pathArray);
+        $this->requestController = array_shift($pathArray);
     }
 
     /**
@@ -247,8 +247,8 @@ class Request
     {
         switch ($this->requestMethod) {
             case 'GET':
-                if (\filter_has_var(\INPUT_GET, 'body')) {
-                    $requestBody = \filter_input(\INPUT_GET, 'body', \FILTER_DEFAULT);
+                if (\filter_has_var(INPUT_GET, 'body')) {
+                    $requestBody = filter_input(INPUT_GET, 'body', FILTER_DEFAULT);
                     $this->requestBody = $this->parseValue($requestBody);
                 }
                 break;
@@ -273,16 +273,16 @@ class Request
         if (is_null($paramValue) || $paramValue === '' || $paramValue === 'null') {
             return null;
         }
-        if (\preg_match('/^\d+$/', $paramValue)) {
+        if (preg_match('/^\d+$/', $paramValue)) {
             return (int)$paramValue;
         }
-        if (\preg_match('/^\d+(\.\d+)?$/', $paramValue)) {
+        if (preg_match('/^\d+(\.\d+)?$/', $paramValue)) {
             return (float)$paramValue;
         }
-        if (\preg_match('/^(false|true)?$/i', $paramValue)) {
+        if (preg_match('/^(false|true)?$/i', $paramValue)) {
             return (bool)$paramValue;
         }
-        if (\preg_match('/^\[|{/', $paramValue) && \preg_match('/\]|}$/', $paramValue)) {
+        if (preg_match('/^\[|{/', $paramValue) && preg_match('/\]|}$/', $paramValue)) {
             return $this->base->decode($paramValue);
         }
 

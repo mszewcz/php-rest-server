@@ -79,6 +79,7 @@ class MapBuilder
                 $endpointInput = $this->getEndpointInput($docComment);
                 $endpointOutput = $this->getEndpointOutput($docComment);
                 $endpointAuthProvider = $this->getEndpointAuthProvider($docComment);
+                $endpointHidden = $this->getEndpointVisibility($docComment);
 
                 // @codeCoverageIgnoreStart
                 if ($endpointHttpMethod === null) {
@@ -108,7 +109,7 @@ class MapBuilder
                             '[%s::%s()] method for \'%s %s\' already assigned.',
                             $controllerClass,
                             $endpointMethodName,
-                            \strtoupper($endpointHttpMethod),
+                            strtoupper($endpointHttpMethod),
                             $endpointUri
                         );
                         throw new MapBuilderException($message);
@@ -124,7 +125,8 @@ class MapBuilder
                     'endpointUriPattern'   => $endpointUriPattern,
                     'endpointInput'        => $endpointInput,
                     'endpointOutput'       => $endpointOutput,
-                    'endpointAuthProvider' => $endpointAuthProvider
+                    'endpointAuthProvider' => $endpointAuthProvider,
+                    'endpointHidden'       => $endpointHidden,
                 ];
             }
             // @codeCoverageIgnoreStart
@@ -153,7 +155,7 @@ class MapBuilder
      */
     private function getEndpointDescription(string $text): string
     {
-        \preg_match('/^[^\*]+\*[^@]+@api:desc (.*?)[\r\n]?$/mi', $text, $matches);
+        preg_match('/^[^\*]+\*[^@]+@api:desc (.*?)[\r\n]?$/mi', $text, $matches);
         return isset($matches[1]) ? $matches[1] : '';
     }
 
@@ -165,7 +167,7 @@ class MapBuilder
      */
     private function getEndpointHttpMethod(string $text): ?string
     {
-        \preg_match('/^[^\*]+\*[^@]+@api:method[^\/]+(get|post|put|delete)[\r\n]?$/mi', $text, $matches);
+        preg_match('/^[^\*]+\*[^@]+@api:method[^\/]+(get|post|put|delete)[\r\n]?$/mi', $text, $matches);
         return isset($matches[1]) ? $matches[1] : null;
     }
 
@@ -177,7 +179,7 @@ class MapBuilder
      */
     private function getEndpointUri(string $text): ?string
     {
-        \preg_match('/^[^\*]+\*[^@]+@api:uri[^\/]+(.*?)[\r\n]?$/mi', $text, $matches);
+        preg_match('/^[^\*]+\*[^@]+@api:uri[^\/]+(.*?)[\r\n]?$/mi', $text, $matches);
         return isset($matches[1]) ? $matches[1] : null;
     }
 
@@ -189,8 +191,8 @@ class MapBuilder
      */
     private function getEndpointUriPattern(?string $endpointUri): ?string
     {
-        $endpointUriPattern = \preg_replace('/\/({[^}]+})/', '/([^/]+)', $endpointUri);
-        $endpointUriPattern = \preg_replace('/=({[^}]+})/', '=([^&]+)', $endpointUriPattern);
+        $endpointUriPattern = preg_replace('/\/({[^}]+})/', '/([^/]+)', $endpointUri);
+        $endpointUriPattern = preg_replace('/=({[^}]+})/', '=([^&]+)', $endpointUriPattern);
         $endpointUriPattern = str_replace('?', '\\?', $endpointUriPattern);
         return sprintf('|^%s$|i', $endpointUriPattern);
     }
@@ -205,8 +207,8 @@ class MapBuilder
     {
         $endpointInput = [];
 
-        \preg_match_all('/^[^\*]+\*[^@]+@api:input:(path|query|body) (.*?)[\r\n]?$/mi', $text, $matches);
-        if (\count($matches) > 0) {
+        preg_match_all('/^[^\*]+\*[^@]+@api:input:(path|query|body) (.*?)[\r\n]?$/mi', $text, $matches);
+        if (count($matches) > 0) {
             foreach ($matches[1] as $key => $value) {
                 $param = explode(':', $matches[2][$key]);
                 $endpointInput[$value][] = [
@@ -228,7 +230,7 @@ class MapBuilder
      */
     private function getEndpointOutput(?string $text): ?string
     {
-        \preg_match('/^[^\*]+\*[^@]+@api:output (.*?)[\r\n]?$/mi', $text, $matches);
+        preg_match('/^[^\*]+\*[^@]+@api:output (.*?)[\r\n]?$/mi', $text, $matches);
         return isset($matches[1]) ? $matches[1] : null;
     }
 
@@ -240,7 +242,19 @@ class MapBuilder
      */
     private function getEndpointAuthProvider(?string $text): ?string
     {
-        \preg_match('/^[^\*]+\*[^@]+@api:auth (.*?)[\r\n]?$/mi', $text, $matches);
+        preg_match('/^[^\*]+\*[^@]+@api:auth (.*?)[\r\n]?$/mi', $text, $matches);
         return isset($matches[1]) ? $matches[1] : 'none';
+    }
+
+    /**
+     * Returns endpoint auth provider
+     *
+     * @param null|string $text
+     * @return bool
+     */
+    private function getEndpointVisibility(?string $text): bool
+    {
+        preg_match('/^[^\*]+\*[^@]+@api:hidden(.*?)[\r\n]?$/mi', $text, $matches);
+        return isset($matches[1]) ? true : false;
     }
 }

@@ -141,7 +141,7 @@ class Server
         if ($this->requestUri === '/') {
             return '';
         }
-        if (\preg_match('|^'.$this->base->getApiBrowserUri().'/?$|i', $this->requestUri)) {
+        if (preg_match('|^'.$this->base->getApiBrowserUri().'/?$|i', $this->requestUri)) {
             $browser = new Browser();
             return $browser->display();
         }
@@ -163,10 +163,10 @@ class Server
     {
         foreach ($this->headers->getHeaders() as $headerName => $headerValue) {
             if (is_numeric($headerName)) {
-                \header($headerValue, true, $headerName);
+                header($headerValue, true, $headerName);
             }
             if (!is_numeric($headerName)) {
-                \header(sprintf('%s: %s', $headerName, $headerValue));
+                header(sprintf('%s: %s', $headerName, $headerValue));
             }
         }
     }
@@ -193,7 +193,7 @@ class Server
         $definitionsDir = $this->base->getDefinitionsDir();
 
         foreach ($controllers as $controller) {
-            if (\preg_match('/^\\'.$controller->uri.'(\/|$)/i', $this->requestUri)) {
+            if (preg_match('/^\\'.$controller->uri.'(\/|$)/i', $this->requestUri)) {
                 $controllerClass = (string)$controller->class;
                 $mapFile = $this->base->getSafeFileName($controller->uri);
                 $mapFilePath = sprintf('%s%s.json', $definitionsDir, $mapFile);
@@ -262,7 +262,7 @@ class Server
         $body = [
             'message' => $message !== '' ? sprintf('%s: %s', $status, $message) : $status
         ];
-        if (\count($errors) > 0) {
+        if (count($errors) > 0) {
             $body['errors'] = $errors;
         }
 

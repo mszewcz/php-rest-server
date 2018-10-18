@@ -69,7 +69,7 @@ class AbstractController
 
         foreach ($endpointMap as $endpointData) {
             $httpMethodMatched = ($endpointData['endpointHttpMethod'] === $this->request->getRequestHttpMethod());
-            $uriMatched = \preg_match($endpointData['endpointUriPattern'], $requestUri);
+            $uriMatched = preg_match($endpointData['endpointUriPattern'], $requestUri);
 
             if ($httpMethodMatched && $uriMatched) {
                 $endpointAuthProvider = $endpointData['endpointAuthProvider'];
@@ -93,7 +93,7 @@ class AbstractController
 
         // Validate input
         $inputErrors = $this->validateInput($endpointInput);
-        if (\count($inputErrors) > 0) {
+        if (count($inputErrors) > 0) {
             throw new ResponseException(
                 400,
                 null,
