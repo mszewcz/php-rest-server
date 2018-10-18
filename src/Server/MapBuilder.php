@@ -208,7 +208,7 @@ class MapBuilder
         \preg_match_all('/^[^\*]+\*[^@]+@api:input:(path|query|body) (.*?)[\r\n]?$/mi', $text, $matches);
         if (\count($matches) > 0) {
             foreach ($matches[1] as $key => $value) {
-                $param = explode(':', $matches[2][$key]);
+                $param = \explode(':', $matches[2][$key]);
                 $endpointInput[$value][] = [
                     'paramName' => $param[0],
                     'paramType' => $param[1],

@@ -97,7 +97,7 @@ class InputPathValidator
         if (\in_array($paramType, $this->arrayTypes)) {
             return $this->validateArrayType($paramData);
         }
-        if (stripos($paramType, '[]') !== false) {
+        if (\stripos($paramType, '[]') !== false) {
             return $this->validateModelArrayType($paramData);
         }
         return $this->validateModelType($paramData);
@@ -175,8 +175,8 @@ class InputPathValidator
         $paramName = $paramData['paramName'];
         $paramValue = $this->pathParams[$paramName];
         $modelClass = $paramData['paramType'];
-        $modelName = explode('\\', $modelClass);
-        $modelName = array_pop($modelName);
+        $modelName = \explode('\\', $modelClass);
+        $modelName = \array_pop($modelName);
         $errors = [];
 
         /**
@@ -210,9 +210,9 @@ class InputPathValidator
         $paramName = $paramData['paramName'];
         $paramType = $paramData['paramType'];
         $paramValue = $this->pathParams[$paramName];
-        $modelClass = str_replace('[]', '', $paramType);
-        $modelName = explode('\\', $paramType);
-        $modelName = array_pop($modelName);
+        $modelClass = \str_replace('[]', '', $paramType);
+        $modelName = \explode('\\', $paramType);
+        $modelName = \array_pop($modelName);
 
         /**
          * @var SimpleTypeValidator $validator
@@ -224,7 +224,7 @@ class InputPathValidator
         }
 
         $errors = [];
-        $modelName = str_replace('[]', '', $modelName);
+        $modelName = \str_replace('[]', '', $modelName);
 
         foreach ($paramValue as $index => $value) {
             /**

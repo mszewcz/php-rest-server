@@ -13,6 +13,7 @@ namespace MS\RestServer\Server\Auth;
 
 abstract class AbstractAuthProvider
 {
+    protected $isAuthorized = false;
     /**
      * AbstractAuthProvider constructor.
      */
@@ -21,9 +22,16 @@ abstract class AbstractAuthProvider
     }
 
     /**
-     * Returns user's authorization status
+     * Authenticatez user & returns authorization result
      *
      * @return bool
      */
-    public abstract function isAuthorized(): bool;
+    public abstract function authorize(): bool;
+
+    /**
+     * Returns authorized user data
+     *
+     * @return array
+     */
+    public abstract function getUserData(): array;
 }

@@ -141,7 +141,7 @@ class Server
         if ($this->requestUri === '/') {
             return '';
         }
-        if (preg_match('|^'.$this->base->getApiBrowserUri().'/?$|i', $this->requestUri)) {
+        if (\preg_match('|^'.$this->base->getApiBrowserUri().'/?$|i', $this->requestUri)) {
             $browser = new Browser();
             return $browser->display();
         }
@@ -162,11 +162,11 @@ class Server
     private function sendHeaders(): void
     {
         foreach ($this->headers->getHeaders() as $headerName => $headerValue) {
-            if (is_numeric($headerName)) {
-                header($headerValue, true, $headerName);
+            if (\is_numeric($headerName)) {
+                \header($headerValue, true, $headerName);
             }
-            if (!is_numeric($headerName)) {
-                header(sprintf('%s: %s', $headerName, $headerValue));
+            if (!\is_numeric($headerName)) {
+                \header(\sprintf('%s: %s', $headerName, $headerValue));
             }
         }
     }
@@ -193,12 +193,12 @@ class Server
         $definitionsDir = $this->base->getDefinitionsDir();
 
         foreach ($controllers as $controller) {
-            if (preg_match('/^\\'.$controller->uri.'(\/|$)/i', $this->requestUri)) {
+            if (\preg_match('/^\\'.$controller->uri.'(\/|$)/i', $this->requestUri)) {
                 $controllerClass = (string)$controller->class;
                 $mapFile = $this->base->getSafeFileName($controller->uri);
                 $mapFilePath = \sprintf('%s%s.json', $definitionsDir, $mapFile);
 
-                if (!class_exists($controllerClass)) {
+                if (!\class_exists($controllerClass)) {
                     throw new ResponseException(
                         500,
                         null,
@@ -235,9 +235,9 @@ class Server
         $status = $this->getStatus($code);
         $body = $response->getBody();
 
-        $this->headers->addHeaders(['name' => $code, 'value' => sprintf('HTTP/1.1 %s %s', $code, $status)]);
+        $this->headers->addHeaders(['name' => $code, 'value' => \sprintf('HTTP/1.1 %s %s', $code, $status)]);
 
-        if (is_array($body) || is_object($body)) {
+        if (\is_array($body) || \is_object($body)) {
             $body = $this->base->encode($body);
         }
 
@@ -257,10 +257,10 @@ class Server
         $message = $exception->getMessage();
         $errors = $exception->getErrors();
 
-        $this->headers->addHeaders(['name' => $code, 'value' => sprintf('HTTP/1.1 %s %s', $code, $status)]);
+        $this->headers->addHeaders(['name' => $code, 'value' => \sprintf('HTTP/1.1 %s %s', $code, $status)]);
 
         $body = [
-            'message' => $message !== '' ? sprintf('%s: %s', $status, $message) : $status
+            'message' => $message !== '' ? \sprintf('%s: %s', $status, $message) : $status
         ];
         if (\count($errors) > 0) {
             $body['errors'] = $errors;

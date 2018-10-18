@@ -33,6 +33,14 @@ class AbstractController
      * @var Request
      */
     protected $request;
+    /**
+     * @var bool
+     */
+    protected $authorizationResult = false;
+    /**
+     * @var array
+     */
+    protected $authorizedUserData = [];
 
     /**
      * AbstractController constructor.
@@ -73,9 +81,9 @@ class AbstractController
             }
         }
 
-        // Handle authorization
-        $isAuthorized = $this->isAuthorized($endpointAuthProvider);
-        if ($isAuthorized === false) {
+        // Authorize user
+        $this->authorizeUser($endpointAuthProvider);
+        if ($this->authorizationResult === false) {
             throw new ResponseException(
                 401,
                 null,
@@ -85,7 +93,7 @@ class AbstractController
 
         // Validate input
         $inputErrors = $this->validateInput($endpointInput);
-        if (count($inputErrors) > 0) {
+        if (\count($inputErrors) > 0) {
             throw new ResponseException(
                 400,
                 null,
@@ -102,7 +110,7 @@ class AbstractController
             );
         }
 
-        return call_user_func([$this, $endpointMethodName]);
+        return \call_user_func([$this, $endpointMethodName]);
     }
 
     /**
@@ -137,21 +145,23 @@ class AbstractController
      * Checks authorization status
      *
      * @param string $authProvider
-     * @return bool
+     * @return void
      * @throws ResponseException
      */
-    private function isAuthorized(string $authProvider): bool
+    private function authorizeUser(string $authProvider): void
     {
         $noAuthProvider = ['false', 'no', 'none'];
         $defaultAuthProvider = ['true', 'yes', 'default'];
 
         // No Auth Provider
-        if (in_array($authProvider, $noAuthProvider)) {
-            return true;
+        if (\in_array($authProvider, $noAuthProvider)) {
+            $this->authorizationResult = true;
+            $this->authorizedUserData = [];
+            return;
         }
 
         // Default Auth Provider
-        if (in_array($authProvider, $defaultAuthProvider)) {
+        if (\in_array($authProvider, $defaultAuthProvider)) {
             $authProvider = $this->request->getDefaultAuthProvider();
             if ($authProvider === null) {
                 throw new ResponseException(
@@ -160,11 +170,13 @@ class AbstractController
                     ['message' => 'Default auth provider is not set']
                 );
             }
-            return $authProvider->isAuthorized();
+            $this->authorizationResult = $authProvider->authorize();
+            $this->authorizedUserData = $authProvider->getUserData();
+            return;
         }
 
         // Custom Auth Provider
-        if (!class_exists($authProvider)) {
+        if (!\class_exists($authProvider)) {
             throw new ResponseException(
                 500,
                 null,
@@ -179,7 +191,8 @@ class AbstractController
                 ['message' => \sprintf('%s has to be an instance of AbstractAuthProvider', $authProvider)]
             );
         }
-        return $authProviderClass->isAuthorized();
+        $this->authorizationResult = $authProviderClass->authorize();
+        $this->authorizedUserData = $authProviderClass->getUserData();
     }
 
     /**
@@ -193,7 +206,7 @@ class AbstractController
         $inputErrors = [];
 
         // Validate path params
-        if (array_key_exists('path', $endpointInput)) {
+        if (\array_key_exists('path', $endpointInput)) {
             $validator = new InputPathValidator($this->request, $endpointInput['path']);
             $errors = $validator->validate();
             foreach ($errors as $k => $v) {
@@ -202,7 +215,7 @@ class AbstractController
         }
 
         // Validate query params
-        if (array_key_exists('query', $endpointInput)) {
+        if (\array_key_exists('query', $endpointInput)) {
             $validator = new InputQueryValidator($this->request, $endpointInput['query']);
             $errors = $validator->validate();
             foreach ($errors as $k => $v) {
@@ -211,7 +224,7 @@ class AbstractController
         }
 
         // Validate request body
-        if (array_key_exists('body', $endpointInput)) {
+        if (\array_key_exists('body', $endpointInput)) {
             $validator = new InputBodyValidator($this->request, $endpointInput);
             $errors = $validator->validate();
             foreach ($errors as $k => $v) {

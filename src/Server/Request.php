@@ -158,7 +158,7 @@ class Request
         \preg_match_all('|([^/]+)/?|', \explode('?', $endpointData['endpointUri'])[0], $matches);
 
         if (isset($matches[1])) {
-            $matchesCount = count($matches[1]);
+            $matchesCount = \count($matches[1]);
 
             for ($i = 0; $i < $matchesCount; $i++) {
                 $hasOpeningBracket = \strpos($matches[1][$i], '{') !== false;
@@ -215,18 +215,18 @@ class Request
         $requestUri = \filter_input(\INPUT_SERVER, 'REQUEST_URI', \FILTER_DEFAULT);
         $phpSelf = \filter_input(\INPUT_SERVER, 'PHP_SELF', \FILTER_DEFAULT);
 
-        $scriptDir = explode('/', $scriptName);
-        array_pop($scriptDir);
-        $scriptDir = implode('/', $scriptDir);
+        $scriptDir = \explode('/', $scriptName);
+        \array_pop($scriptDir);
+        $scriptDir = \implode('/', $scriptDir);
 
         $this->pathInfo = \filter_has_var(\INPUT_SERVER, 'PATH_INFO')
-            ? filter_input(\INPUT_SERVER, 'PATH_INFO', \FILTER_DEFAULT)
+            ? \filter_input(\INPUT_SERVER, 'PATH_INFO', \FILTER_DEFAULT)
             : \str_replace($scriptName, '', $phpSelf);
 
-        $this->pathArray = explode('/', $this->pathInfo);
-        array_shift($this->pathArray);
+        $this->pathArray = \explode('/', $this->pathInfo);
+        \array_shift($this->pathArray);
 
-        $this->requestUri = str_replace($scriptDir, '', $requestUri);
+        $this->requestUri = \str_replace($scriptDir, '', $requestUri);
     }
 
     /**
@@ -235,7 +235,7 @@ class Request
     private function setRequestController(): void
     {
         $pathArray = $this->pathArray;
-        $this->requestController = array_shift($pathArray);
+        $this->requestController = \array_shift($pathArray);
     }
 
     /**
@@ -247,8 +247,8 @@ class Request
     {
         switch ($this->requestMethod) {
             case 'GET':
-                if (filter_has_var(\INPUT_GET, 'body')) {
-                    $requestBody = filter_input(\INPUT_GET, 'body', \FILTER_DEFAULT);
+                if (\filter_has_var(\INPUT_GET, 'body')) {
+                    $requestBody = \filter_input(\INPUT_GET, 'body', \FILTER_DEFAULT);
                     $this->requestBody = $this->parseValue($requestBody);
                 }
                 break;
@@ -270,19 +270,19 @@ class Request
      */
     private function parseValue($paramValue)
     {
-        if (is_null($paramValue) || $paramValue === '' || $paramValue === 'null') {
+        if (\is_null($paramValue) || $paramValue === '' || $paramValue === 'null') {
             return null;
         }
-        if (preg_match('/^\d+$/', $paramValue)) {
+        if (\preg_match('/^\d+$/', $paramValue)) {
             return (int)$paramValue;
         }
-        if (preg_match('/^\d+(\.\d+)?$/', $paramValue)) {
+        if (\preg_match('/^\d+(\.\d+)?$/', $paramValue)) {
             return (float)$paramValue;
         }
-        if (preg_match('/^(false|true)?$/i', $paramValue)) {
+        if (\preg_match('/^(false|true)?$/i', $paramValue)) {
             return (bool)$paramValue;
         }
-        if (preg_match('/^\[|{/', $paramValue) && preg_match('/\]|}$/', $paramValue)) {
+        if (\preg_match('/^\[|{/', $paramValue) && \preg_match('/\]|}$/', $paramValue)) {
             return $this->base->decode($paramValue);
         }
 

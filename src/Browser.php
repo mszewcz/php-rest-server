@@ -44,21 +44,21 @@ class Browser
             Tags::title('API Browser'),
             Tags::link(
                 '',
-                ['type' => 'text/css', 'rel' => 'stylesheet', 'href' => '/assets/css/browser.css?t=' . time()]
+                ['type' => 'text/css', 'rel' => 'stylesheet', 'href' => '/assets/css/browser.css']
             )
         ];
         $body = [
             Tags::header('API Browser'),
             Tags::div($this->listControllers(), ['class' => 'wrapper']),
             Tags::script('', ['type' => 'text/javascript', 'src' => '/assets/js/jquery.min.js']),
-            Tags::script('', ['type' => 'text/javascript', 'src' => '/assets/js/browser.js?t=' . time()]),
+            Tags::script('', ['type' => 'text/javascript', 'src' => '/assets/js/browser.js']),
         ];
         $html = [
             Tags::doctype('html'),
-            Tags::head(implode(Tags::CRLF, $head)),
-            Tags::body(implode(Tags::CRLF, $body))
+            Tags::head(\implode(Tags::CRLF, $head)),
+            Tags::body(\implode(Tags::CRLF, $body))
         ];
-        $output = Tags::html(implode(Tags::CRLF, $html));
+        $output = Tags::html(\implode(Tags::CRLF, $html));
 
         return $output;
     }
@@ -85,7 +85,7 @@ class Browser
                 Tags::div($this->listEndpoints($mapFilePath), ['class' => 'controller__endpoints'])
             ];
 
-            $ret[] = Tags::div(implode(Tags::CRLF, $controller), ['class' => 'controller']);
+            $ret[] = Tags::div(\implode(Tags::CRLF, $controller), ['class' => 'controller']);
         }
         return implode(Tags::CRLF, $ret);
     }
@@ -102,9 +102,9 @@ class Browser
         $ret = '';
         try {
             $controllerMap = $this->base->decodeAsArray($this->base->fileRead($controllerMapFile));
-            $controllerUris = array_column($controllerMap, 'endpointUri');
+            $controllerUris = \array_column($controllerMap, 'endpointUri');
 
-            array_multisort($controllerUris, SORT_ASC, SORT_STRING, $controllerMap, SORT_ASC);
+            \array_multisort($controllerUris, SORT_ASC, SORT_STRING, $controllerMap, SORT_ASC);
 
             foreach ($controllerMap as $endpointData) {
                 $authIcon = '';
@@ -128,14 +128,14 @@ class Browser
                 if ($endpointData['endpointDesc'] !== '') {
                     $endpointDetails[] = Tags::div($endpointData['endpointDesc'], ['class' => 'description']);
                 }
-                $endpointDetails[] = Tags::div(implode(Tags::CRLF, $request), ['class' => 'request']);
-                $endpointDetails[] = Tags::div(implode(Tags::CRLF, $response), ['class' => 'response']);
+                $endpointDetails[] = Tags::div(\implode(Tags::CRLF, $request), ['class' => 'request']);
+                $endpointDetails[] = Tags::div(\implode(Tags::CRLF, $response), ['class' => 'response']);
 
                 $endpoint = [];
-                $endpoint[] = Tags::div(implode(Tags::CRLF, $endpointHeading), ['class' => 'endpoint__heading']);
-                $endpoint[] = Tags::div(implode(Tags::CRLF, $endpointDetails), ['class' => 'endpoint__details']);
+                $endpoint[] = Tags::div(\implode(Tags::CRLF, $endpointHeading), ['class' => 'endpoint__heading']);
+                $endpoint[] = Tags::div(\implode(Tags::CRLF, $endpointDetails), ['class' => 'endpoint__details']);
                 $ret .= Tags::div(
-                    implode(Tags::CRLF, $endpoint),
+                    \implode(Tags::CRLF, $endpoint),
                     ['class' => 'endpoint endpoint-' . $endpointData['endpointHttpMethod']]);
             }
         } catch (\Exception $e) {
@@ -160,7 +160,7 @@ class Browser
         $row[] = Tags::div('Type', ['class' => 'p-type']);
         $row[] = Tags::div('Required', ['class' => 'p-required']);
         $row[] = Tags::div('Data type', ['class' => 'p-data-type']);
-        $requestSpec[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row header']);
+        $requestSpec[] = Tags::div(\implode(Tags::CRLF, $row), ['class' => 'row header']);
 
         if (count($endpointData['endpointInput']) === 0) {
             $row = [];
@@ -168,16 +168,16 @@ class Browser
             $row[] = Tags::div('-', ['class' => 'p-type']);
             $row[] = Tags::div('-', ['class' => 'p-required']);
             $row[] = Tags::div('-', ['class' => 'p-data-type']);
-            $requestSpec[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
+            $requestSpec[] = Tags::div(\implode(Tags::CRLF, $row), ['class' => 'row']);
 
-            return Tags::div(implode(Tags::CRLF, $requestSpec), ['class' => 'table']);
+            return Tags::div(\implode(Tags::CRLF, $requestSpec), ['class' => 'table']);
         }
 
         $requestSpec[] = $this->showInputPathSpecification($endpointData);
         $requestSpec[] = $this->showInputQuerySpecification($endpointData);
         $requestSpec[] = $this->showInputBodySpecification($endpointData);
 
-        return Tags::div(implode(Tags::CRLF, $requestSpec), ['class' => 'table']);
+        return Tags::div(\implode(Tags::CRLF, $requestSpec), ['class' => 'table']);
     }
 
     /**
@@ -203,7 +203,7 @@ class Browser
                 $ret[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
             }
         }
-        return implode(Tags::CRLF, $ret);
+        return \implode(Tags::CRLF, $ret);
     }
 
     /**
@@ -226,10 +226,10 @@ class Browser
                 $row[] = Tags::div($paramType, ['class' => 'p-type']);
                 $row[] = Tags::div($paramRequired, ['class' => 'p-required']);
                 $row[] = Tags::div($paramDataType, ['class' => 'p-data-type']);
-                $ret[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
+                $ret[] = Tags::div(\implode(Tags::CRLF, $row), ['class' => 'row']);
             }
         }
-        return implode(Tags::CRLF, $ret);
+        return \implode(Tags::CRLF, $ret);
     }
 
     /**
@@ -255,10 +255,10 @@ class Browser
                 $row[] = Tags::div($paramType, ['class' => 'p-type']);
                 $row[] = Tags::div($paramRequired, ['class' => 'p-required']);
                 $row[] = Tags::div($paramDataType, ['class' => 'p-data-type']);
-                $ret[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
+                $ret[] = Tags::div(\implode(Tags::CRLF, $row), ['class' => 'row']);
             }
         }
-        return implode(Tags::CRLF, $ret);
+        return \implode(Tags::CRLF, $ret);
     }
 
     /**
@@ -274,14 +274,14 @@ class Browser
 
         $row = [];
         $row[] = Tags::div('Data type', ['class' => 'p-data-type']);
-        $responseSpec[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row header']);
+        $responseSpec[] = Tags::div(\implode(Tags::CRLF, $row), ['class' => 'row header']);
 
         if ($endpointData['endpointOutput'] === null) {
             $row = [];
             $row[] = Tags::div('-', ['class' => 'p-data-type']);
-            $responseSpec[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
+            $responseSpec[] = Tags::div(\implode(Tags::CRLF, $row), ['class' => 'row']);
 
-            return Tags::div(implode(Tags::CRLF, $responseSpec), ['class' => 'table']);
+            return Tags::div(\implode(Tags::CRLF, $responseSpec), ['class' => 'table']);
         }
 
         $paramDataType = $this->dataTypeHelper->getDataType($endpointData['endpointOutput']);
@@ -291,9 +291,9 @@ class Browser
 
         $row = [];
         $row[] = Tags::div($paramDataType, ['class' => 'p-data-type']);
-        $responseSpec[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
+        $responseSpec[] = Tags::div(\implode(Tags::CRLF, $row), ['class' => 'row']);
 
-        return Tags::div(implode(Tags::CRLF, $responseSpec), ['class' => 'table']);
+        return Tags::div(\implode(Tags::CRLF, $responseSpec), ['class' => 'table']);
     }
 
 
@@ -325,6 +325,6 @@ class Browser
 
             $ret[] = Tags::div('}', ['class' => 'm-close']);
         }
-        return implode(Tags::CRLF, $ret);
+        return \implode(Tags::CRLF, $ret);
     }
 }

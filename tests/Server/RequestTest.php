@@ -13,9 +13,14 @@ use PHPUnit\Framework\TestCase;
 
 class TestAuthProvider extends \MS\RestServer\Server\Auth\AbstractAuthProvider
 {
-    public function isAuthorized(): bool
+    public function authorize(): bool
     {
         return true;
+    }
+
+    public function getUserData(): array
+    {
+        return [];
     }
 }
 

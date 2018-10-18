@@ -96,7 +96,7 @@ class InputQueryValidator
         if (\in_array($paramType, $this->arrayTypes)) {
             return $this->validateArrayType($paramData);
         }
-        if (stripos($paramType, '[]') !== false) {
+        if (\stripos($paramType, '[]') !== false) {
             return $this->validateModelArrayType($paramData);
         }
         return $this->validateModelType($paramData);
@@ -174,8 +174,8 @@ class InputQueryValidator
         $paramName = $paramData['paramName'];
         $paramValue = $this->queryParams[$paramName];
         $modelClass = $paramData['paramType'];
-        $modelName = explode('\\', $modelClass);
-        $modelName = array_pop($modelName);
+        $modelName = \explode('\\', $modelClass);
+        $modelName = \array_pop($modelName);
         $errors = [];
 
         /**
@@ -209,9 +209,9 @@ class InputQueryValidator
         $paramName = $paramData['paramName'];
         $paramType = $paramData['paramType'];
         $paramValue = $this->queryParams[$paramName];
-        $modelClass = str_replace('[]', '', $paramType);
-        $modelName = explode('\\', $paramType);
-        $modelName = array_pop($modelName);
+        $modelClass = \str_replace('[]', '', $paramType);
+        $modelName = \explode('\\', $paramType);
+        $modelName = \array_pop($modelName);
 
         /**
          * @var SimpleTypeValidator $validator
@@ -223,7 +223,7 @@ class InputQueryValidator
         }
 
         $errors = [];
-        $modelName = str_replace('[]', '', $modelName);
+        $modelName = \str_replace('[]', '', $modelName);
 
         foreach ($paramValue as $index => $value) {
             /**
