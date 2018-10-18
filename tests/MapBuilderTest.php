@@ -40,7 +40,8 @@ class MapBuilderTest extends TestCase
                     'endpointUriPattern'   => '|^/api/rebuildEndpointsMap$|i',
                     'endpointInput'        => [],
                     'endpointOutput'       => 'MS\\RestServer\\Server\\Models\\ServerControllerModel[]',
-                    'endpointAuthProvider' => 'none'
+                    'endpointAuthProvider' => 'none',
+                    'endpointHidden'       => false
                 ]
             ],
             [
@@ -65,7 +66,8 @@ class MapBuilderTest extends TestCase
                         ]
                     ],
                     'endpointOutput'       => 'integer',
-                    'endpointAuthProvider' => 'none'
+                    'endpointAuthProvider' => 'none',
+                    'endpointHidden'       => false
                 ],
                 [
                     'endpointMethodName'   => 'ping',
@@ -96,7 +98,8 @@ class MapBuilderTest extends TestCase
                         ]
                     ],
                     'endpointOutput'       => 'MS\\RestServer\\Server\\Models\\TestResponseModel',
-                    'endpointAuthProvider' => 'none'
+                    'endpointAuthProvider' => 'none',
+                    'endpointHidden'       => false
                 ]
             ]
         ];

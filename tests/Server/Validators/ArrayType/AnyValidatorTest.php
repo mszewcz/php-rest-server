@@ -25,7 +25,7 @@ class ArrayAnyValidatorTest extends TestCase
 
     public function testValidateError()
     {
-        $expected = ['To pole jest wymagane'];
+        $expected = ['Wymagany typ: any'];
         $result = $this->validator->validate([null], 'any');
         $this->assertEquals($expected, $result);
     }
