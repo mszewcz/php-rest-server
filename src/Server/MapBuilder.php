@@ -63,7 +63,7 @@ class MapBuilder
         try {
             $controllerClass = (string)$controller->class;
             $mapFile = $this->base->getSafeFileName($controller->uri);
-            $mapFilePath = \sprintf('%s%s.json', $definitionsDir, $mapFile);
+            $mapFilePath = sprintf('%s%s.json', $definitionsDir, $mapFile);
 
             $classReflection = new \ReflectionClass($controllerClass);
             $methods = $classReflection->getMethods(\ReflectionMethod::IS_PROTECTED);
@@ -82,7 +82,7 @@ class MapBuilder
 
                 // @codeCoverageIgnoreStart
                 if ($endpointHttpMethod === null) {
-                    $message = \sprintf(
+                    $message = sprintf(
                         '[%s::%s()] @api:method not found or invalid',
                         $controllerClass,
                         $endpointMethodName
@@ -91,7 +91,7 @@ class MapBuilder
                 }
 
                 if ($endpointUri === null) {
-                    $message = \sprintf(
+                    $message = sprintf(
                         '[%s::%s()] @api:uri not found or invalid',
                         $controllerClass,
                         $endpointMethodName
@@ -104,7 +104,7 @@ class MapBuilder
                     $uriMatched = $existingEndpoint['endpointUri'] === $endpointUri;
 
                     if ($httpMethodMatched && $uriMatched) {
-                        $message = \sprintf(
+                        $message = sprintf(
                             '[%s::%s()] method for \'%s %s\' already assigned.',
                             $controllerClass,
                             $endpointMethodName,
@@ -191,8 +191,8 @@ class MapBuilder
     {
         $endpointUriPattern = \preg_replace('/\/({[^}]+})/', '/([^/]+)', $endpointUri);
         $endpointUriPattern = \preg_replace('/=({[^}]+})/', '=([^&]+)', $endpointUriPattern);
-        $endpointUriPattern = \str_replace('?', '\\?', $endpointUriPattern);
-        return \sprintf('|^%s$|i', $endpointUriPattern);
+        $endpointUriPattern = str_replace('?', '\\?', $endpointUriPattern);
+        return sprintf('|^%s$|i', $endpointUriPattern);
     }
 
     /**
@@ -208,7 +208,7 @@ class MapBuilder
         \preg_match_all('/^[^\*]+\*[^@]+@api:input:(path|query|body) (.*?)[\r\n]?$/mi', $text, $matches);
         if (\count($matches) > 0) {
             foreach ($matches[1] as $key => $value) {
-                $param = \explode(':', $matches[2][$key]);
+                $param = explode(':', $matches[2][$key]);
                 $endpointInput[$value][] = [
                     'paramName' => $param[0],
                     'paramType' => $param[1],

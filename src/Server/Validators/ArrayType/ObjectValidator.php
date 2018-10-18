@@ -26,8 +26,8 @@ class ObjectValidator implements ArrayTypeValidator
     {
         $errors = [];
         foreach ($value as $key => $val) {
-            if (!\is_object($val)) {
-                $errors[$key] = \sprintf('Wymagany typ: %s', $requiredType);
+            if (!is_object($val)) {
+                $errors[$key] = sprintf('Wymagany typ: %s', $requiredType);
             }
         }
         return $errors;

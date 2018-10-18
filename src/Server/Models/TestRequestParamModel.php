@@ -31,7 +31,7 @@ class TestRequestParamModel extends AbstractModel
      */
     public function __construct($data)
     {
-        if (\is_array($data)) {
+        if (is_array($data)) {
             foreach ($data as $paramName => $paramValue) {
                 $this->name = $paramName;
                 $this->value = (int)$paramValue;

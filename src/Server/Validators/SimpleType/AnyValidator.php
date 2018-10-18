@@ -24,7 +24,7 @@ class AnyValidator implements SimpleTypeValidator
      */
     public function validate($value, string $requiredType = 'any'): ?string
     {
-        if (\is_null($value)) {
+        if (is_null($value)) {
             return 'To pole jest wymagane';
         }
         return null;

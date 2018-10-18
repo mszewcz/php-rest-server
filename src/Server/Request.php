@@ -76,7 +76,7 @@ class Request
      */
     public function getRequestHttpMethod(): string
     {
-        return $this->requestMethod ? \strtolower($this->requestMethod) : 'get';
+        return $this->requestMethod ? strtolower($this->requestMethod) : 'get';
     }
 
     /**
@@ -155,17 +155,17 @@ class Request
      */
     public function setRequestPathParams(array $endpointData): void
     {
-        \preg_match_all('|([^/]+)/?|', \explode('?', $endpointData['endpointUri'])[0], $matches);
+        \preg_match_all('|([^/]+)/?|', explode('?', $endpointData['endpointUri'])[0], $matches);
 
         if (isset($matches[1])) {
             $matchesCount = \count($matches[1]);
 
             for ($i = 0; $i < $matchesCount; $i++) {
-                $hasOpeningBracket = \strpos($matches[1][$i], '{') !== false;
-                $hasClosingBracket = \strpos($matches[1][$i], '}') !== false;
+                $hasOpeningBracket = strpos($matches[1][$i], '{') !== false;
+                $hasClosingBracket = strpos($matches[1][$i], '}') !== false;
 
                 if ($hasOpeningBracket && $hasClosingBracket) {
-                    $paramName = \str_replace(['{', '}'], '', $matches[1][$i]);
+                    $paramName = str_replace(['{', '}'], '', $matches[1][$i]);
                     $paramValue = $this->pathArray[$i];
                     $this->requestParamsPath[$paramName] = $this->parseValue($paramValue);
                 }
@@ -181,7 +181,7 @@ class Request
      */
     public function setRequestQueryParams(array $endpointData): void
     {
-        $uriExploded = \explode('?', $endpointData['endpointUri']);
+        $uriExploded = explode('?', $endpointData['endpointUri']);
 
         if (isset($uriExploded[1])) {
             \preg_match_all('|([^=]+)=|', $uriExploded[1], $matches);
@@ -215,18 +215,18 @@ class Request
         $requestUri = \filter_input(\INPUT_SERVER, 'REQUEST_URI', \FILTER_DEFAULT);
         $phpSelf = \filter_input(\INPUT_SERVER, 'PHP_SELF', \FILTER_DEFAULT);
 
-        $scriptDir = \explode('/', $scriptName);
-        \array_pop($scriptDir);
+        $scriptDir = explode('/', $scriptName);
+        array_pop($scriptDir);
         $scriptDir = \implode('/', $scriptDir);
 
         $this->pathInfo = \filter_has_var(\INPUT_SERVER, 'PATH_INFO')
             ? \filter_input(\INPUT_SERVER, 'PATH_INFO', \FILTER_DEFAULT)
-            : \str_replace($scriptName, '', $phpSelf);
+            : str_replace($scriptName, '', $phpSelf);
 
-        $this->pathArray = \explode('/', $this->pathInfo);
+        $this->pathArray = explode('/', $this->pathInfo);
         \array_shift($this->pathArray);
 
-        $this->requestUri = \str_replace($scriptDir, '', $requestUri);
+        $this->requestUri = str_replace($scriptDir, '', $requestUri);
     }
 
     /**
@@ -270,7 +270,7 @@ class Request
      */
     private function parseValue($paramValue)
     {
-        if (\is_null($paramValue) || $paramValue === '' || $paramValue === 'null') {
+        if (is_null($paramValue) || $paramValue === '' || $paramValue === 'null') {
             return null;
         }
         if (\preg_match('/^\d+$/', $paramValue)) {

@@ -24,8 +24,8 @@ class ArrayValidator implements SimpleTypeValidator
      */
     public function validate($value, string $requiredType = 'array'): ?string
     {
-        if (!\is_array($value)) {
-            return \sprintf('Wymagany typ: %s', $requiredType);
+        if (!is_array($value)) {
+            return sprintf('Wymagany typ: %s', $requiredType);
         }
         return null;
     }

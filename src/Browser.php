@@ -77,7 +77,7 @@ class Browser
         foreach ($controllers as $controller) {
             $controllerName = (string)$controller->name;
             $mapFile = $this->base->getSafeFileName((string)$controller->uri);
-            $mapFilePath = \sprintf('%s%s.json', $definitionsDir, $mapFile);
+            $mapFilePath = sprintf('%s%s.json', $definitionsDir, $mapFile);
 
             $expandCollapse = Tags::span('Expand / Collapse Everything');
             $controller = [
@@ -310,15 +310,15 @@ class Browser
         $ret = [];
 
         foreach ($describedModels as $describedModelName => $describedModelProps) {
-            $ret[] = Tags::div(\sprintf('%s {', Tags::b($describedModelName)), ['class' => 'm-name']);
+            $ret[] = Tags::div(sprintf('%s {', Tags::b($describedModelName)), ['class' => 'm-name']);
 
             foreach ($describedModelProps as $describedModelProp) {
                 $propName = $describedModelProp['propertyName'];
                 $propType = $describedModelProp['propertyType'];
                 $propOpt = $describedModelProp['propertyOptional'] ? '?' : '';
                 $propDesc = $describedModelProp['propertyName'] !== ''
-                    ? \sprintf('%s%s: %s;', Tags::b($propName), $propOpt, $propType)
-                    : \sprintf('%s', $propType);
+                    ? sprintf('%s%s: %s;', Tags::b($propName), $propOpt, $propType)
+                    : sprintf('%s', $propType);
 
                 $ret[] = Tags::div($propDesc, ['class' => 'm-prop']);
             }

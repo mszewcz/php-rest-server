@@ -31,7 +31,7 @@ class TestResponseModel
      */
     public function __construct($data)
     {
-        if (\is_array($data)) {
+        if (is_array($data)) {
             $this->urlParams = isset($data['urlParams']) ? $data['urlParams'] : [];
             $this->requestBody = isset($data['requestBody']) ? $data['requestBody'] : new \stdClass();
         }

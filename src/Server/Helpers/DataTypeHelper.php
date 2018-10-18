@@ -39,17 +39,17 @@ class DataTypeHelper
      */
     public function getDataType(string $type): string
     {
-        if (\in_array($type, $this->simpleTypes)) {
+        if (in_array($type, $this->simpleTypes)) {
             return $type;
         }
-        if (\in_array($type, $this->simpleArrayTypes)) {
-            return \sprintf('Array&lt;%s&gt;', \str_replace('[]', '', $type));
+        if (in_array($type, $this->simpleArrayTypes)) {
+            return sprintf('Array&lt;%s&gt;', str_replace('[]', '', $type));
         }
 
         $type = $this->getModelName($type);
 
         if ($this->isArrayType($type)) {
-            return \sprintf('Array&lt;%s&gt;', \str_replace('[]', '', $type));
+            return sprintf('Array&lt;%s&gt;', str_replace('[]', '', $type));
         }
         return $type;
     }
@@ -63,7 +63,7 @@ class DataTypeHelper
     public function getSimpleModelName(string $type): string
     {
         $modelName = $this->getModelName($type);
-        return \str_replace('[]', '', $modelName);
+        return str_replace('[]', '', $modelName);
     }
 
     /**
@@ -71,10 +71,10 @@ class DataTypeHelper
      * @return bool
      */
     public function isModelType(string $type): bool {
-        if (\in_array($type, $this->simpleTypes)) {
+        if (in_array($type, $this->simpleTypes)) {
             return false;
         }
-        if (\in_array($type, $this->simpleArrayTypes)) {
+        if (in_array($type, $this->simpleArrayTypes)) {
             return false;
         }
         return true;
@@ -86,8 +86,8 @@ class DataTypeHelper
      */
     private function getModelName(string $type): string
     {
-        $typeExploded = \explode('\\', $type);
-        return \array_pop($typeExploded);
+        $typeExploded = explode('\\', $type);
+        return array_pop($typeExploded);
     }
 
     /**
@@ -95,6 +95,6 @@ class DataTypeHelper
      * @return bool
      */
     private function isArrayType(string $type): bool {
-        return \stripos($type, '[]') !== false;
+        return stripos($type, '[]') !== false;
     }
 }

@@ -24,8 +24,8 @@ class StringValidator implements SimpleTypeValidator
      */
     public function validate($value, string $requiredType = 'string'): ?string
     {
-        if (!\is_string($value)) {
-            return \sprintf('Wymagany typ: %s', $requiredType);
+        if (!is_string($value)) {
+            return sprintf('Wymagany typ: %s', $requiredType);
         }
         return null;
     }

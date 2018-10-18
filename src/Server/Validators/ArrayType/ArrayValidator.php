@@ -26,8 +26,8 @@ class ArrayValidator implements ArrayTypeValidator
     {
         $errors = [];
         foreach ($value as $key => $val) {
-            if (!\is_array($val)) {
-                $errors[$key] = \sprintf('Wymagany typ: %s', $requiredType);
+            if (!is_array($val)) {
+                $errors[$key] = sprintf('Wymagany typ: %s', $requiredType);
             }
         }
         return $errors;

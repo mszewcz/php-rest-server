@@ -70,13 +70,13 @@ class InputBodyValidator
 
         $variableType = $this->inputParams['body'][0]['paramType'];
 
-        if (\in_array($variableType, $this->simpleTypes)) {
+        if (in_array($variableType, $this->simpleTypes)) {
             return $this->validateSimpleType($this->inputParams['body'][0]);
         }
-        if (\in_array($variableType, $this->arrayTypes)) {
+        if (in_array($variableType, $this->arrayTypes)) {
             return $this->validateArrayType($this->inputParams['body'][0]);
         }
-        if (\stripos($variableType, '[]') !== false) {
+        if (stripos($variableType, '[]') !== false) {
             return $this->validateModelArrayType($this->inputParams['body'][0]);
         }
         return $this->validateModelType($this->inputParams['body'][0]);
@@ -93,9 +93,9 @@ class InputBodyValidator
         $paramType = $paramData['paramType'];
         $paramValue = $this->requestBody;
 
-        $validatorClass = \sprintf(
+        $validatorClass = sprintf(
             '\\MS\RestServer\\Server\\Validators\\SimpleType\\%sValidator',
-            \ucfirst($paramType)
+            ucfirst($paramType)
         );
         /**
          * @var SimpleTypeValidator $validator
@@ -119,10 +119,10 @@ class InputBodyValidator
         $paramType = $paramData['paramType'];
         $paramValue = $this->requestBody;
 
-        $validatorType = \str_replace('[]', '', $paramType);
-        $validatorClass = \sprintf(
+        $validatorType = str_replace('[]', '', $paramType);
+        $validatorClass = sprintf(
             '\\MS\RestServer\\Server\\Validators\\ArrayType\\%sValidator',
-            \ucfirst($validatorType)
+            ucfirst($validatorType)
         );
         /**
          * @var SimpleTypeValidator $validator
@@ -155,8 +155,8 @@ class InputBodyValidator
     {
         $paramValue = $this->requestBody;
         $modelClass = $paramData['paramType'];
-        $modelName = \explode('\\', $modelClass);
-        $modelName = \array_pop($modelName);
+        $modelName = explode('\\', $modelClass);
+        $modelName = array_pop($modelName);
         $errors = [];
 
         /**
@@ -189,9 +189,9 @@ class InputBodyValidator
     {
         $paramType = $paramData['paramType'];
         $paramValue = $this->requestBody;
-        $modelClass = \str_replace('[]', '', $paramType);
-        $modelName = \explode('\\', $paramType);
-        $modelName = \array_pop($modelName);
+        $modelClass = str_replace('[]', '', $paramType);
+        $modelName = explode('\\', $paramType);
+        $modelName = array_pop($modelName);
 
         /**
          * @var SimpleTypeValidator $validator
@@ -203,7 +203,7 @@ class InputBodyValidator
         }
 
         $errors = [];
-        $modelName = \str_replace('[]', '', $modelName);
+        $modelName = str_replace('[]', '', $modelName);
 
         foreach ($paramValue as $index => $value) {
             /**

@@ -30,14 +30,14 @@ class ArrayObjectValidatorTest extends TestCase
         $this->assertEquals($expected, $result);
 
         $expected = [1 => 'Wymagany typ: object'];
-        $result = $this->validator->validate([new stdClass(), 'a'], 'object');
+        $result = $this->validator->validate([new \stdClass(), 'a'], 'object');
         $this->assertEquals($expected, $result);
     }
 
     public function testValidateOK()
     {
         $expected = [];
-        $result = $this->validator->validate([new stdClass(), new stdClass()], 'object');
+        $result = $this->validator->validate([new \stdClass(), new \stdClass()], 'object');
         $this->assertEquals($expected, $result);
     }
 }

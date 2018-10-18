@@ -26,8 +26,8 @@ class FloatValidator implements ArrayTypeValidator
     {
         $errors = [];
         foreach ($value as $key => $val) {
-            if (!\is_float($val) && !\is_int($val)) {
-                $errors[$key] = \sprintf('Wymagany typ: %s', $requiredType);
+            if (!is_float($val) && !is_int($val)) {
+                $errors[$key] = sprintf('Wymagany typ: %s', $requiredType);
             }
         }
         return $errors;

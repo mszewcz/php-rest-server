@@ -36,7 +36,7 @@ class ModelDescriber
      */
     public function describeModel(string $modelType): array
     {
-        $modelClass = \str_replace('[]', '', $modelType);
+        $modelClass = str_replace('[]', '', $modelType);
         $modelName = $this->dataTypeHelper->getDataType($modelType);
         $describedModels = [$modelName => []];
 
@@ -85,7 +85,7 @@ class ModelDescriber
      */
     public function describeSubModel(string $modelType): array
     {
-        $modelClass = \str_replace('[]', '', $modelType);
+        $modelClass = str_replace('[]', '', $modelType);
         $modelName = $this->dataTypeHelper->getSimpleModelName($modelType);
         $describedModels = [$modelName => []];
 

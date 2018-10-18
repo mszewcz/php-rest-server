@@ -85,7 +85,7 @@ class Base
      */
     public function decode(string $json)
     {
-        return \json_decode($json);
+        return json_decode($json);
     }
 
     /**
@@ -94,7 +94,7 @@ class Base
      */
     public function decodeAsArray(string $json): array
     {
-        return \json_decode($json, true);
+        return json_decode($json, true);
     }
 
     /**
@@ -103,7 +103,7 @@ class Base
      */
     public function encode(array $data): string
     {
-        return \json_encode($data, \JSON_UNESCAPED_SLASHES);
+        return json_encode($data, JSON_UNESCAPED_SLASHES);
     }
 
     /**

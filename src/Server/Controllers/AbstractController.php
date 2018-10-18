@@ -106,7 +106,7 @@ class AbstractController
             throw new ResponseException(
                 404,
                 null,
-                ['message' => \sprintf('No method matching uri: %s', $requestUri)]
+                ['message' => sprintf('No method matching uri: %s', $requestUri)]
             );
         }
 
@@ -126,7 +126,7 @@ class AbstractController
             throw new ResponseException(
                 500,
                 null,
-                ['message' => \sprintf('Method map file is missing for route: %s', $requestUri)]
+                ['message' => sprintf('Method map file is missing for route: %s', $requestUri)]
             );
         }
 
@@ -154,14 +154,14 @@ class AbstractController
         $defaultAuthProvider = ['true', 'yes', 'default'];
 
         // No Auth Provider
-        if (\in_array($authProvider, $noAuthProvider)) {
+        if (in_array($authProvider, $noAuthProvider)) {
             $this->authorizationResult = true;
             $this->authorizedUserData = [];
             return;
         }
 
         // Default Auth Provider
-        if (\in_array($authProvider, $defaultAuthProvider)) {
+        if (in_array($authProvider, $defaultAuthProvider)) {
             $authProvider = $this->request->getDefaultAuthProvider();
             if ($authProvider === null) {
                 throw new ResponseException(
@@ -180,7 +180,7 @@ class AbstractController
             throw new ResponseException(
                 500,
                 null,
-                ['message' => \sprintf('%s class does not exist', $authProvider)]
+                ['message' => sprintf('%s class does not exist', $authProvider)]
             );
         }
         $authProviderClass = new $authProvider;
@@ -188,7 +188,7 @@ class AbstractController
             throw new ResponseException(
                 500,
                 null,
-                ['message' => \sprintf('%s has to be an instance of AbstractAuthProvider', $authProvider)]
+                ['message' => sprintf('%s has to be an instance of AbstractAuthProvider', $authProvider)]
             );
         }
         $this->authorizationResult = $authProviderClass->authorize();

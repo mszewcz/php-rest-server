@@ -24,8 +24,8 @@ class ObjectValidator implements SimpleTypeValidator
      */
     public function validate($value, string $requiredType = 'object'): ?string
     {
-        if (!\is_object($value)) {
-            return \sprintf('Wymagany typ: %s', $requiredType);
+        if (!is_object($value)) {
+            return sprintf('Wymagany typ: %s', $requiredType);
         }
         return null;
     }

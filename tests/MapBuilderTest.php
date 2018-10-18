@@ -11,7 +11,7 @@ declare(strict_types=1);
 use MS\RestServer\Server\MapBuilder;
 use PHPUnit\Framework\TestCase;
 
-$_ENV['CONFIG_FILE_SERVER'] = \realpath(\dirname(__FILE__) . '/../') . '/src/_config_server.json';
+$_ENV['CONFIG_FILE_SERVER'] = realpath(dirname(__FILE__) . '/../') . '/src/_config_server.json';
 
 class MapBuilderTest extends TestCase
 {

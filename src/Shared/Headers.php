@@ -59,7 +59,7 @@ class Headers
      */
     public function removeHeaders($headers): void
     {
-        if (\is_string($headers)) {
+        if (is_string($headers)) {
             $headers = [$headers];
         }
         foreach ($headers as $header) {

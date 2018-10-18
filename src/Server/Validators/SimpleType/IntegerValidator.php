@@ -24,8 +24,8 @@ class IntegerValidator implements SimpleTypeValidator
      */
     public function validate($value, string $requiredType = 'integer'): ?string
     {
-        if (!\is_int($value)) {
-            return \sprintf('Wymagany typ: %s', $requiredType);
+        if (!is_int($value)) {
+            return sprintf('Wymagany typ: %s', $requiredType);
         }
         return null;
     }

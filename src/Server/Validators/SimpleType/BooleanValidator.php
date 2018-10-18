@@ -24,8 +24,8 @@ class BooleanValidator implements SimpleTypeValidator
      */
     public function validate($value, string $requiredType = 'boolean'): ?string
     {
-        if (!\is_bool($value)) {
-            return \sprintf('Wymagany typ: %s', $requiredType);
+        if (!is_bool($value)) {
+            return sprintf('Wymagany typ: %s', $requiredType);
         }
         return null;
     }

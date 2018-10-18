@@ -35,7 +35,7 @@ class TestRequestBodyModel extends AbstractModel
      */
     public function __construct($data)
     {
-        if (\is_array($data)) {
+        if (is_array($data)) {
             $this->testVar1 = isset($data['testVar1']) ? $data['testVar1'] : null;
             $this->testVar2 = isset($data['testVar2']) ? $data['testVar2'] : null;
             $this->testVar3 = isset($data['testVar3']) ? $data['testVar3'] : null;

@@ -26,8 +26,8 @@ class IntegerValidator implements ArrayTypeValidator
     {
         $errors = [];
         foreach ($value as $key => $val) {
-            if (!\is_int($val)) {
-                $errors[$key] = \sprintf('Wymagany typ: %s', $requiredType);
+            if (!is_int($val)) {
+                $errors[$key] = sprintf('Wymagany typ: %s', $requiredType);
             }
         }
         return $errors;
