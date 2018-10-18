@@ -27,7 +27,7 @@ class AnyValidator implements ArrayTypeValidator
         $errors = [];
         foreach ($value as $key => $val) {
             if (is_null($val)) {
-                $errors[$key] = 'To pole jest wymagane';
+                $errors[$key] = sprintf('Wymagany typ: %s', $requiredType);
             }
         }
         return $errors;
