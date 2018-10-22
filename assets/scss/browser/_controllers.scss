@@ -103,23 +103,6 @@
                 .response {
                     display: block;
                     padding: 10px;
-
-                    .table {
-                        .row {
-                            div {
-                                &.p-data-type {
-                                    padding-top: 10px;
-                                }
-                            }
-                            &.header {
-                                div {
-                                    &.p-data-type {
-                                        padding-top: 3px;
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
                 .table {
                     display: table;
@@ -130,42 +113,51 @@
                     .row {
                         display: table-row;
 
-                        div {
-                            padding: 3px 10px;
+                        > div {
+                            padding: 5px 10px;
+                            border-top: solid 1px #dddddd;
 
                             &.p-type {
                                 display: table-cell;
                                 width: 60px;
                                 text-align: center;
                             }
+                            &.p-code {
+                                display: table-cell;
+                                width: 120px;
+                            }
+                            &.p-reason {
+                                display: table-cell;
+                                width: 210px;
+                            }
                             &.p-name {
                                 display: table-cell;
-                                width: 300px;
+                                width: 200px;
                                 font-weight: bold;
                                 font-family: monospace;
                             }
                             &.p-data-type {
                                 display: table-cell;
-                                //font-family: monospace;
+
+                                .m-name {
+                                    padding: 0;
+                                }
+                                .m-prop {
+                                    padding: 0;
+                                    margin: 5px 15px;
+                                }
+                                .m-close {
+                                    padding: 0;
+
+                                    + .m-name {
+                                        margin-top: 10px;
+                                    }
+                                }
                             }
                             &.p-required {
                                 width: 70px;
                                 display: table-cell;
                                 text-align: center;
-                            }
-                            &.m-name {
-                                padding: 0;
-                            }
-                            &.m-prop {
-                                padding: 0;
-                                margin: 5px 15px;
-                            }
-                            &.m-close {
-                                padding: 0;
-
-                                + .m-name {
-                                    margin-top: 10px;
-                                }
                             }
                         }
 
@@ -173,10 +165,10 @@
                             color: #999999;
                             font-family: Arial, sans-serif;
 
-                            div {
-                                border-bottom: solid 1px #dddddd;
+                            > div {
                                 font-weight: normal;
                                 font-family: Arial, sans-serif;
+                                border-top: 0 none;
                             }
                         }
                     }

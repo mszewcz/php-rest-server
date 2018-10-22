@@ -14,26 +14,26 @@ namespace MS\RestServer\Server\Models;
 /**
  * @codeCoverageIgnore
  */
-class ServerEndpointInputModel extends AbstractModel
+class ServerendpointParamsModel extends AbstractModel
 {
     /**
-     * @api:type MS\RestServer\Server\Models\ServerEndpointInputParamModel[]
+     * @api:type MS\RestServer\Server\Models\ServerendpointParamsParamModel[]
      * @api:optional
      */
     public $path;
     /**
-     * @api:type MS\RestServer\Server\Models\ServerEndpointInputParamModel[]
+     * @api:type MS\RestServer\Server\Models\ServerendpointParamsParamModel[]
      * @api:optional
      */
     public $query;
     /**
-     * @api:type MS\RestServer\Server\Models\ServerEndpointInputParamModel[]
+     * @api:type MS\RestServer\Server\Models\ServerendpointParamsParamModel[]
      * @api:optional
      */
     public $body;
 
     /**
-     * ServerEndpointInputModel constructor.
+     * ServerendpointParamsModel constructor.
      * @param array $data
      */
     public function __construct(array $data)

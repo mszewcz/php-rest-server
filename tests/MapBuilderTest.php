@@ -38,8 +38,8 @@ class MapBuilderTest extends TestCase
                     'endpointHttpMethod'   => 'get',
                     'endpointUri'          => '/api/rebuildEndpointsMap',
                     'endpointUriPattern'   => '|^/api/rebuildEndpointsMap$|i',
-                    'endpointInput'        => [],
-                    'endpointOutput'       => 'MS\\RestServer\\Server\\Models\\ServerControllerModel[]',
+                    'endpointParams'       => [],
+                    'endpointResponses'    => [200 => 'MS\\RestServer\\Server\\Models\\ServerControllerModel[]'],
                     'endpointAuthProvider' => 'none',
                     'endpointHidden'       => false
                 ]
@@ -51,7 +51,7 @@ class MapBuilderTest extends TestCase
                     'endpointHttpMethod'   => 'get',
                     'endpointUri'          => '/test/sum-of/{a}/and/{b}',
                     'endpointUriPattern'   => '|^/test/sum-of/([^/]+)/and/([^/]+)$|i',
-                    'endpointInput'        => [
+                    'endpointParams'       => [
                         'path' => [
                             [
                                 'paramName'     => 'a',
@@ -65,7 +65,7 @@ class MapBuilderTest extends TestCase
                             ]
                         ]
                     ],
-                    'endpointOutput'       => 'integer',
+                    'endpointResponses'    => [200 => 'integer'],
                     'endpointAuthProvider' => 'none',
                     'endpointHidden'       => false
                 ],
@@ -76,7 +76,7 @@ class MapBuilderTest extends TestCase
                     'endpointHttpMethod'   => 'post',
                     'endpointUri'          => '/test/ping/{intParam1}/{intParam2}',
                     'endpointUriPattern'   => '|^/test/ping/([^/]+)/([^/]+)$|i',
-                    'endpointInput'        => [
+                    'endpointParams'       => [
                         'path' => [
                             [
                                 'paramName'     => 'intParam1',
@@ -97,7 +97,7 @@ class MapBuilderTest extends TestCase
                             ]
                         ]
                     ],
-                    'endpointOutput'       => 'MS\\RestServer\\Server\\Models\\TestResponseModel',
+                    'endpointResponses'    => [200 => 'MS\\RestServer\\Server\\Models\\TestResponseModel'],
                     'endpointAuthProvider' => 'none',
                     'endpointHidden'       => false
                 ]

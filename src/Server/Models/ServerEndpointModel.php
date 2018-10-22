@@ -37,13 +37,13 @@ class ServerEndpointModel extends AbstractModel
      */
     public $endpointUriPattern;
     /**
-     * @api:type MS\RestServer\Server\Models\ServerEndpointInputModel
+     * @api:type MS\RestServer\Server\Models\ServerendpointParamsModel
      */
-    public $endpointInput;
+    public $endpointParams;
     /**
      * @api:type string
      */
-    public $endpointOutput;
+    public $endpointResponses;
     /**
      * @api:type string
      */

@@ -16,6 +16,12 @@ class DataTypeHelper
     /**
      * @var array
      */
+    private $voidTypes = [
+        '', '-', 'void'
+    ];
+    /**
+     * @var array
+     */
     private $simpleTypes = [
         'any', 'array', 'bool', 'boolean', 'double', 'float', 'int', 'integer', 'string'
     ];
@@ -39,6 +45,9 @@ class DataTypeHelper
      */
     public function getDataType(string $type): string
     {
+        if (in_array($type, $this->voidTypes)) {
+            return '-';
+        }
         if (in_array($type, $this->simpleTypes)) {
             return $type;
         }
@@ -71,6 +80,9 @@ class DataTypeHelper
      * @return bool
      */
     public function isModelType(string $type): bool {
+        if (in_array($type, $this->voidTypes)) {
+            return false;
+        }
         if (in_array($type, $this->simpleTypes)) {
             return false;
         }

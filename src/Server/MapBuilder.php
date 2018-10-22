@@ -61,7 +61,7 @@ class MapBuilder
         $endpointMap = [];
 
         try {
-            $controllerClass = (string)$controller->class;
+            $controllerClass = (string) $controller->class;
             $mapFile = $this->base->getSafeFileName($controller->uri);
             $mapFilePath = sprintf('%s%s.json', $definitionsDir, $mapFile);
 
@@ -76,8 +76,8 @@ class MapBuilder
                 $endpointHttpMethod = $this->getEndpointHttpMethod($docComment);
                 $endpointUri = $this->getEndpointUri($docComment);
                 $endpointUriPattern = $this->getEndpointUriPattern($endpointUri);
-                $endpointInput = $this->getEndpointInput($docComment);
-                $endpointOutput = $this->getEndpointOutput($docComment);
+                $endpointParams = $this->getEndpointParams($docComment);
+                $endpointResponses = $this->getEndpointResponses($docComment);
                 $endpointAuthProvider = $this->getEndpointAuthProvider($docComment);
                 $endpointHidden = $this->getEndpointVisibility($docComment);
 
@@ -123,8 +123,8 @@ class MapBuilder
                     'endpointHttpMethod'   => $endpointHttpMethod,
                     'endpointUri'          => $endpointUri,
                     'endpointUriPattern'   => $endpointUriPattern,
-                    'endpointInput'        => $endpointInput,
-                    'endpointOutput'       => $endpointOutput,
+                    'endpointParams'       => $endpointParams,
+                    'endpointResponses'    => $endpointResponses,
                     'endpointAuthProvider' => $endpointAuthProvider,
                     'endpointHidden'       => $endpointHidden,
                 ];
@@ -192,7 +192,7 @@ class MapBuilder
     private function getEndpointUriPattern(?string $endpointUri): ?string
     {
         $endpointUriPattern = preg_replace('/\/({[^}]+})/', '/([^/]+)', $endpointUri);
-        $endpointUriPattern = preg_replace('/=({[^}]+})/', '=([^&]+)', $endpointUriPattern);
+        $endpointUriPattern = preg_replace('/=({[^}]+})/', '=([^&]*)', $endpointUriPattern);
         $endpointUriPattern = str_replace('?', '\\?', $endpointUriPattern);
         return sprintf('|^%s$|i', $endpointUriPattern);
     }
@@ -203,35 +203,43 @@ class MapBuilder
      * @param null|string $text
      * @return array
      */
-    private function getEndpointInput(?string $text): array
+    private function getEndpointParams(?string $text): array
     {
-        $endpointInput = [];
+        $endpointParams = [];
 
-        preg_match_all('/^[^\*]+\*[^@]+@api:input:(path|query|body) (.*?)[\r\n]?$/mi', $text, $matches);
+        preg_match_all('/^[^\*]+\*[^@]+@api:params:(path|query|body) (.*?)[\r\n]?$/mi', $text, $matches);
         if (count($matches) > 0) {
-            foreach ($matches[1] as $key => $value) {
-                $param = explode(':', $matches[2][$key]);
-                $endpointInput[$value][] = [
-                    'paramName' => $param[0],
-                    'paramType' => $param[1],
-                    'paramRequired' => $param[2] === 'required'
+            foreach ($matches[1] as $idx => $value) {
+                $param = explode(':', $matches[2][$idx]);
+                $endpointParams[$value][] = [
+                    'paramName'     => $param[0],
+                    'paramType'     => $param[1],
+                    'paramRequired' => isset($param[2]) && $param[2] === 'required'
                 ];
             }
         }
 
-        return $endpointInput;
+        return $endpointParams;
     }
 
     /**
      * Returns endpoint output
      *
      * @param null|string $text
-     * @return null|string
+     * @return array
      */
-    private function getEndpointOutput(?string $text): ?string
+    private function getEndpointResponses(?string $text): array
     {
-        preg_match('/^[^\*]+\*[^@]+@api:output (.*?)[\r\n]?$/mi', $text, $matches);
-        return isset($matches[1]) ? $matches[1] : null;
+        $endpointResponses = [];
+
+        preg_match_all('/^[^\*]+\*[^@]+@api:response:([0-9]+)\ ?(.*?)[\r\n]?$/mi', $text, $matches);
+        if (count($matches) > 0) {
+            foreach ($matches[1] as $idx => $code) {
+                $endpointResponses[$code] = isset($matches[2]) && isset($matches[2][$idx]) ? $matches[2][$idx] : 'void';
+            }
+        }
+
+        return $endpointResponses;
     }
 
     /**

@@ -34,7 +34,7 @@ class Api extends AbstractController
      * @api:desc Re-builds server endpoints' map
      * @api:method get
      * @api:uri /api/rebuildEndpointsMap
-     * @api:output MS\RestServer\Server\Models\ServerControllerModel[]
+     * @api:response:200 MS\RestServer\Server\Models\ServerControllerModel[]
      *
      * @return Response
      * @throws ResponseException

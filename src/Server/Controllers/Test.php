@@ -35,9 +35,9 @@ class Test extends AbstractController
      * @api:desc Returns sum of a & b
      * @api:method get
      * @api:uri /test/sum-of/{a}/and/{b}
-     * @api:input:path a:integer:required
-     * @api:input:path b:integer:required
-     * @api:output integer
+     * @api:params:path a:integer:required
+     * @api:params:path b:integer:required
+     * @api:response:200 integer
      *
      * @return Response
      */
@@ -53,10 +53,10 @@ class Test extends AbstractController
      * @api:desc Server ping test - returns response containing received url params & request body
      * @api:method post
      * @api:uri /test/ping/{intParam1}/{intParam2}
-     * @api:input:path intParam1:integer:required
-     * @api:input:path intParam2:integer:required
-     * @api:input:body testBody:MS\RestServer\Server\Models\TestRequestBodyModel:required
-     * @api:output MS\RestServer\Server\Models\TestResponseModel
+     * @api:params:path intParam1:integer:required
+     * @api:params:path intParam2:integer:required
+     * @api:params:body testBody:MS\RestServer\Server\Models\TestRequestBodyModel:required
+     * @api:response:200 MS\RestServer\Server\Models\TestResponseModel
      *
      * @return Response
      */

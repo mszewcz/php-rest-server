@@ -125,7 +125,7 @@ class Browser
                     $request[] = $this->showRequestSpecification($endpointData);
 
                     $response = [];
-                    $response[] = Tags::h2('Response');
+                    $response[] = Tags::h2('Responses');
                     $response[] = $this->showResponseSpecification($endpointData);
 
                     $endpointDetails = [];
@@ -173,7 +173,7 @@ class Browser
         $row[] = Tags::div('Data type', ['class' => 'p-data-type']);
         $requestSpec[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row header']);
 
-        if (count($endpointData['endpointInput']) === 0) {
+        if (count($endpointData['endpointParams']) === 0) {
             $row = [];
             $row[] = Tags::div('-', ['class' => 'p-name']);
             $row[] = Tags::div('-', ['class' => 'p-type']);
@@ -199,8 +199,8 @@ class Browser
     private function showInputPathSpecification(array $endpointData): string
     {
         $ret = [];
-        if (isset($endpointData['endpointInput']['path'])) {
-            foreach ($endpointData['endpointInput']['path'] as $inputPath) {
+        if (isset($endpointData['endpointParams']['path'])) {
+            foreach ($endpointData['endpointParams']['path'] as $inputPath) {
                 $paramName = $inputPath['paramName'];
                 $paramType = 'path';
                 $paramDataType = $this->dataTypeHelper->getDataType($inputPath['paramType']);
@@ -225,8 +225,8 @@ class Browser
     private function showInputQuerySpecification(array $endpointData): string
     {
         $ret = [];
-        if (isset($endpointData['endpointInput']['query'])) {
-            foreach ($endpointData['endpointInput']['query'] as $inputQuery) {
+        if (isset($endpointData['endpointParams']['query'])) {
+            foreach ($endpointData['endpointParams']['query'] as $inputQuery) {
                 $paramName = $inputQuery['paramName'];
                 $paramType = 'query';
                 $paramDataType = $this->dataTypeHelper->getDataType($inputQuery['paramType']);
@@ -251,8 +251,8 @@ class Browser
     private function showInputBodySpecification(array $endpointData): string
     {
         $ret = [];
-        if (isset($endpointData['endpointInput']['body'])) {
-            foreach ($endpointData['endpointInput']['body'] as $inputBody) {
+        if (isset($endpointData['endpointParams']['body'])) {
+            foreach ($endpointData['endpointParams']['body'] as $inputBody) {
                 $paramName = $endpointData['endpointHttpMethod'] === 'get' ? 'body' : '-';
                 $paramType = $endpointData['endpointHttpMethod'] === 'get' ? 'query' : 'body';
                 $paramDataType = $this->dataTypeHelper->getDataType($inputBody['paramType']);
@@ -284,25 +284,39 @@ class Browser
         $responseSpec = [];
 
         $row = [];
+        $row[] = Tags::div('HTTP status code', ['class' => 'p-code']);
+        $row[] = Tags::div('Reason', ['class' => 'p-reason']);
         $row[] = Tags::div('Data type', ['class' => 'p-data-type']);
         $responseSpec[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row header']);
 
-        if ($endpointData['endpointOutput'] === null) {
+        if (count($endpointData['endpointResponses']) === 0) {
             $row = [];
+            $row[] = Tags::div('-', ['class' => 'p-code']);
+            $row[] = Tags::div('-', ['class' => 'p-reason']);
             $row[] = Tags::div('-', ['class' => 'p-data-type']);
             $responseSpec[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
 
             return Tags::div(implode(Tags::CRLF, $responseSpec), ['class' => 'table']);
         }
 
-        $paramDataType = $this->dataTypeHelper->getDataType($endpointData['endpointOutput']);
-        if ($this->dataTypeHelper->isModelType($endpointData['endpointOutput'])) {
-            $paramDataType = $this->describeModel($endpointData['endpointOutput']);
-        }
+        foreach ($endpointData['endpointResponses'] as $responseCode => $responseBody) {
+            $responseReason = $responseBody;
+            $paramDataType = '-';
 
-        $row = [];
-        $row[] = Tags::div($paramDataType, ['class' => 'p-data-type']);
-        $responseSpec[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
+            if ($responseCode === 200) {
+                $responseReason = '-';
+                $paramDataType = $this->dataTypeHelper->getDataType($responseBody);
+                if ($this->dataTypeHelper->isModelType($paramDataType)) {
+                    $paramDataType = $this->describeModel($responseBody);
+                }
+            }
+
+            $row = [];
+            $row[] = Tags::div($responseCode, ['class' => 'p-code']);
+            $row[] = Tags::div($responseReason, ['class' => 'p-reason']);
+            $row[] = Tags::div($paramDataType, ['class' => 'p-data-type']);
+            $responseSpec[] = Tags::div(implode(Tags::CRLF, $row), ['class' => 'row']);
+        }
 
         return Tags::div(implode(Tags::CRLF, $responseSpec), ['class' => 'table']);
     }

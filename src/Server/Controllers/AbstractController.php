@@ -64,7 +64,7 @@ class AbstractController
         $requestUri = $this->request->getRequestUri();
         $endpointMap = $this->getControllerMap();
         $endpointAuthProvider = 'none';
-        $endpointInput = [];
+        $endpointParams = [];
         $endpointMethodName = null;
 
         foreach ($endpointMap as $endpointData) {
@@ -73,7 +73,7 @@ class AbstractController
 
             if ($httpMethodMatched && $uriMatched) {
                 $endpointAuthProvider = $endpointData['endpointAuthProvider'];
-                $endpointInput = $endpointData['endpointInput'];
+                $endpointParams = $endpointData['endpointParams'];
                 $endpointMethodName = $endpointData['endpointMethodName'];
 
                 $this->request->setRequestPathParams($endpointData);
@@ -92,7 +92,7 @@ class AbstractController
         }
 
         // Validate input
-        $inputErrors = $this->validateInput($endpointInput);
+        $inputErrors = $this->validateInput($endpointParams);
         if (count($inputErrors) > 0) {
             throw new ResponseException(
                 400,
@@ -198,16 +198,16 @@ class AbstractController
     /**
      * Validates input
      *
-     * @param array $endpointInput
+     * @param array $endpointParams
      * @return array
      */
-    private function validateInput(array $endpointInput): array
+    private function validateInput(array $endpointParams): array
     {
         $inputErrors = [];
 
         // Validate path params
-        if (\array_key_exists('path', $endpointInput)) {
-            $validator = new InputPathValidator($this->request, $endpointInput['path']);
+        if (\array_key_exists('path', $endpointParams)) {
+            $validator = new InputPathValidator($this->request, $endpointParams['path']);
             $errors = $validator->validate();
             foreach ($errors as $k => $v) {
                 $inputErrors[$k] = $v;
@@ -215,8 +215,8 @@ class AbstractController
         }
 
         // Validate query params
-        if (\array_key_exists('query', $endpointInput)) {
-            $validator = new InputQueryValidator($this->request, $endpointInput['query']);
+        if (\array_key_exists('query', $endpointParams)) {
+            $validator = new InputQueryValidator($this->request, $endpointParams['query']);
             $errors = $validator->validate();
             foreach ($errors as $k => $v) {
                 $inputErrors[$k] = $v;
@@ -224,8 +224,8 @@ class AbstractController
         }
 
         // Validate request body
-        if (\array_key_exists('body', $endpointInput)) {
-            $validator = new InputBodyValidator($this->request, $endpointInput);
+        if (\array_key_exists('body', $endpointParams)) {
+            $validator = new InputBodyValidator($this->request, $endpointParams);
             $errors = $validator->validate();
             foreach ($errors as $k => $v) {
                 $inputErrors[$k] = $v;

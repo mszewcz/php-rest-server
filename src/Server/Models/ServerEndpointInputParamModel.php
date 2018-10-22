@@ -14,7 +14,7 @@ namespace MS\RestServer\Server\Models;
 /**
  * @codeCoverageIgnore
  */
-class ServerEndpointInputParamModel extends AbstractModel
+class ServerendpointParamsParamModel extends AbstractModel
 {
     /**
      * @api:type string
@@ -30,7 +30,7 @@ class ServerEndpointInputParamModel extends AbstractModel
     public $paramRequired;
 
     /**
-     * ServerEndpointInputParamModel constructor.
+     * ServerendpointParamsParamModel constructor.
      * @param array $data
      */
     public function __construct(array $data)
