@@ -98,12 +98,12 @@ class Base
     }
 
     /**
-     * @param array $data
+     * @param array|object $data
      * @return string
      */
-    public function encode(array $data): string
+    public function encode($data): string
     {
-        return json_encode($data, JSON_UNESCAPED_SLASHES);
+        return json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
     /**
