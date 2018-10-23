@@ -22,7 +22,7 @@ abstract class AbstractAuthProvider
     }
 
     /**
-     * Authenticatez user & returns authorization result
+     * Authenticates user & returns authorization result
      *
      * @return bool
      */
@@ -31,7 +31,7 @@ abstract class AbstractAuthProvider
     /**
      * Returns authorized user data
      *
-     * @return array
+     * @return AuthorizedUser
      */
-    public abstract function getUserData(): array;
+    public abstract function getUser(): AuthorizedUser;
 }

@@ -12,6 +12,7 @@ namespace MS\RestServer\Server\Controllers;
 
 use MS\RestServer\Base;
 use MS\RestServer\Server\Auth\AbstractAuthProvider;
+use MS\RestServer\Server\Auth\AuthorizedUser;
 use MS\RestServer\Server\Exceptions\ResponseException;
 use MS\RestServer\Server\Validators\InputQueryValidator;
 use MS\RestServer\Server\Validators\InputPathValidator;
@@ -38,9 +39,9 @@ class AbstractController
      */
     protected $authorizationResult = false;
     /**
-     * @var array
+     * @var AuthorizedUser
      */
-    protected $authorizedUserData = [];
+    protected $authorizedUser;
 
     /**
      * AbstractController constructor.
@@ -51,6 +52,7 @@ class AbstractController
     {
         $this->base = Base::getInstance();
         $this->request = $request;
+        $this->authorizedUser = new AuthorizedUser([], 'id');
     }
 
     /**
@@ -87,7 +89,7 @@ class AbstractController
             throw new ResponseException(
                 401,
                 null,
-                ['message' => 'User authorization required']
+                ['message' => 'AuthorizedUser authorization required']
             );
         }
 
@@ -156,7 +158,7 @@ class AbstractController
         // No Auth Provider
         if (in_array($authProvider, $noAuthProvider)) {
             $this->authorizationResult = true;
-            $this->authorizedUserData = [];
+            $this->authorizedUser = new AuthorizedUser([], 'id');
             return;
         }
 
@@ -171,7 +173,7 @@ class AbstractController
                 );
             }
             $this->authorizationResult = $authProvider->authorize();
-            $this->authorizedUserData = $authProvider->getUserData();
+            $this->authorizedUser = $authProvider->getUser();
             return;
         }
 
@@ -192,7 +194,7 @@ class AbstractController
             );
         }
         $this->authorizationResult = $authProviderClass->authorize();
-        $this->authorizedUserData = $authProviderClass->getUserData();
+        $this->authorizedUser = $authProviderClass->getUser();
     }
 
     /**
