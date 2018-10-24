@@ -18,9 +18,9 @@ class TestAuthProvider extends \MS\RestServer\Server\Auth\AbstractAuthProvider
         return true;
     }
 
-    public function getUserData(): array
+    public function getUser(): \MS\RestServer\Server\Auth\AuthorizedUser
     {
-        return [];
+        return new \MS\RestServer\Server\Auth\AuthorizedUser([], 'id');
     }
 }
 

@@ -25,6 +25,7 @@ class DataTypeHelperTest extends TestCase
 
     public function testGetDataType()
     {
+        $this->assertEquals('-', $this->dataTypeHelper->getDataType('void'));
         $this->assertEquals('string', $this->dataTypeHelper->getDataType('string'));
         $this->assertEquals('Array&lt;string&gt;', $this->dataTypeHelper->getDataType('string[]'));
         $this->assertEquals('Model', $this->dataTypeHelper->getDataType('\\Test\\Model'));
@@ -33,6 +34,7 @@ class DataTypeHelperTest extends TestCase
 
     public function testIsModelType()
     {
+        $this->assertEquals(false, $this->dataTypeHelper->isModelType('void'));
         $this->assertEquals(false, $this->dataTypeHelper->isModelType('string'));
         $this->assertEquals(false, $this->dataTypeHelper->isModelType('string[]'));
         $this->assertEquals(true, $this->dataTypeHelper->isModelType('\\Test\\Model'));

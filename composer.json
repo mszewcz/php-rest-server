@@ -14,7 +14,8 @@
     "require": {
         "php": ">=7.1.0",
         "mszewcz/php-light-framework": ">=1.0",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-openssl": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^7",

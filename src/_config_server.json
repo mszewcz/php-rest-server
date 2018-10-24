@@ -12,5 +12,12 @@
             "uri": "/test",
             "class": "\\MS\\RestServer\\Server\\Controllers\\Test"
         }
-    ]
+    ],
+    "obfuscator": {
+        "enabled": true,
+        "userDependent": true,
+        "keyFile": "%DOCUMENT_ROOT%/keys/obfuscator.key",
+        "vectorFile": "%DOCUMENT_ROOT%/keys/obfuscator.vector",
+        "cipher": "aes-256-ctr"
+    }
 }
