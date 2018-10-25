@@ -193,25 +193,27 @@ class Server
         $definitionsDir = $this->base->getDefinitionsDir();
 
         foreach ($controllers as $controller) {
-            if (preg_match('/^\\'.$controller->uri.'(\/|$)/i', $this->requestUri)) {
-                $controllerClass = (string)$controller->class;
-                $mapFile = $this->base->getSafeFileName($controller->uri);
-                $mapFilePath = sprintf('%s%s.json', $definitionsDir, $mapFile);
+            foreach ($controller->endpoints as $endpoint) {
+                if (preg_match('/^\\' . $endpoint->uri . '(\/|$)/i', $this->requestUri)) {
+                    $controllerClass = (string) $endpoint->class;
+                    $mapFile = $this->base->getSafeFileName($endpoint->uri);
+                    $mapFilePath = sprintf('%s%s.json', $definitionsDir, $mapFile);
 
-                if (!\class_exists($controllerClass)) {
-                    throw new ResponseException(
-                        500,
-                        null,
-                        ['message' => 'Controller class not found']
-                    );
-                }
-                if (!$this->base->fileExists($mapFilePath)) {
-                    $mapBuilder = new MapBuilder();
-                    $mapBuilder->build();
-                }
-                $this->base->setMapFilePath($mapFilePath);
+                    if (!\class_exists($controllerClass)) {
+                        throw new ResponseException(
+                            500,
+                            null,
+                            ['message' => 'Controller class not found']
+                        );
+                    }
+                    if (!$this->base->fileExists($mapFilePath)) {
+                        $mapBuilder = new MapBuilder();
+                        $mapBuilder->build();
+                    }
+                    $this->base->setMapFilePath($mapFilePath);
 
-                return new $controllerClass($this->request);
+                    return new $controllerClass($this->request);
+                }
             }
         }
         throw new ResponseException(

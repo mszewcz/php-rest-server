@@ -2,25 +2,45 @@
     padding: 10px 0;
     border-bottom: solid 1px #dddddd;
 
-    .controller__name {
+    .controller__heading {
+        display: table;
+        width: 100%;
         height: 22px;
         color: #999999;
-        font-weight: bold;
         cursor: pointer;
-        @include font-size(20);
         @include clearfix();
         @include noselect();
 
         span {
+            text-align: right;
+            width: 120px;
             height: 22px;
             line-height: 22px;
-            display: block;
-            float: right;
-            font-weight: normal;
+            display: table-cell;
+            cursor: pointer;
             @include font-size(12);
             
             &:hover {
                 text-decoration: underline;
+            }
+
+            &.name {
+                width: auto;
+                text-align: left;
+                font-weight: bold;
+                @include font-size(20);
+
+                &:hover {
+                    text-decoration: none;
+                }
+            }
+            &.exp-c,
+            &.exp-e {
+                display: table-cell;
+            }
+            &.col-c,
+            &.col-e {
+                display: none;
             }
         }
     }
@@ -268,8 +288,30 @@
     }
 
     &.expanded {
+        .controller__heading {
+            span {
+                &.exp-c {
+                    display: none;
+                }
+                &.col-c {
+                    display: table-cell;
+                }
+            }
+        }
         .controller__endpoints {
             display: block;
+        }
+    }
+    &.ep-expanded {
+        .controller__heading {
+            span {
+                &.exp-e {
+                    display: none;
+                }
+                &.col-e {
+                    display: table-cell;
+                }
+            }
         }
     }
 }

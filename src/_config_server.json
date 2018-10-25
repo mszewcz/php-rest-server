@@ -4,13 +4,21 @@
     "controllers": [
         {
             "name": "Api",
-            "uri": "/api",
-            "class": "\\MS\\RestServer\\Server\\Controllers\\Api"
+            "endpoints": [
+                {
+                    "uri": "/api",
+                    "class": "\\MS\\RestServer\\Server\\Controllers\\Api"
+                }
+            ]
         },
         {
             "name": "Test",
-            "uri": "/test",
-            "class": "\\MS\\RestServer\\Server\\Controllers\\Test"
+            "endpoints": [
+                {
+                    "uri": "/test",
+                    "class": "\\MS\\RestServer\\Server\\Controllers\\Test"
+                }
+            ]
         }
     ],
     "obfuscator": {

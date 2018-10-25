@@ -43,7 +43,9 @@ class MapBuilder
 
         $result = [];
         foreach ($controllers as $controller) {
-            $result[] = $this->buildControllerMap($controller);
+            foreach ($controller->endpoints as $endpoint) {
+                $result[] = $this->buildControllerMap($endpoint);
+            }
         }
         return $result;
     }
@@ -51,18 +53,18 @@ class MapBuilder
     /**
      * Builds single controller's map
      *
-     * @param AbstractConfig $controller
+     * @param AbstractConfig $endpoint
      * @return array
      * @throws ResponseException
      */
-    private function buildControllerMap(AbstractConfig $controller): array
+    private function buildControllerMap(AbstractConfig $endpoint): array
     {
         $definitionsDir = $this->base->getDefinitionsDir();
         $endpointMap = [];
 
         try {
-            $controllerClass = (string) $controller->class;
-            $mapFile = $this->base->getSafeFileName($controller->uri);
+            $controllerClass = (string) $endpoint->class;
+            $mapFile = $this->base->getSafeFileName($endpoint->uri);
             $mapFilePath = sprintf('%s%s.json', $definitionsDir, $mapFile);
 
             $classReflection = new \ReflectionClass($controllerClass);

@@ -75,14 +75,22 @@ class Browser
 
         $ret = [];
         foreach ($controllers as $controller) {
-            $controllerName = (string)$controller->name;
-            $mapFile = $this->base->getSafeFileName((string)$controller->uri);
-            $mapFilePath = sprintf('%s%s.json', $definitionsDir, $mapFile);
+            $controllerN = Tags::span((string) $controller->name, ['class' => 'name']);
+            $controllerEp = [];
+            $showE = Tags::span('Expand controller', ['class' => 'exp-c']);
+            $hideE = Tags::span('Collapse controller', ['class' => 'col-c']);
+            $showED = Tags::span('Expand endpoints', ['class' => 'exp-e']);
+            $hideED = Tags::span('Collapse endpoints', ['class' => 'col-e']);
 
-            $expandCollapse = Tags::span('Expand / Collapse Everything');
+            foreach ($controller->endpoints as $endpoint) {
+                $mapFile = $this->base->getSafeFileName((string) $endpoint->uri);
+                $mapFilePath = sprintf('%s%s.json', $definitionsDir, $mapFile);
+                $controllerEp[] = $this->listEndpoints($mapFilePath);
+            }
+
             $controller = [
-                Tags::div($controllerName . $expandCollapse, ['class' => 'controller__name']),
-                Tags::div($this->listEndpoints($mapFilePath), ['class' => 'controller__endpoints'])
+                Tags::div($controllerN . $showE . $hideE . $showED . $hideED, ['class' => 'controller__heading']),
+                Tags::div(implode(Tags::CRLF, $controllerEp), ['class' => 'controller__endpoints'])
             ];
 
             $ret[] = Tags::div(implode(Tags::CRLF, $controller), ['class' => 'controller']);
