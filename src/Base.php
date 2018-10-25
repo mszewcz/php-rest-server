@@ -175,6 +175,7 @@ class Base
     public function getSafeFileName(string $file): string
     {
         $file = str_replace('/', '-', $file);
+        $file = strpos($file, '-') === 0 ? substr($file, 1) : $file;
         return FileName::getSafe($file);
     }
 
