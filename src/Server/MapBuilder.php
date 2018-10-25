@@ -195,7 +195,7 @@ class MapBuilder
     {
         $endpointUriPattern = preg_replace('/\/({[^}]+})/', '/([^/]+)', $endpointUri);
         $endpointUriPattern = preg_replace('/=({[^}]+})/', '=([^&]*)', $endpointUriPattern);
-        $endpointUriPattern = str_replace('?', '\\?', $endpointUriPattern);
+        $endpointUriPattern = str_replace(['?', '/'], ['\\?', '\\/'], $endpointUriPattern);
         return sprintf('|^%s$|i', $endpointUriPattern);
     }
 
