@@ -174,6 +174,7 @@ class Base
      */
     public function getSafeFileName(string $file): string
     {
+        $file = str_replace('/', '-', $file);
         return FileName::getSafe($file);
     }
 
