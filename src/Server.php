@@ -196,7 +196,7 @@ class Server
             foreach ($controller->endpoints as $endpoint) {
                 $endpointUriPattern = str_replace('/', '\\/', $endpoint->uri);
 
-                if (preg_match('/^\\' . $endpointUriPattern . '(\/|$)/i', $this->requestUri)) {
+                if (preg_match('/^' . $endpointUriPattern . '(\/|$)/i', $this->requestUri)) {
                     $controllerClass = (string) $endpoint->class;
                     $mapFile = $this->base->getSafeFileName($endpoint->uri);
                     $mapFilePath = sprintf('%s%s.json', $definitionsDir, $mapFile);
