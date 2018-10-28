@@ -12,6 +12,7 @@ namespace MS\RestServer\Server\Controllers;
 
 use MS\RestServer\Base;
 use MS\RestServer\Server\Auth\AbstractAuthProvider;
+use MS\RestServer\Server\Auth\AbstractUser;
 use MS\RestServer\Server\Auth\AuthorizedUser;
 use MS\RestServer\Server\Exceptions\ResponseException;
 use MS\RestServer\Server\Validators\InputQueryValidator;
@@ -39,7 +40,7 @@ class AbstractController
      */
     protected $authorizationResult = false;
     /**
-     * @var AuthorizedUser
+     * @var AbstractUser
      */
     protected $authorizedUser;
 
@@ -52,7 +53,7 @@ class AbstractController
     {
         $this->base = Base::getInstance();
         $this->request = $request;
-        $this->authorizedUser = new AuthorizedUser([], 'id');
+        $this->authorizedUser = new AuthorizedUser();
     }
 
     /**
@@ -89,7 +90,7 @@ class AbstractController
             throw new ResponseException(
                 401,
                 null,
-                ['message' => 'AuthorizedUser authorization required']
+                ['message' => 'Authorization required']
             );
         }
 
@@ -158,7 +159,7 @@ class AbstractController
         // No Auth Provider
         if (in_array($authProvider, $noAuthProvider)) {
             $this->authorizationResult = true;
-            $this->authorizedUser = new AuthorizedUser([], 'id');
+            $this->authorizedUser = new AuthorizedUser();
             return;
         }
 

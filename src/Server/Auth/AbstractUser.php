@@ -11,13 +11,18 @@ declare(strict_types=1);
 namespace MS\RestServer\Server\Auth;
 
 
-class AuthorizedUser extends AbstractUser
+abstract class AbstractUser
 {
     /**
-     * AuthorizedUser constructor.
+     * @var int
      */
-    public function __construct()
+    protected $userId = 0;
+
+    /**
+     * @return int
+     */
+    public function id()
     {
-        $this->userId = 3;
+        return $this->userId;
     }
 }
