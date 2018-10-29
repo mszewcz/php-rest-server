@@ -80,17 +80,12 @@
                         display: block;
                         float: right;
                         margin: 7px 5px 0 0;
-                        width: 16px;
-                        height: 16px;
-                        line-height: 16px;
-                        background-color: #ff0000;
-                        color: #ffffff;
-                        font-weight: bold;
-                        font-style: normal;
+                        width: 18px;
+                        height: 18px;
+                        background: rgba(204, 0, 0, 0.5) url('/assets/gfx/auth.png') no-repeat 3px 2.5px;
+                        background-size: 12px 12px;
                         overflow: hidden;
-                        text-align: center;
                         cursor: default;
-                        @include font-size(12);
                         @include border-radius(50%);
                     }
 

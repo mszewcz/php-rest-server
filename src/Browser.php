@@ -116,7 +116,7 @@ class Browser
                     $authIcon = '';
                     if ($endpointData['endpointAuthProvider'] !== 'none') {
                         $authIcon = Tags::i(
-                            '!',
+                            '',
                             ['class' => 'auth-required', 'title' => 'Authorization required']
                         );
                     }
