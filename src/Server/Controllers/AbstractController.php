@@ -146,7 +146,7 @@ class AbstractController
      * Returns request path param
      *
      * @param string $paramName
-     * @return mixed|null
+     * @return array|bool|float|int|object|string|null
      */
     public function getRequestPathParam(string $paramName = '')
     {
@@ -167,7 +167,7 @@ class AbstractController
      * Returns request query param
      *
      * @param string $paramName
-     * @return mixed|null
+     * @return array|bool|float|int|object|string|null
      */
     public function getRequestQueryParam(string $paramName = '')
     {
@@ -177,7 +177,7 @@ class AbstractController
     /**
      * Returns request body
      *
-     * @return mixed|null
+     * @return array|bool|float|int|object|string|null
      */
     public function getRequestBody()
     {
