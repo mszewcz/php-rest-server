@@ -55,7 +55,7 @@ class ModelDescriber
                         $propertyOptional = $this->isPropertyOptional($propertyDoc);
                         $isDataTypeModel = $this->dataTypeHelper->isModelType($propertyClass);
 
-                        if ($isDataTypeModel) {
+                        if ($isDataTypeModel && $modelType !== $propertyClass) {
                             $subModel = $this->describeSubModel($propertyClass);
                             foreach ($subModel as $subModelName => $subModelProps) {
                                 $describedModels[$subModelName] = $subModelProps;

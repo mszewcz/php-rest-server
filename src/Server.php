@@ -194,7 +194,8 @@ class Server
 
         foreach ($controllers as $controller) {
             foreach ($controller->endpoints as $endpoint) {
-                $endpointUriPattern = str_replace('/', '\\/', $endpoint->uri);
+                $endpointUriPattern = preg_replace('|/{[^}]+}|', '/[^/]+', $endpoint->uri);
+                $endpointUriPattern = str_replace('/', '\\/', $endpointUriPattern);
 
                 if (preg_match('/^' . $endpointUriPattern . '(\/|$)/i', $this->requestUri)) {
                     $controllerClass = (string) $endpoint->class;
