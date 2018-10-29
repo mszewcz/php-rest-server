@@ -34,7 +34,7 @@ class AbstractController
     /**
      * @var Request
      */
-    protected $request;
+    private $request;
     /**
      * @var bool
      */
@@ -43,6 +43,18 @@ class AbstractController
      * @var AbstractUser
      */
     protected $authorizedUser;
+    /**
+     * @var array
+     */
+    private $requestPathParams = [];
+    /**
+     * @var array
+     */
+    private $requestQueryParams = [];
+    /**
+     * @var
+     */
+    private $requestBody = null;
 
     /**
      * AbstractController constructor.
@@ -81,6 +93,10 @@ class AbstractController
 
                 $this->request->setRequestPathParams($endpointData);
                 $this->request->setRequestQueryParams($endpointData);
+
+                $this->requestPathParams = $this->request->getRequestPathParams();
+                $this->requestQueryParams = $this->request->getRequestQueryParams();
+                $this->requestBody = $this->request->getRequestBody();
             }
         }
 
@@ -114,6 +130,58 @@ class AbstractController
         }
 
         return \call_user_func([$this, $endpointMethodName]);
+    }
+
+    /**
+     * Returns request path params
+     *
+     * @return array
+     */
+    public function getRequestPathParams()
+    {
+        return $this->requestPathParams;
+    }
+
+    /**
+     * Returns request path param
+     *
+     * @param string $paramName
+     * @return mixed|null
+     */
+    public function getRequestPathParam(string $paramName = '')
+    {
+        return isset($this->requestPathParams[$paramName]) ? $this->requestPathParams[$paramName] : null;
+    }
+
+    /**
+     * Returns request query params
+     *
+     * @return array
+     */
+    public function getRequestQueryParams()
+    {
+        return $this->requestQueryParams;
+    }
+
+    /**
+     * Returns request query param
+     *
+     * @param string $paramName
+     * @return mixed|null
+     */
+    public function getRequestQueryParam(string $paramName = '')
+    {
+        return isset($this->requestQueryParams[$paramName]) ? $this->requestQueryParams[$paramName] : null;
+    }
+
+    /**
+     * Returns request body
+     *
+     * @return mixed|null
+     */
+    public function getRequestBody()
+    {
+        return $this->requestBody;
     }
 
     /**

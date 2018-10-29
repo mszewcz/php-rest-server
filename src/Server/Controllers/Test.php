@@ -43,8 +43,7 @@ class Test extends AbstractController
      */
     protected function sumOf(): Response
     {
-        $pathParams = $this->request->getRequestPathParams();
-        $sum = $pathParams['a'] + $pathParams['b'];
+        $sum = $this->getRequestPathParam('a') + $this->getRequestPathParam('b');
 
         return new Response(200, $sum);
     }
@@ -62,12 +61,12 @@ class Test extends AbstractController
      */
     protected function ping(): Response
     {
-        $tmpParams = $this->request->getRequestPathParams();
+        $tmpParams = $this->getRequestPathParams();
         $urlParams = [];
         foreach ($tmpParams as $paramName => $paramValue) {
             $urlParams[] = new TestRequestParamModel([$paramName => $paramValue]);
         }
-        $requestBody = new TestRequestBodyModel($this->request->getRequestBody());
+        $requestBody = new TestRequestBodyModel($this->getRequestBody());
 
         $response = [
             'urlParams'   => $urlParams,
