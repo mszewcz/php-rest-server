@@ -19,6 +19,7 @@ class ModelDescriber
      * @var DataTypeHelper
      */
     private $dataTypeHelper;
+
     /**
      * ModelDescriber constructor.
      */
@@ -54,8 +55,9 @@ class ModelDescriber
                         $propertyType = $this->dataTypeHelper->getDataType($propertyClass);
                         $propertyOptional = $this->isPropertyOptional($propertyDoc);
                         $isDataTypeModel = $this->dataTypeHelper->isModelType($propertyClass);
+                        $isRecurrentModel = ($modelClass === str_replace('[]', '', $propertyClass));
 
-                        if ($isDataTypeModel && $modelType !== $propertyClass) {
+                        if ($isDataTypeModel && !$isRecurrentModel) {
                             $subModel = $this->describeSubModel($propertyClass);
                             foreach ($subModel as $subModelName => $subModelProps) {
                                 $describedModels[$subModelName] = $subModelProps;
