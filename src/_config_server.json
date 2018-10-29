@@ -1,5 +1,8 @@
 {
-    "apiBrowserUri": "/api-browser",
+    "apiBrowser": {
+        "uri": "/api-browser",
+        "showHiddenKey": "hidden"
+    },
     "definitionsDirectory": "%DOCUMENT_ROOT%/definitions/",
     "controllers": [
         {

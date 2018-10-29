@@ -141,7 +141,7 @@ class Server
         if ($this->requestUri === '/') {
             return '';
         }
-        if (preg_match('|^'.$this->base->getApiBrowserUri().'/?$|i', $this->requestUri)) {
+        if (preg_match('|^'.$this->base->getApiBrowserUri().'/?|i', $this->requestUri)) {
             $browser = new Browser();
             return $browser->display();
         }

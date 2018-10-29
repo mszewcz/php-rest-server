@@ -112,7 +112,7 @@ class Browser
             $controllerMap = $this->base->decodeAsArray($this->base->fileRead($controllerMapFile));
 
             foreach ($controllerMap as $endpointData) {
-                if ($endpointData['endpointHidden'] === false) {
+                if ($endpointData['endpointHidden'] === false || $this->base->showHidden()) {
                     $authIcon = '';
                     if ($endpointData['endpointAuthProvider'] !== 'none') {
                         $authIcon = Tags::i(

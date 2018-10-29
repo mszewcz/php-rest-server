@@ -39,6 +39,10 @@ class Base
      */
     private $definitionsDir = '%DOCUMENT_ROOT%/definitions/';
     /**
+     * @var bool
+     */
+    private $showHidden = false;
+    /**
      * @var string
      */
     private $mapFilePath = '';
@@ -53,8 +57,11 @@ class Base
         $config = Factory::read($variablesHandler->env->get('CONFIG_FILE_SERVER'));
 
         $this->controllers = $config->controllers;
-        $this->apiBrowserUri = (string)$config->apiBrowserUri;
-        $this->definitionsDir = $frameworkBase->parsePath((string)$config->definitionsDirectory);
+        $this->apiBrowserUri = (string) $config->apiBrowser->uri;
+        $this->definitionsDir = $frameworkBase->parsePath((string) $config->definitionsDirectory);
+
+        $showHiddenKey = (string) $config->apiBrowser->showHiddenKey;
+        $this->showHidden = $variablesHandler->get->get($showHiddenKey, Variables::TYPE_INT) === 1;
     }
 
     /**
@@ -177,6 +184,14 @@ class Base
         $file = str_replace('/', '-', $file);
         $file = strpos($file, '-') === 0 ? substr($file, 1) : $file;
         return FileName::getSafe($file);
+    }
+
+    /**
+     * @return bool
+     */
+    public function showHidden(): bool
+    {
+        return $this->showHidden;
     }
 
     /**
