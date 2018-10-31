@@ -13,14 +13,9 @@ use PHPUnit\Framework\TestCase;
 
 class TestAuthProvider extends \MS\RestServer\Server\Auth\AbstractAuthProvider
 {
-    public function authorize(): bool
+    public function authorize(): \MS\RestServer\Server\Auth\AuthorizationResult
     {
-        return true;
-    }
-
-    public function getUser(): \MS\RestServer\Server\Auth\AbstractUser
-    {
-        return new \MS\RestServer\Server\Auth\AuthorizedUser();
+        return new \MS\RestServer\Server\Auth\AuthorizationResult(true, null, new \MS\RestServer\Server\Auth\AuthorizedUser());
     }
 }
 

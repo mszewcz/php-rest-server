@@ -26,6 +26,6 @@ class AuthorizedUserTest extends TestCase
 
     public function testId()
     {
-        $this->assertEquals(3, $this->user->id());
+        $this->assertEquals(0, $this->user->id());
     }
 }

@@ -102,8 +102,7 @@ class AbstractController
         if ($authorizationResult->getResult() === false) {
             throw new ResponseException(
                 401,
-                null,
-                ['message' => $authorizationResult->getErrorMessage()]
+                $authorizationResult->getErrorMessage()
             );
         }
         $this->authorizedUser = $authorizationResult->getUser();
