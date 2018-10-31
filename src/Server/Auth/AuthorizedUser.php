@@ -18,6 +18,5 @@ class AuthorizedUser extends AbstractUser
      */
     public function __construct()
     {
-        $this->userId = 3;
     }
 }

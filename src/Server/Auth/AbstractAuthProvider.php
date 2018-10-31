@@ -24,14 +24,7 @@ abstract class AbstractAuthProvider
     /**
      * Authenticates user & returns authorization result
      *
-     * @return bool
+     * @return AuthorizationResult
      */
-    public abstract function authorize(): bool;
-
-    /**
-     * Returns authorized user
-     *
-     * @return AbstractUser
-     */
-    public abstract function getUser(): AbstractUser;
+    public abstract function authorize(): AuthorizationResult;
 }

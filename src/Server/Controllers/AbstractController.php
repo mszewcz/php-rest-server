@@ -13,6 +13,7 @@ namespace MS\RestServer\Server\Controllers;
 use MS\RestServer\Base;
 use MS\RestServer\Server\Auth\AbstractAuthProvider;
 use MS\RestServer\Server\Auth\AbstractUser;
+use MS\RestServer\Server\Auth\AuthorizationResult;
 use MS\RestServer\Server\Auth\AuthorizedUser;
 use MS\RestServer\Server\Exceptions\ResponseException;
 use MS\RestServer\Server\Validators\InputQueryValidator;
@@ -35,10 +36,6 @@ class AbstractController
      * @var Request
      */
     private $request;
-    /**
-     * @var bool
-     */
-    protected $authorizationResult = false;
     /**
      * @var AbstractUser
      */
@@ -101,14 +98,15 @@ class AbstractController
         }
 
         // Authorize user
-        $this->authorizeUser($endpointAuthProvider);
-        if ($this->authorizationResult === false) {
+        $authorizationResult = $this->authorizeUser($endpointAuthProvider);
+        if ($authorizationResult->getResult() === false) {
             throw new ResponseException(
                 401,
                 null,
-                ['message' => 'Authorization required']
+                ['message' => $authorizationResult->getErrorMessage()]
             );
         }
+        $this->authorizedUser = $authorizationResult->getUser();
 
         // Validate input
         $inputErrors = $this->validateInput($endpointParams);
@@ -216,19 +214,17 @@ class AbstractController
      * Checks authorization status
      *
      * @param string $authProvider
-     * @return void
+     * @return AuthorizationResult
      * @throws ResponseException
      */
-    private function authorizeUser(string $authProvider): void
+    private function authorizeUser(string $authProvider): AuthorizationResult
     {
         $noAuthProvider = ['false', 'no', 'none'];
         $defaultAuthProvider = ['true', 'yes', 'default'];
 
         // No Auth Provider
         if (in_array($authProvider, $noAuthProvider)) {
-            $this->authorizationResult = true;
-            $this->authorizedUser = new AuthorizedUser();
-            return;
+            return new AuthorizationResult(true, null, new AuthorizedUser());
         }
 
         // Default Auth Provider
@@ -241,9 +237,7 @@ class AbstractController
                     ['message' => 'Default auth provider is not set']
                 );
             }
-            $this->authorizationResult = $authProvider->authorize();
-            $this->authorizedUser = $authProvider->getUser();
-            return;
+            return $authProvider->authorize();
         }
 
         // Custom Auth Provider
@@ -262,8 +256,7 @@ class AbstractController
                 ['message' => sprintf('%s has to be an instance of AbstractAuthProvider', $authProvider)]
             );
         }
-        $this->authorizationResult = $authProviderClass->authorize();
-        $this->authorizedUser = $authProviderClass->getUser();
+        return $authProviderClass->authorize();
     }
 
     /**
