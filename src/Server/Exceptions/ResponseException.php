@@ -20,7 +20,7 @@ class ResponseException extends \Exception
     /**
      * @var string
      */
-    protected $message = '';
+    protected $message = null;
     /**
      * @var array
      */

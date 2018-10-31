@@ -137,13 +137,12 @@ class MapBuilder
             // @codeCoverageIgnoreEnd
         }
 
-        try {
-            $endpointMapEncoded = $this->base->encode($endpointMap);
-            // @codeCoverageIgnoreStart
-        } catch (\Exception $e) {
-            throw new ResponseException(500, $e->getMessage());
-            // @codeCoverageIgnoreEnd
+        $endpointMapEncoded = $this->base->encode($endpointMap);
+        // @codeCoverageIgnoreStart
+        if ($endpointMapEncoded === false) {
+            throw new ResponseException(500, 'Map encoding error');
         }
+        // @codeCoverageIgnoreEnd
 
         $this->base->fileWrite($mapFilePath, $endpointMapEncoded);
         return $endpointMap;

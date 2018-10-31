@@ -100,30 +100,21 @@ class AbstractController
         // Authorize user
         $authorizationResult = $this->authorizeUser($endpointAuthProvider);
         if ($authorizationResult->getResult() === false) {
-            throw new ResponseException(
-                401,
-                $authorizationResult->getErrorMessage()
-            );
+            throw new ResponseException(401, $authorizationResult->getErrorMessage());
         }
         $this->authorizedUser = $authorizationResult->getUser();
 
         // Validate input
         $inputErrors = $this->validateInput($endpointParams);
         if (count($inputErrors) > 0) {
-            throw new ResponseException(
-                400,
-                null,
-                $inputErrors
-            );
+            $message = 'Invalid input params';
+            throw new ResponseException(400, $message, $inputErrors);
         }
 
         // Invoke endpoint method
         if ($endpointMethodName === null) {
-            throw new ResponseException(
-                404,
-                null,
-                ['message' => sprintf('No method matching uri: %s', $requestUri)]
-            );
+            $message = sprintf('No method matching uri: %s', $requestUri);
+            throw new ResponseException(404, $message);
         }
 
         return \call_user_func([$this, $endpointMethodName]);
@@ -191,20 +182,14 @@ class AbstractController
         $mapFilePath = $this->base->getMapFilePath();
         // Load method map file for current controller
         if (!$this->base->fileExists($mapFilePath)) {
-            throw new ResponseException(
-                500,
-                null,
-                ['message' => sprintf('Method map file is missing for route: %s', $requestUri)]
-            );
+            $message = sprintf('Method map file is missing for route: %s', $requestUri);
+            throw new ResponseException(500, $message);
         }
 
         $map = $this->base->decodeAsArray($this->base->fileRead($mapFilePath));
         if ($map === false) {
-            throw new ResponseException(
-                500,
-                null,
-                ['message' => 'Method map file decoding error']
-            );
+            $message = 'Method map file decoding error';
+            throw new ResponseException(500, $message);
         }
         return $map;
     }
@@ -230,30 +215,21 @@ class AbstractController
         if (in_array($authProvider, $defaultAuthProvider)) {
             $authProvider = $this->request->getDefaultAuthProvider();
             if ($authProvider === null) {
-                throw new ResponseException(
-                    500,
-                    null,
-                    ['message' => 'Default auth provider is not set']
-                );
+                $message = 'Default auth provider is not set';
+                throw new ResponseException(500, $message);
             }
             return $authProvider->authorize();
         }
 
         // Custom Auth Provider
         if (!\class_exists($authProvider)) {
-            throw new ResponseException(
-                500,
-                null,
-                ['message' => sprintf('%s class does not exist', $authProvider)]
-            );
+            $message = sprintf('%s class does not exist', $authProvider);
+            throw new ResponseException(500, $message);
         }
         $authProviderClass = new $authProvider;
         if (!($authProviderClass instanceof AbstractAuthProvider)) {
-            throw new ResponseException(
-                500,
-                null,
-                ['message' => sprintf('%s has to be an instance of AbstractAuthProvider', $authProvider)]
-            );
+            $message = sprintf('%s has to be an instance of AbstractAuthProvider', $authProvider);
+            throw new ResponseException(500, $message);
         }
         return $authProviderClass->authorize();
     }

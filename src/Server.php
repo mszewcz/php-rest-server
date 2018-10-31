@@ -203,11 +203,8 @@ class Server
                     $mapFilePath = sprintf('%s%s.json', $definitionsDir, $mapFile);
 
                     if (!\class_exists($controllerClass)) {
-                        throw new ResponseException(
-                            500,
-                            null,
-                            ['message' => 'Controller class not found']
-                        );
+                        $message = 'Controller class not found';
+                        throw new ResponseException(500, $message);
                     }
                     if (!$this->base->fileExists($mapFilePath)) {
                         $mapBuilder = new MapBuilder();
@@ -219,11 +216,8 @@ class Server
                 }
             }
         }
-        throw new ResponseException(
-            404,
-            null,
-            ['message' => sprintf('No controller matching uri: \'%s\'', $this->requestUri)]
-        );
+        $message = sprintf('No controller matching uri: \'%s\'', $this->requestUri);
+        throw new ResponseException(404, $message);
     }
 
     /**
@@ -265,7 +259,7 @@ class Server
         $this->headers->addHeaders(['name' => $code, 'value' => sprintf('HTTP/1.1 %s %s', $code, $status)]);
 
         $body = [
-            'message' => $message !== '' ? sprintf('%s: %s', $status, $message) : $status
+            'message' => $message !== null ? $message : $status
         ];
         if (count($errors) > 0) {
             $body['errors'] = $errors;
