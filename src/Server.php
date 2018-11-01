@@ -12,9 +12,9 @@ namespace MS\RestServer;
 
 use MS\RestServer\Server\Auth\AbstractAuthProvider;
 use MS\RestServer\Server\Controllers\AbstractController;
+use MS\RestServer\Server\Exceptions\ResponseException;
 use MS\RestServer\Server\MapBuilder;
 use MS\RestServer\Server\Request;
-use MS\RestServer\Server\Exceptions\ResponseException;
 use MS\RestServer\Shared\Headers;
 
 /**
@@ -141,7 +141,7 @@ class Server
         if ($this->requestUri === '/') {
             return '';
         }
-        if (preg_match('|^'.$this->base->getApiBrowserUri().'|i', $this->requestUri)) {
+        if (preg_match('|^' . $this->base->getApiBrowserUri() . '|i', $this->requestUri)) {
             $browser = new Browser();
             return $browser->display();
         }
@@ -149,7 +149,7 @@ class Server
         try {
             $response = $this->getResponseBody();
         } catch (ResponseException $e) {
-            $response =$this->getResponseException($e);
+            $response = $this->getResponseException($e);
         }
 
         $this->sendHeaders();
@@ -184,23 +184,24 @@ class Server
 
 
     /**
-     * @return AbstractController
+     * @return array
      * @throws ResponseException
      */
-    private function getController(): AbstractController
+    private function getControllerData(): array
     {
+        $requestUri = $this->request->getRequestUri();
         $controllers = $this->base->getControllers();
         $definitionsDir = $this->base->getDefinitionsDir();
+        $matchingControllers = [];
 
-        foreach ($controllers as $controller) {
-            foreach ($controller->endpoints as $endpoint) {
+        foreach ($controllers as $matchingController) {
+            foreach ($matchingController->endpoints as $endpoint) {
                 $endpointUriPattern = preg_replace('|/{[^}]+}|', '/[^/]+', $endpoint->uri);
                 $endpointUriPattern = str_replace('/', '\\/', $endpointUriPattern);
 
                 if (preg_match('/^' . $endpointUriPattern . '(\/|$)/i', $this->requestUri)) {
                     $controllerClass = (string) $endpoint->class;
-                    $mapFile = $this->base->getSafeFileName($endpoint->uri);
-                    $mapFilePath = sprintf('%s%s.json', $definitionsDir, $mapFile);
+                    $mapFilePath = sprintf('%s%s.json', $definitionsDir, (string) $endpoint->mapFile);
 
                     if (!\class_exists($controllerClass)) {
                         $message = 'Controller class not found';
@@ -212,11 +213,31 @@ class Server
                     }
                     $this->base->setMapFilePath($mapFilePath);
 
-                    return new $controllerClass($this->request);
+                    $matchingControllers[] = [
+                        'controllerClass' => $controllerClass,
+                        'mapFilePath'     => $mapFilePath
+                    ];
                 }
             }
         }
-        $message = sprintf('No controller matching uri: \'%s\'', $this->requestUri);
+
+        foreach ($matchingControllers as $matchingController) {
+            $endpointMap = $this->base->decodeAsArray($this->base->fileRead($matchingController['mapFilePath']));
+
+            foreach ($endpointMap as $endpointMethodName => $endpointMethodData) {
+                $httpMethodMatched = ($endpointMethodData['endpointHttpMethod'] === $this->request->getRequestHttpMethod());
+                $uriMatched = preg_match($endpointMethodData['endpointUriPattern'], $requestUri);
+
+                if ($httpMethodMatched && $uriMatched) {
+                    return [
+                        'controller' => new $matchingController['controllerClass']($this->request),
+                        'methodName' => $endpointMethodName
+                    ];
+                }
+            }
+        }
+
+        $message = sprintf('No controller/method matching uri: \'%s\'', $this->requestUri);
         throw new ResponseException(404, $message);
     }
 
@@ -227,8 +248,13 @@ class Server
      */
     private function getResponseBody()
     {
-        $controller = $this->getController();
-        $response = $controller->getResponse();
+        $controllerData = $this->getControllerData();
+        /**
+         * @var $controller AbstractController
+         */
+        $controller = $controllerData['controller'];
+        $methodName = $controllerData['methodName'];
+        $response = $controller->invoke($methodName);
 
         $code = $response->getCode();
         $status = $this->getStatus($code);

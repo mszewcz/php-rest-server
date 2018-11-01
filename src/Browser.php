@@ -83,8 +83,7 @@ class Browser
             $hideED = Tags::span('Collapse endpoints', ['class' => 'col-e']);
 
             foreach ($controller->endpoints as $endpoint) {
-                $mapFile = $this->base->getSafeFileName((string) $endpoint->uri);
-                $mapFilePath = sprintf('%s%s.json', $definitionsDir, $mapFile);
+                $mapFilePath = sprintf('%s%s.json', $definitionsDir, (string) $endpoint->mapFile);
                 $controllerEp[] = $this->listEndpoints($mapFilePath);
             }
 

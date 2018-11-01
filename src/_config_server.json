@@ -10,6 +10,7 @@
             "endpoints": [
                 {
                     "uri": "/api",
+                    "mapFile": "api",
                     "class": "\\MS\\RestServer\\Server\\Controllers\\Api"
                 }
             ]
@@ -19,6 +20,7 @@
             "endpoints": [
                 {
                     "uri": "/test",
+                    "mapFile": "test",
                     "class": "\\MS\\RestServer\\Server\\Controllers\\Test"
                 }
             ]

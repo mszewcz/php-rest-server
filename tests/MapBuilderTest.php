@@ -32,8 +32,7 @@ class MapBuilderTest extends TestCase
         $result = $mapBuilder->build();
         $expected = [
             [
-                [
-                    'endpointMethodName'   => 'rebuildEndpointsMap',
+                'rebuildEndpointsMap' => [
                     'endpointDesc'         => 'Re-builds server endpoints\' map',
                     'endpointHttpMethod'   => 'get',
                     'endpointUri'          => '/api/rebuildEndpointsMap',
@@ -45,8 +44,7 @@ class MapBuilderTest extends TestCase
                 ]
             ],
             [
-                [
-                    'endpointMethodName'   => 'sumOf',
+                'sumOf' => [
                     'endpointDesc'         => 'Returns sum of a & b',
                     'endpointHttpMethod'   => 'get',
                     'endpointUri'          => '/test/sum-of/{a}/and/{b}',
@@ -69,8 +67,7 @@ class MapBuilderTest extends TestCase
                     'endpointAuthProvider' => 'none',
                     'endpointHidden'       => false
                 ],
-                [
-                    'endpointMethodName'   => 'ping',
+                'ping'  => [
                     'endpointDesc'         =>
                         'Server ping test - returns response containing received url params & request body',
                     'endpointHttpMethod'   => 'post',

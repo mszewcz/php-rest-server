@@ -66,36 +66,25 @@ class AbstractController
     }
 
     /**
-     * Returns response
+     * Invokes controller method and returns response
      *
+     * @param string $endpointMethodName
      * @return Response
      * @throws ResponseException
      */
-    public function getResponse(): Response
+    public function invoke(string $endpointMethodName): Response
     {
         $requestUri = $this->request->getRequestUri();
         $endpointMap = $this->getControllerMap();
-        $endpointAuthProvider = 'none';
-        $endpointParams = [];
-        $endpointMethodName = null;
+        $endpointAuthProvider = $endpointMap[$endpointMethodName]['endpointAuthProvider'];
+        $endpointParams = $endpointMap[$endpointMethodName]['endpointParams'];
 
-        foreach ($endpointMap as $endpointData) {
-            $httpMethodMatched = ($endpointData['endpointHttpMethod'] === $this->request->getRequestHttpMethod());
-            $uriMatched = preg_match($endpointData['endpointUriPattern'], $requestUri);
+        $this->request->setRequestPathParams($endpointMap[$endpointMethodName]);
+        $this->request->setRequestQueryParams($endpointMap[$endpointMethodName]);
 
-            if ($httpMethodMatched && $uriMatched) {
-                $endpointAuthProvider = $endpointData['endpointAuthProvider'];
-                $endpointParams = $endpointData['endpointParams'];
-                $endpointMethodName = $endpointData['endpointMethodName'];
-
-                $this->request->setRequestPathParams($endpointData);
-                $this->request->setRequestQueryParams($endpointData);
-
-                $this->requestPathParams = $this->request->getRequestPathParams();
-                $this->requestQueryParams = $this->request->getRequestQueryParams();
-                $this->requestBody = $this->request->getRequestBody();
-            }
-        }
+        $this->requestPathParams = $this->request->getRequestPathParams();
+        $this->requestQueryParams = $this->request->getRequestQueryParams();
+        $this->requestBody = $this->request->getRequestBody();
 
         // Authorize user
         $authorizationResult = $this->authorizeUser($endpointAuthProvider);

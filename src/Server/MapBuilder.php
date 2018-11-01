@@ -64,8 +64,7 @@ class MapBuilder
 
         try {
             $controllerClass = (string) $endpoint->class;
-            $mapFile = $this->base->getSafeFileName($endpoint->uri);
-            $mapFilePath = sprintf('%s%s.json', $definitionsDir, $mapFile);
+            $mapFilePath = sprintf('%s%s.json', $definitionsDir, (string) $endpoint->mapFile);
 
             $classReflection = new \ReflectionClass($controllerClass);
             $methods = $classReflection->getMethods(\ReflectionMethod::IS_PROTECTED);
@@ -119,8 +118,7 @@ class MapBuilder
                 }
                 // @codeCoverageIgnoreEnd
 
-                $endpointMap[] = [
-                    'endpointMethodName'   => $endpointMethodName,
+                $endpointMap[$endpointMethodName] = [
                     'endpointDesc'         => $endpointDesc,
                     'endpointHttpMethod'   => $endpointHttpMethod,
                     'endpointUri'          => $endpointUri,
