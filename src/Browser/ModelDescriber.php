@@ -104,20 +104,23 @@ class ModelDescriber
                         $propertyClass = $this->getPropertyType($propertyDoc);
                         $propertyType = $this->dataTypeHelper->getDataType($propertyClass);
                         $propertyOptional = $this->isPropertyOptional($propertyDoc);
+                        $propertyHidden = $this->isPropertyHidden($propertyDoc);
                         $isDataTypeModel = $this->dataTypeHelper->isModelType($propertyClass);
 
-                        if ($isDataTypeModel) {
-                            $subModel = $this->describeSubModel($propertyClass);
-                            foreach ($subModel as $subModelName => $subModelProps) {
-                                $describedModels[$subModelName] = $subModelProps;
+                        if ($propertyHidden === false) {
+                            if ($isDataTypeModel) {
+                                $subModel = $this->describeSubModel($propertyClass);
+                                foreach ($subModel as $subModelName => $subModelProps) {
+                                    $describedModels[$subModelName] = $subModelProps;
+                                }
                             }
-                        }
 
-                        $describedModels[$modelName][] = [
-                            'propertyName'     => $propertyName,
-                            'propertyType'     => $propertyType,
-                            'propertyOptional' => $propertyOptional
-                        ];
+                            $describedModels[$modelName][] = [
+                                'propertyName'     => $propertyName,
+                                'propertyType'     => $propertyType,
+                                'propertyOptional' => $propertyOptional
+                            ];
+                        }
                     }
                 }
             }
@@ -151,6 +154,18 @@ class ModelDescriber
     {
         preg_match('/^[^\*]+\*[^@]+@api:type (.*?)[\r\n]?$/mi', $propertyDoc, $matches);
         return isset($matches[1]) ? $matches[1] : 'string';
+    }
+
+    /**
+     * Returns whether property is hidden
+     *
+     * @param string $propertyDoc
+     * @return bool
+     */
+    private function isPropertyHidden(string $propertyDoc): bool
+    {
+        preg_match('/^[^\*]+\*[^@]+@api:hidden(.*?)[\r\n]?$/mi', $propertyDoc, $matches);
+        return isset($matches[1]) ? true : false;
     }
 
     /**

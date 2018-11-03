@@ -23,13 +23,11 @@ abstract class AbstractModel
     public abstract function validate(): array;
 
     /**
-     * Function called before $this->asArray()
+     * Abstract method called before $this->asArray()
      *
      * @return void
      */
-    public function beforeAsArray(): void
-    {
-    }
+    public abstract function beforeAsArray();
 
     /**
      * @return array
@@ -45,8 +43,10 @@ abstract class AbstractModel
             $data = [];
 
             foreach ($classProperties as $classProperty) {
-                $propertyName = (string) $classProperty->getName();
-                $data[$propertyName] = $this->getPropertyValue($propertyName);
+                if ($classProperty->isPublic()) {
+                    $propertyName = (string) $classProperty->getName();
+                    $data[$propertyName] = $this->getPropertyValue($propertyName);
+                }
             }
 
             return $data;
