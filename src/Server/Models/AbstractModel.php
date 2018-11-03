@@ -23,12 +23,21 @@ abstract class AbstractModel
     public abstract function validate(): array;
 
     /**
+     * Abstract function called before $this->asArray()
+     *
+     * @return void
+     */
+    public abstract function beforeAsArray(): void;
+
+    /**
      * @return array
      * @throws ResponseException
      */
     public function asArray(): array
     {
         try {
+            $this->beforeAsArray();
+
             $reflectionClass = new \ReflectionClass($this);
             $classProperties = $reflectionClass->getProperties();
             $data = [];
