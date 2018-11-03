@@ -23,11 +23,13 @@ abstract class AbstractModel
     public abstract function validate(): array;
 
     /**
-     * Abstract function called before $this->asArray()
+     * Function called before $this->asArray()
      *
      * @return void
      */
-    public abstract function beforeAsArray(): void;
+    public function beforeAsArray(): void
+    {
+    }
 
     /**
      * @return array
