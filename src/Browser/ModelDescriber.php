@@ -54,21 +54,24 @@ class ModelDescriber
                         $propertyClass = $this->getPropertyType($propertyDoc);
                         $propertyType = $this->dataTypeHelper->getDataType($propertyClass);
                         $propertyOptional = $this->isPropertyOptional($propertyDoc);
+                        $propertyHidden = $this->isPropertyHidden($propertyDoc);
                         $isDataTypeModel = $this->dataTypeHelper->isModelType($propertyClass);
                         $isRecurrentModel = ($modelClass === str_replace('[]', '', $propertyClass));
 
-                        if ($isDataTypeModel && !$isRecurrentModel) {
-                            $subModel = $this->describeSubModel($propertyClass);
-                            foreach ($subModel as $subModelName => $subModelProps) {
-                                $describedModels[$subModelName] = $subModelProps;
+                        if (!$propertyHidden) {
+                            if ($isDataTypeModel && !$isRecurrentModel) {
+                                $subModel = $this->describeSubModel($propertyClass);
+                                foreach ($subModel as $subModelName => $subModelProps) {
+                                    $describedModels[$subModelName] = $subModelProps;
+                                }
                             }
-                        }
 
-                        $describedModels[$modelName][] = [
-                            'propertyName'     => $propertyName,
-                            'propertyType'     => $propertyType,
-                            'propertyOptional' => $propertyOptional
-                        ];
+                            $describedModels[$modelName][] = [
+                                'propertyName'     => $propertyName,
+                                'propertyType'     => $propertyType,
+                                'propertyOptional' => $propertyOptional
+                            ];
+                        }
                     }
                 }
             }
@@ -107,7 +110,7 @@ class ModelDescriber
                         $propertyHidden = $this->isPropertyHidden($propertyDoc);
                         $isDataTypeModel = $this->dataTypeHelper->isModelType($propertyClass);
 
-                        if ($propertyHidden === false) {
+                        if (!$propertyHidden) {
                             if ($isDataTypeModel) {
                                 $subModel = $this->describeSubModel($propertyClass);
                                 foreach ($subModel as $subModelName => $subModelProps) {
