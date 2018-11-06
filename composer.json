@@ -26,5 +26,13 @@
             "MS\\RestServer\\": "src/",
             "MS\\RestServer\\Examples\\": "examples/"
         }
+    },
+    "scripts": {
+        "deploy": [
+            "@php tools/deploy.php"
+        ],
+        "version": [
+            "@php tools/version.php"
+        ]
     }
 }
