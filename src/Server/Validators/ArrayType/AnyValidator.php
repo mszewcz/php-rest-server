@@ -24,12 +24,6 @@ class AnyValidator implements ArrayTypeValidator
      */
     public function validate(array $value, string $requiredType = 'any'): ?array
     {
-        $errors = [];
-        foreach ($value as $key => $val) {
-            if (is_null($val)) {
-                $errors[$key] = sprintf('Wymagany typ: %s', $requiredType);
-            }
-        }
-        return $errors;
+        return [];
     }
 }
