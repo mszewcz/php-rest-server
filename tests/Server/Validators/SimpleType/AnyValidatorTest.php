@@ -27,7 +27,7 @@ class SimpleAnyValidatorTest extends TestCase
 
     public function testValidateError()
     {
-        $expected = 'Wymagany typ: any';
+        $expected = null;
         $result = $this->validator->validate(null, 'any');
         $this->assertEquals($expected, $result);
     }
