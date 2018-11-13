@@ -135,7 +135,7 @@ class Server
      */
     public function getResponse()
     {
-        if (strtoupper($this->requestMethod) === 'OPTIONS') {
+        if ($this->requestMethod === 'options') {
             $this->sendHeaders();
             return null;
         }
