@@ -25,29 +25,45 @@ class Response
      * @var string
      */
     private $responseContentType = 'application/json';
+    /**
+     * @var string
+     */
+    private $responseEncoding = 'utf-8';
 
     /**
      * Response constructor.
      *
      * @param int $responseCode
      * @param $responseBody
-     * @param string $contentType
+     * @param string $responseContentType
+     * @param string $responseEncoding
      */
-    public function __construct(int $responseCode = 200, $responseBody = '', $contentType = 'application/json')
+    public function __construct(int $responseCode = 200, $responseBody = '', $responseContentType = 'application/json', $responseEncoding = 'utf-8')
     {
         $this->responseCode = $responseCode;
         $this->responseBody = $responseBody;
-        $this->responseContentType = sprintf('%s; charset=utf-8', $contentType);
+        $this->responseContentType = $responseContentType;
+        $this->responseEncoding = $responseEncoding;
     }
 
     /**
-     * Returns response's body
+     * Returns response's content type
      *
      * @return string
      */
     public function getContentType()
     {
         return $this->responseContentType;
+    }
+
+    /**
+     * Returns response's encoding
+     *
+     * @return string
+     */
+    public function getEncoding()
+    {
+        return $this->responseEncoding;
     }
 
     /**

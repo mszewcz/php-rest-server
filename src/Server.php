@@ -257,10 +257,13 @@ class Server
         $methodName = $controllerData['methodName'];
         $response = $controller->invoke($methodName);
 
+        $contentType = $response->getContentType();
+        $encoding = $response->getEncoding();
         $code = $response->getCode();
         $status = $this->getStatus($code);
         $body = $response->getBody();
 
+        $this->headers->addHeaders(['name' => 'Content-Type', 'value' => sprintf('%s; %s', $contentType, $encoding)]);
         $this->headers->addHeaders(['name' => $code, 'value' => sprintf('HTTP/1.1 %s %s', $code, $status)]);
 
         if (is_array($body) || is_object($body)) {
