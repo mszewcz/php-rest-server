@@ -48,6 +48,7 @@ class Server
     private $defaultHeaders = [
         ['name' => 'Content-Type', 'value' => 'application/json; charset=utf-8'],
         ['name' => 'Access-Control-Allow-Origin', 'value' => '*'],
+        ['name' => 'Access-Control-Allow-Headers', 'value' => 'Content-Type, Authorization'],
     ];
     /**
      * @var array
@@ -134,7 +135,7 @@ class Server
      */
     public function getResponse()
     {
-        if ($this->requestMethod === 'OPTIONS') {
+        if (strtoupper($this->requestMethod) === 'OPTIONS') {
             $this->sendHeaders();
             return null;
         }
