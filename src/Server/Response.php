@@ -21,17 +21,33 @@ class Response
      * @var
      */
     private $responseBody;
+    /**
+     * @var string
+     */
+    private $responseContentType = 'application/json';
 
     /**
      * Response constructor.
      *
      * @param int $responseCode
      * @param $responseBody
+     * @param string $contentType
      */
-    public function __construct(int $responseCode = 200, $responseBody = '')
+    public function __construct(int $responseCode = 200, $responseBody = '', $contentType = 'application/json')
     {
         $this->responseCode = $responseCode;
         $this->responseBody = $responseBody;
+        $this->responseContentType = sprintf('%s; charset=utf-8', $contentType);
+    }
+
+    /**
+     * Returns response's body
+     *
+     * @return string
+     */
+    public function getContentType()
+    {
+        return $this->responseContentType;
     }
 
     /**
