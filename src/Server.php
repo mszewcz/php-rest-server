@@ -289,7 +289,7 @@ class Server
         $this->headers->addHeaders(['name' => $code, 'value' => sprintf('HTTP/1.1 %s %s', $code, $status)]);
 
         $body = [
-            'message' => $message !== null ? $message : $status
+            'message' => $message !== '' ? $message : $status
         ];
         if (count($errors) > 0) {
             $body['errors'] = $errors;
