@@ -11,16 +11,14 @@ declare(strict_types=1);
 namespace MS\RestServer\Server\Exceptions;
 
 
+use MS\RestServer\Server\Models\ErrorModel;
+
 class ResponseException extends \Exception
 {
     /**
      * @var int
      */
     protected $code = 0;
-    /**
-     * @var string
-     */
-    protected $message = null;
     /**
      * @var array
      */
@@ -30,14 +28,18 @@ class ResponseException extends \Exception
      * ResponseException constructor.
      *
      * @param int $code
-     * @param string $message
-     * @param array $errors
      */
-    public function __construct(int $code = 0, string $message = null, array $errors = [])
+    public function __construct(int $code = 0)
     {
         $this->code = $code;
-        $this->message = $message;
-        $this->errors = $errors;
+    }
+
+    /**
+     * @param ErrorModel $error
+     */
+    public function addError(ErrorModel $error): void
+    {
+        $this->errors[] = $error->toArray();
     }
 
     /**

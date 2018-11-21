@@ -11,6 +11,8 @@ declare(strict_types=1);
 namespace MS\RestServer\Server\Auth;
 
 
+use MS\RestServer\Server\Models\ErrorModel;
+
 class AuthorizationResult
 {
     /**
@@ -18,9 +20,9 @@ class AuthorizationResult
      */
     private $result = false;
     /**
-     * @var string
+     * @var ErrorModel
      */
-    private $errorMessage;
+    private $error;
     /**
      * @var AbstractUser
      */
@@ -30,13 +32,13 @@ class AuthorizationResult
      * AuthorizationResult constructor.
      *
      * @param bool $result
-     * @param string|null $errorMessage
+     * @param ErrorModel|null $error
      * @param AbstractUser $user
      */
-    public function __construct(bool $result, ?string $errorMessage, AbstractUser $user)
+    public function __construct(bool $result, ?ErrorModel $error, AbstractUser $user)
     {
         $this->result = $result;
-        $this->errorMessage = $errorMessage;
+        $this->error = $error;
         $this->user = $user;
     }
 
@@ -49,11 +51,11 @@ class AuthorizationResult
     }
 
     /**
-     * @return string
+     * @return ErrorModel
      */
-    public function getErrorMessage(): string
+    public function getError(): ErrorModel
     {
-        return $this->errorMessage;
+        return $this->error;
     }
 
     /**

@@ -12,8 +12,10 @@ namespace MS\RestServer\Server;
 
 use MS\LightFramework\Config\AbstractConfig;
 use MS\RestServer\Base;
+use MS\RestServer\Server\Errors\ServerErrors;
 use MS\RestServer\Server\Exceptions\MapBuilderException;
 use MS\RestServer\Server\Exceptions\ResponseException;
+use MS\RestServer\Server\Models\ErrorModel;
 
 
 class MapBuilder
@@ -131,14 +133,24 @@ class MapBuilder
             }
             // @codeCoverageIgnoreStart
         } catch (\Exception $e) {
-            throw new ResponseException(500, $e->getMessage());
+            $exception = new ResponseException(500);
+            $exception->addError(new ErrorModel(
+                ServerErrors::MAP_BUILDER_EXCEPTION_CODE,
+                $e->getMessage()
+            ));
+            throw $exception;
             // @codeCoverageIgnoreEnd
         }
 
         $endpointMapEncoded = $this->base->encode($endpointMap);
         // @codeCoverageIgnoreStart
         if ($endpointMapEncoded === false) {
-            throw new ResponseException(500, 'Map encoding error');
+            $exception = new ResponseException(500);
+            $exception->addError(new ErrorModel(
+                ServerErrors::MAP_BUILDER_ENCODING_ERROR_CODE,
+                ServerErrors::MAP_BUILDER_ENCODING_ERROR_MESSAGE
+            ));
+            throw $exception;
         }
         // @codeCoverageIgnoreEnd
 

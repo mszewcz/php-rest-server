@@ -12,8 +12,10 @@ namespace MS\RestServer;
 
 use MS\RestServer\Server\Auth\AbstractAuthProvider;
 use MS\RestServer\Server\Controllers\AbstractController;
+use MS\RestServer\Server\Errors\ServerErrors;
 use MS\RestServer\Server\Exceptions\ResponseException;
 use MS\RestServer\Server\MapBuilder;
+use MS\RestServer\Server\Models\ErrorModel;
 use MS\RestServer\Server\Request;
 use MS\RestServer\Shared\Headers;
 
@@ -205,8 +207,12 @@ class Server
                     $mapFilePath = sprintf('%s%s.json', $definitionsDir, (string) $endpoint->mapFile);
 
                     if (!\class_exists($controllerClass)) {
-                        $message = 'Controller class not found';
-                        throw new ResponseException(500, $message);
+                        $exception = new ResponseException(500);
+                        $exception->addError(new ErrorModel(
+                            ServerErrors::CONTROLLER_NOT_FOUND_CODE,
+                            ServerErrors::CONTROLLER_NOT_FOUND_MESSAGE
+                        ));
+                        throw $exception;
                     }
                     if (!$this->base->fileExists($mapFilePath)) {
                         $mapBuilder = new MapBuilder();
@@ -238,8 +244,12 @@ class Server
             }
         }
 
-        $message = sprintf('No controller/method matching uri: \'%s\'', $this->requestUri);
-        throw new ResponseException(404, $message);
+        $exception = new ResponseException(404);
+        $exception->addError(new ErrorModel(
+            ServerErrors::NO_CONTROLLER_MATCHING_URI_CODE,
+            sprintf(ServerErrors::NO_CONTROLLER_MATCHING_URI_MESSAGE, $this->requestUri)
+        ));
+        throw $exception;
     }
 
     /**
@@ -283,18 +293,9 @@ class Server
     {
         $code = $exception->getCode();
         $status = $this->getStatus($code);
-        $message = $exception->getMessage();
         $errors = $exception->getErrors();
 
         $this->headers->addHeaders(['name' => $code, 'value' => sprintf('HTTP/1.1 %s %s', $code, $status)]);
-
-        $body = [
-            'message' => $message !== '' ? $message : $status
-        ];
-        if (count($errors) > 0) {
-            $body['errors'] = $errors;
-        }
-
-        return $this->base->encode($body);
+        return $this->base->encode($errors);
     }
 }

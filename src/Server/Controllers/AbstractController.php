@@ -15,7 +15,9 @@ use MS\RestServer\Server\Auth\AbstractAuthProvider;
 use MS\RestServer\Server\Auth\AbstractUser;
 use MS\RestServer\Server\Auth\AuthorizationResult;
 use MS\RestServer\Server\Auth\AuthorizedUser;
+use MS\RestServer\Server\Errors\ServerErrors;
 use MS\RestServer\Server\Exceptions\ResponseException;
+use MS\RestServer\Server\Models\ErrorModel;
 use MS\RestServer\Server\Validators\InputQueryValidator;
 use MS\RestServer\Server\Validators\InputPathValidator;
 use MS\RestServer\Server\Validators\InputBodyValidator;
@@ -89,21 +91,30 @@ class AbstractController
         // Authorize user
         $authorizationResult = $this->authorizeUser($endpointAuthProvider);
         if ($authorizationResult->getResult() === false) {
-            throw new ResponseException(401, $authorizationResult->getErrorMessage());
+            $exception = new ResponseException(401);
+            $exception->addError($authorizationResult->getError());
+            throw $exception;
         }
         $this->authorizedUser = $authorizationResult->getUser();
 
         // Validate input
         $inputErrors = $this->validateInput($endpointParams);
         if (count($inputErrors) > 0) {
-            $message = 'Invalid input params';
-            throw new ResponseException(400, $message, $inputErrors);
+            $exception = new ResponseException(400);
+            foreach ($inputErrors as $error) {
+                $exception->addError($error);
+            }
+            throw $exception;
         }
 
         // Invoke endpoint method
         if ($endpointMethodName === null) {
-            $message = sprintf('No method matching uri: %s', $requestUri);
-            throw new ResponseException(404, $message);
+            $exception = new ResponseException(404);
+            $exception->addError(new ErrorModel(
+                ServerErrors::NO_METHOD_MATCHING_URI_CODE,
+                sprintf(ServerErrors::NO_METHOD_MATCHING_URI_MESSAGE, $requestUri)
+            ));
+            throw $exception;
         }
 
         return \call_user_func([$this, $endpointMethodName]);
@@ -171,14 +182,22 @@ class AbstractController
         $mapFilePath = $this->base->getMapFilePath();
         // Load method map file for current controller
         if (!$this->base->fileExists($mapFilePath)) {
-            $message = sprintf('Method map file is missing for route: %s', $requestUri);
-            throw new ResponseException(500, $message);
+            $exception = new ResponseException(500);
+            $exception->addError(new ErrorModel(
+                ServerErrors::METHOD_MAP_FILE_MISSING_CODE,
+                sprintf(ServerErrors::METHOD_MAP_FILE_MISSING_MESSAGE, $requestUri)
+            ));
+            throw $exception;
         }
 
         $map = $this->base->decodeAsArray($this->base->fileRead($mapFilePath));
         if ($map === false) {
-            $message = 'Method map file decoding error';
-            throw new ResponseException(500, $message);
+            $exception = new ResponseException(500);
+            $exception->addError(new ErrorModel(
+                ServerErrors::METHOD_MAP_FILE_DECODING_ERROR_CODE,
+                sprintf(ServerErrors::METHOD_MAP_FILE_DECODING_ERROR_CODE, $requestUri)
+            ));
+            throw $exception;
         }
         return $map;
     }
@@ -204,21 +223,33 @@ class AbstractController
         if (in_array($authProvider, $defaultAuthProvider)) {
             $authProvider = $this->request->getDefaultAuthProvider();
             if ($authProvider === null) {
-                $message = 'Default auth provider is not set';
-                throw new ResponseException(500, $message);
+                $exception = new ResponseException(500);
+                $exception->addError(new ErrorModel(
+                    ServerErrors::DEFAULT_AUTH_PROVIDER_NOT_SET_CODE,
+                    ServerErrors::DEFAULT_AUTH_PROVIDER_NOT_SET_MESSAGE
+                ));
+                throw $exception;
             }
             return $authProvider->authorize();
         }
 
         // Custom Auth Provider
         if (!\class_exists($authProvider)) {
-            $message = sprintf('%s class does not exist', $authProvider);
-            throw new ResponseException(500, $message);
+            $exception = new ResponseException(500);
+            $exception->addError(new ErrorModel(
+                ServerErrors::AUTH_PROVIDER_CLASS_DOES_NOT_EXIST_CODE,
+                sprintf(ServerErrors::AUTH_PROVIDER_CLASS_DOES_NOT_EXIST_MESSAGE, $authProvider)
+            ));
+            throw $exception;
         }
         $authProviderClass = new $authProvider;
         if (!($authProviderClass instanceof AbstractAuthProvider)) {
-            $message = sprintf('%s has to be an instance of AbstractAuthProvider', $authProvider);
-            throw new ResponseException(500, $message);
+            $exception = new ResponseException(500);
+            $exception->addError(new ErrorModel(
+                ServerErrors::AUTH_PROVIDER_CLASS_INSTANCE_ERROR_CODE,
+                sprintf(ServerErrors::AUTH_PROVIDER_CLASS_INSTANCE_ERROR_MESSAGE, $authProvider)
+            ));
+            throw $exception;
         }
         return $authProviderClass->authorize();
     }
