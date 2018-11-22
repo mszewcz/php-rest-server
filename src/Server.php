@@ -309,4 +309,3 @@ class Server
         return $this->base->encode($errors);
     }
 }
-
