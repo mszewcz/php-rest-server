@@ -8,15 +8,13 @@
  */
 declare(strict_types=1);
 
-namespace SimpleTypeTests;
-
 use PHPUnit\Framework\TestCase;
 use MS\RestServer\Server\Validators\SimpleType\BooleanValidator;
 
 class SimpleBooleanValidatorTest extends TestCase
 {
     /**
-     * @var \MS\RestServer\Server\Validators\Interfaces\SimpleTypeValidator
+     * @var \MS\RestServer\Server\Validators\SimpleType\AbstractSimpleTypeValidator
      */
     private $validator;
 
@@ -28,15 +26,20 @@ class SimpleBooleanValidatorTest extends TestCase
     public function testValidateError()
     {
         $expected = 'Wymagany typ: boolean';
-        $result = $this->validator->validate(1, 'boolean');
-        $error = $result->toArray();
-        $this->assertEquals($expected, $error['message']);
+        $result = $this->validator->validate('aaa');
+        $errors = $this->validator->getErrors('field', 'boolean');
+        /**
+         * @var \MS\RestServer\Server\Models\ErrorModel $error
+         */
+        $error = $errors[0];
+        $this->assertEquals(false, $result);
+        $this->assertEquals($expected, ($error->toArray())['message']);
+        $this->assertEquals('field', ($error->toArray())['field']);
     }
 
     public function testValidateOK()
     {
-        $expected = null;
-        $result = $this->validator->validate(false, 'boolean');
-        $this->assertEquals($expected, $result);
+        $result = $this->validator->validate(false);
+        $this->assertEquals(true, $result);
     }
 }

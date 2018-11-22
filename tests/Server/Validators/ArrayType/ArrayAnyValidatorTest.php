@@ -14,7 +14,7 @@ use MS\RestServer\Server\Validators\ArrayType\AnyValidator;
 class ArrayAnyValidatorTest extends TestCase
 {
     /**
-     * @var \MS\RestServer\Server\Validators\Interfaces\ArrayTypeValidator
+     * @var \MS\RestServer\Server\Validators\ArrayType\AbstractArrayTypeValidator
      */
     private $validator;
 
@@ -25,15 +25,13 @@ class ArrayAnyValidatorTest extends TestCase
 
     public function testValidateError()
     {
-        $expected = [];
-        $result = $this->validator->validate([null], 'any');
-        $this->assertEquals($expected, $result);
+        $result = $this->validator->validate([null]);
+        $this->assertEquals(true, $result);
     }
 
     public function testValidateOK()
     {
-        $expected = [];
-        $result = $this->validator->validate([], 'any');
-        $this->assertEquals($expected, $result);
+        $result = $this->validator->validate([]);
+        $this->assertEquals(true, $result);
     }
 }

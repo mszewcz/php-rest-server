@@ -8,15 +8,13 @@
  */
 declare(strict_types=1);
 
-namespace SimpleTypeTests;
-
 use PHPUnit\Framework\TestCase;
 use MS\RestServer\Server\Validators\SimpleType\AnyValidator;
 
 class SimpleAnyValidatorTest extends TestCase
 {
     /**
-     * @var \MS\RestServer\Server\Validators\Interfaces\SimpleTypeValidator
+     * @var \MS\RestServer\Server\Validators\SimpleType\AbstractSimpleTypeValidator
      */
     private $validator;
 
@@ -27,15 +25,13 @@ class SimpleAnyValidatorTest extends TestCase
 
     public function testValidateError()
     {
-        $expected = null;
-        $result = $this->validator->validate(null, 'any');
-        $this->assertEquals($expected, $result);
+        $result = $this->validator->validate(null);
+        $this->assertEquals(true, $result);
     }
 
     public function testValidateOK()
     {
-        $expected = null;
-        $result = $this->validator->validate('aaa', 'any');
-        $this->assertEquals($expected, $result);
+        $result = $this->validator->validate('a');
+        $this->assertEquals(true, $result);
     }
 }

@@ -14,8 +14,9 @@ use MS\RestServer\Server\Localization\LocalizationService;
 use MS\RestServer\Server\Models\AbstractModel;
 use MS\RestServer\Server\Models\ErrorModel;
 use MS\RestServer\Server\Request;
-use MS\RestServer\Server\Validators\Interfaces\ArrayTypeValidator;
-use MS\RestServer\Server\Validators\Interfaces\SimpleTypeValidator;
+use MS\RestServer\Server\Validators\ArrayType\AbstractArrayTypeValidator;
+use MS\RestServer\Server\Validators\RequiredType\RequiredValidator;
+use MS\RestServer\Server\Validators\SimpleType\AbstractSimpleTypeValidator;
 use MS\RestServer\Server\Validators\SimpleType\ArrayValidator as SimpleArrayValidator;
 use MS\RestServer\Server\Validators\SimpleType\ObjectValidator as SimpleObjectValidator;
 
@@ -73,9 +74,8 @@ class InputBodyValidator
     {
         if ($this->inputParams['body'][0]['paramRequired'] === true) {
             $validator = new RequiredValidator();
-            $result = $validator->validate($this->requestBody, 'body');
-            if ($result !== null) {
-                return [$result];
+            if (!$validator->validate($this->requestBody)) {
+                return $validator->getErrors('body');
             }
         }
 
@@ -109,12 +109,11 @@ class InputBodyValidator
             ucfirst($paramType)
         );
         /**
-         * @var SimpleTypeValidator $validator
+         * @var AbstractSimpleTypeValidator $validator
          */
         $validator = new $validatorClass();
-        $result = $validator->validate($paramValue, $paramType, 'body');
-        if ($result !== null) {
-            return [$result];
+        if (!$validator->validate($paramValue)) {
+            return $validator->getErrors( 'body', $paramType);
         }
         return [];
     }
@@ -129,6 +128,10 @@ class InputBodyValidator
     {
         $paramType = $paramData['paramType'];
         $paramValue = $this->requestBody;
+        $validator = new SimpleArrayValidator();
+        if (!$validator->validate($paramValue)) {
+            return $validator->getErrors( 'body', $paramType);
+        }
 
         $validatorType = str_replace('[]', '', $paramType);
         $validatorClass = sprintf(
@@ -136,19 +139,13 @@ class InputBodyValidator
             ucfirst($validatorType)
         );
         /**
-         * @var SimpleTypeValidator $validator
-         */
-        $validator = new SimpleArrayValidator();
-        $result = $validator->validate($paramValue, $paramType, 'body');
-        if ($result !== null) {
-            return [$result];
-        }
-
-        /**
-         * @var ArrayTypeValidator $validator
+         * @var AbstractArrayTypeValidator $validator
          */
         $validator = new $validatorClass();
-        return $validator->validate($paramValue, $validatorType, 'body');
+        if (!$validator->validate($paramValue)) {
+            return $validator->getErrors($paramValue, 'body', $validatorType);
+        }
+        return [];
     }
 
     /**
@@ -165,13 +162,9 @@ class InputBodyValidator
         $modelName = array_pop($modelName);
         $errors = [];
 
-        /**
-         * @var SimpleTypeValidator $validator
-         */
         $validator = new SimpleObjectValidator();
-        $result = $validator->validate($paramValue, $modelName, 'body');
-        if ($result !== null) {
-            return [$result];
+        if (!$validator->validate($paramValue)) {
+            return $validator->getErrors('body', $modelName);
         }
 
         /**
@@ -206,28 +199,22 @@ class InputBodyValidator
         $modelName = explode('\\', $paramType);
         $modelName = array_pop($modelName);
 
-        /**
-         * @var SimpleTypeValidator $validator
-         */
         $validator = new SimpleArrayValidator();
-        $result = $validator->validate($paramValue, $modelName, 'body');
-        if ($result !== null) {
-            return [$result];
+        if (!$validator->validate($paramValue)) {
+            return $validator->getErrors('body', $modelName);
         }
 
         $errors = [];
         $modelName = str_replace('[]', '', $modelName);
 
         foreach ($paramValue as $index => $value) {
-            /**
-             * @var SimpleTypeValidator $validator
-             */
             $validator = new SimpleObjectValidator();
-            $result = $validator->validate($value, $modelName, sprintf('body.%s', $index));
-            if ($result !== null) {
-                $errors[] = $result;
-            }
-            if ($result === null) {
+            if (!$validator->validate($value)) {
+                $errors = array_merge(
+                    $errors,
+                    $validator->getErrors(sprintf('body.%s', $index), $modelName)
+                );
+            } else {
                 /**
                  * @var AbstractModel $tmpModel
                  */

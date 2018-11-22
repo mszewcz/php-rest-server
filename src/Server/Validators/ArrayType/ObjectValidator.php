@@ -10,34 +10,45 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Server\Validators\ArrayType;
 
-use MS\RestServer\Server\Errors\ServerErrors;
-use MS\RestServer\Server\Localization\LocalizationService;
-use MS\RestServer\Server\Models\ErrorModel;
-use MS\RestServer\Server\Validators\Interfaces\ArrayTypeValidator;
 
-
-class ObjectValidator implements ArrayTypeValidator
+class ObjectValidator extends AbstractArrayTypeValidator
 {
+    /**
+     * ObjectValidator constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     /**
      * Validates value
      *
      * @param array $value
-     * @param string $requiredType
-     * @param string $fieldName
-     * @return array|null
+     * @return bool
      */
-    public function validate(array $value, $requiredType = 'any', $fieldName = null): ?array
+    public function validate(array $value): bool
     {
-        $localizationService = LocalizationService::getInstance();
-        $errors = [];
-        foreach ($value as $key => $val) {
+        foreach ($value as $val) {
             if (!is_object($val)) {
-                $errorC = ServerErrors::TYPE_REQUIRED;
-                $errorM = $localizationService->text(sprintf('serverErrors.%s', $errorC));
-                $errorM = sprintf($errorM, $requiredType);
-                $errorF = sprintf('%s.%s', $fieldName, $key);
+                return false;
+            }
+        }
+        return true;
+    }
 
-                $errors[] = new ErrorModel($errorC, $errorM, $errorF);
+    /**
+     * @param array $value
+     * @param string $fieldName
+     * @param string $requiredType
+     * @return array
+     */
+    public function getErrors(array $value, string $fieldName, $requiredType = 'object'): array
+    {
+        $errors = [];
+        foreach ($value as $index => $val) {
+            if (!is_object($val)) {
+                $errors[] = $this->getErrorModel($fieldName, $index, $requiredType);
             }
         }
         return $errors;

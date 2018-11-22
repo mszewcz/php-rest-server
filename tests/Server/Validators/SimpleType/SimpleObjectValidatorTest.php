@@ -9,9 +9,9 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-use MS\RestServer\Server\Validators\SimpleType\StringValidator;
+use MS\RestServer\Server\Validators\SimpleType\ObjectValidator;
 
-class SimpleStringValidatorTest extends TestCase
+class SimpleObjectValidatorTest extends TestCase
 {
     /**
      * @var \MS\RestServer\Server\Validators\SimpleType\AbstractSimpleTypeValidator
@@ -20,14 +20,14 @@ class SimpleStringValidatorTest extends TestCase
 
     public function setUp()
     {
-        $this->validator = new StringValidator();
+        $this->validator = new ObjectValidator();
     }
 
     public function testValidateError()
     {
-        $expected = 'Wymagany typ: string';
-        $result = $this->validator->validate(3);
-        $errors = $this->validator->getErrors('field', 'string');
+        $expected = 'Wymagany typ: object';
+        $result = $this->validator->validate('aaa');
+        $errors = $this->validator->getErrors('field', 'object');
         /**
          * @var \MS\RestServer\Server\Models\ErrorModel $error
          */
@@ -39,7 +39,7 @@ class SimpleStringValidatorTest extends TestCase
 
     public function testValidateOK()
     {
-        $result = $this->validator->validate('a');
+        $result = $this->validator->validate(new \stdClass());
         $this->assertEquals(true, $result);
     }
 }

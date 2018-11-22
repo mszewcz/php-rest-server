@@ -10,20 +10,35 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Server\Validators\ArrayType;
 
-use MS\RestServer\Server\Validators\Interfaces\ArrayTypeValidator;
 
-
-class AnyValidator implements ArrayTypeValidator
+class AnyValidator extends AbstractArrayTypeValidator
 {
+    /**
+     * AnyValidator constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     /**
      * Validates value
      *
      * @param array $value
-     * @param string $requiredType
-     * @param string $fieldName
-     * @return array|null
+     * @return bool
      */
-    public function validate(array $value, $requiredType = 'any', $fieldName = null): ?array
+    public function validate(array $value): bool
+    {
+        return true;
+    }
+
+    /**
+     * @param array $value
+     * @param string $fieldName
+     * @param string|null $requiredType
+     * @return array
+     */
+    public function getErrors(array $value, string $fieldName, $requiredType = 'any'): array
     {
         return [];
     }

@@ -10,22 +10,25 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Server\Validators\SimpleType;
 
-use MS\RestServer\Server\Models\ErrorModel;
-use MS\RestServer\Server\Validators\Interfaces\SimpleTypeValidator;
 
-
-class AnyValidator implements SimpleTypeValidator
+class AnyValidator extends AbstractSimpleTypeValidator
 {
     /**
-     * Validates value
-
-     * @param $value
-     * @param string $requiredType
-     * @param string $fieldName
-     * @return ErrorModel|null
+     * AnyValidator constructor.
      */
-    public function validate($value, $requiredType = 'any', $fieldName = null): ?ErrorModel
+    public function __construct()
     {
-        return null;
+        parent::__construct();
+    }
+
+    /**
+     * Validates value
+     *
+     * @param $value
+     * @return bool
+     */
+    public function validate($value): bool
+    {
+        return true;
     }
 }

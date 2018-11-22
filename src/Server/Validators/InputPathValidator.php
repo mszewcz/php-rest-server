@@ -14,8 +14,9 @@ use MS\RestServer\Server\Localization\LocalizationService;
 use MS\RestServer\Server\Models\AbstractModel;
 use MS\RestServer\Server\Models\ErrorModel;
 use MS\RestServer\Server\Request;
-use MS\RestServer\Server\Validators\Interfaces\ArrayTypeValidator;
-use MS\RestServer\Server\Validators\Interfaces\SimpleTypeValidator;
+use MS\RestServer\Server\Validators\ArrayType\AbstractArrayTypeValidator;
+use MS\RestServer\Server\Validators\RequiredType\RequiredValidator;
+use MS\RestServer\Server\Validators\SimpleType\AbstractSimpleTypeValidator;
 use MS\RestServer\Server\Validators\SimpleType\ArrayValidator as SimpleArrayValidator;
 use MS\RestServer\Server\Validators\SimpleType\ObjectValidator as SimpleObjectValidator;
 
@@ -94,9 +95,8 @@ class InputPathValidator
 
         if ($paramRequired) {
             $validator = new RequiredValidator();
-            $result = $validator->validate($paramValue, sprintf('path.%s', $paramName));
-            if ($result !== null) {
-                return [$result];
+            if (!$validator->validate($paramValue)) {
+                return $validator->getErrors(sprintf('path.%s', $paramName));
             }
         }
         if (in_array($paramType, $this->simpleTypes)) {
@@ -126,12 +126,11 @@ class InputPathValidator
             ucfirst($paramType)
         );
         /**
-         * @var SimpleTypeValidator $validator
+         * @var AbstractSimpleTypeValidator $validator
          */
         $validator = new $validatorClass();
-        $result = $validator->validate($paramValue, $paramType, sprintf('path.%s', $paramName));
-        if ($result !== null) {
-            return [$result];
+        if (!$validator->validate($paramValue)) {
+            return $validator->getErrors(sprintf('path.%s', $paramName), $paramType);
         }
         return [];
     }
@@ -146,25 +145,24 @@ class InputPathValidator
         $paramType = $paramData['paramType'];
         $paramValue = $this->pathParams[$paramName];
 
+        $validator = new SimpleArrayValidator();
+        if (!$validator->validate($paramValue)) {
+            return $validator->getErrors(sprintf('path.%s', $paramName), $paramType);
+        }
+
         $validatorType = str_replace('[]', '', $paramType);
         $validatorClass = sprintf(
             '\\MS\RestServer\\Server\\Validators\\ArrayType\\%sValidator',
             ucfirst($validatorType)
         );
         /**
-         * @var SimpleTypeValidator $validator
-         */
-        $validator = new SimpleArrayValidator();
-        $result = $validator->validate($paramValue, $paramType, sprintf('path.%s', $paramName));
-        if ($result !== null) {
-            return [$result];
-        }
-
-        /**
-         * @var ArrayTypeValidator $validator
+         * @var AbstractArrayTypeValidator $validator
          */
         $validator = new $validatorClass();
-        return $validator->validate($paramValue, $validatorType, sprintf('path.%s', $paramName));
+        if (!$validator->validate($paramValue)) {
+            return $validator->getErrors($paramValue, sprintf('path.%s', $paramName), $validatorType);
+        }
+        return [];
     }
 
     /**
@@ -181,13 +179,9 @@ class InputPathValidator
         $modelName = explode('\\', $modelClass);
         $modelName = array_pop($modelName);
 
-        /**
-         * @var SimpleTypeValidator $validator
-         */
         $validator = new SimpleObjectValidator();
-        $result = $validator->validate($paramValue, $modelName, sprintf('path.%s', $paramName));
-        if ($result !== null) {
-            return [$result];
+        if (!$validator->validate($paramValue)) {
+            return $validator->getErrors(sprintf('path.%s', $paramName), $modelName);
         }
 
         $errors = [];
@@ -224,28 +218,22 @@ class InputPathValidator
         $modelName = explode('\\', $paramType);
         $modelName = array_pop($modelName);
 
-        /**
-         * @var SimpleTypeValidator $validator
-         */
         $validator = new SimpleArrayValidator();
-        $result = $validator->validate($paramValue, $modelName, sprintf('path.%s', $paramName));
-        if ($result !== null) {
-            return [$result];
+        if (!$validator->validate($paramValue)) {
+            return $validator->getErrors(sprintf('path.%s', $paramName), $modelName);
         }
 
         $errors = [];
         $modelName = str_replace('[]', '', $modelName);
 
         foreach ($paramValue as $index => $value) {
-            /**
-             * @var SimpleTypeValidator $validator
-             */
             $validator = new SimpleObjectValidator();
-            $result = $validator->validate($value, $modelName, sprintf('path.%s.%s', $paramName, $index));
-            if ($result !== null) {
-                $errors[] = $result;
-            }
-            if ($result === null) {
+            if (!$validator->validate($value)) {
+                $errors = array_merge(
+                    $errors,
+                    $validator->getErrors(sprintf('path.%s.%s', $paramName, $index), $modelName)
+                );
+            } else {
                 /**
                  * @var AbstractModel $tmpModel
                  */
