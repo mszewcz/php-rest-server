@@ -15,5 +15,5 @@ use MS\RestServer\Server\Models\ErrorModel;
 
 interface SimpleTypeValidator
 {
-    public function validate($value, $requiredType = 'any'): ?ErrorModel;
+    public function validate($value, $requiredType = 'any', $fieldName = null): ?ErrorModel;
 }

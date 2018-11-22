@@ -13,5 +13,5 @@ namespace MS\RestServer\Server\Validators\Interfaces;
 
 interface ArrayTypeValidator
 {
-    public function validate(array $value, string $requiredType): ?array;
+    public function validate(array $value, $requiredType = 'any', $fieldName = null): ?array;
 }

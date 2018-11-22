@@ -8,31 +8,28 @@
  */
 declare(strict_types=1);
 
-namespace MS\RestServer\Server\Validators\SimpleType;
+namespace MS\RestServer\Server\Validators;
 
 use MS\RestServer\Server\Errors\ServerErrors;
 use MS\RestServer\Server\Localization\LocalizationService;
 use MS\RestServer\Server\Models\ErrorModel;
-use MS\RestServer\Server\Validators\Interfaces\SimpleTypeValidator;
 
 
-class FloatValidator implements SimpleTypeValidator
+class RequiredValidator
 {
     /**
      * Validates value
 
      * @param $value
-     * @param string $requiredType
      * @param string $fieldName
      * @return ErrorModel|null
      */
-    public function validate($value, $requiredType = 'float', $fieldName = null): ?ErrorModel
+    public function validate($value, $fieldName = null): ?ErrorModel
     {
-        if (!is_float($value) && !is_int($value)) {
+        if (is_null($value) || trim((string) $value) === '') {
             $localizationService = LocalizationService::getInstance();
-            $errorC = ServerErrors::TYPE_REQUIRED;
+            $errorC = ServerErrors::FIELD_REQUIRED;
             $errorM = $localizationService->text(sprintf('serverErrors.%s', $errorC));
-            $errorM = sprintf($errorM, $requiredType);
 
             return new ErrorModel($errorC, $errorM, $fieldName);
         }

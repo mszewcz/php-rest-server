@@ -21,9 +21,10 @@ class AnyValidator implements SimpleTypeValidator
 
      * @param $value
      * @param string $requiredType
+     * @param string $fieldName
      * @return ErrorModel|null
      */
-    public function validate($value, $requiredType = 'any'): ?ErrorModel
+    public function validate($value, $requiredType = 'any', $fieldName = null): ?ErrorModel
     {
         return null;
     }

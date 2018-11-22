@@ -23,9 +23,10 @@ class IntegerValidator implements ArrayTypeValidator
      *
      * @param array $value
      * @param string $requiredType
+     * @param string $fieldName
      * @return array|null
      */
-    public function validate(array $value, string $requiredType = 'integer'): ?array
+    public function validate(array $value, $requiredType = 'any', $fieldName = null): ?array
     {
         $localizationService = LocalizationService::getInstance();
         $errors = [];
@@ -34,8 +35,9 @@ class IntegerValidator implements ArrayTypeValidator
                 $errorC = ServerErrors::TYPE_REQUIRED;
                 $errorM = $localizationService->text(sprintf('serverErrors.%s', $errorC));
                 $errorM = sprintf($errorM, $requiredType);
+                $errorF = sprintf('%s.%s', $fieldName, $key);
 
-                $errors[$key] = new ErrorModel($errorC, $errorM);
+                $errors[] = new ErrorModel($errorC, $errorM, $errorF);
             }
         }
         return $errors;

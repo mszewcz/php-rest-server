@@ -23,9 +23,10 @@ class ObjectValidator implements SimpleTypeValidator
 
      * @param $value
      * @param string $requiredType
+     * @param string $fieldName
      * @return ErrorModel|null
      */
-    public function validate($value, $requiredType = 'object'): ?ErrorModel
+    public function validate($value, $requiredType = 'object', $fieldName = null): ?ErrorModel
     {
         if (!is_object($value)) {
             $localizationService = LocalizationService::getInstance();
@@ -33,7 +34,7 @@ class ObjectValidator implements SimpleTypeValidator
             $errorM = $localizationService->text(sprintf('serverErrors.%s', $errorC));
             $errorM = sprintf($errorM, $requiredType);
 
-            return new ErrorModel($errorC, $errorM);
+            return new ErrorModel($errorC, $errorM, $fieldName);
         }
         return null;
     }

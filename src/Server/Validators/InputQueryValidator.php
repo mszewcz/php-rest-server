@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Server\Validators;
 
-use MS\RestServer\Server\Errors\ServerErrors;
 use MS\RestServer\Server\Localization\LocalizationService;
 use MS\RestServer\Server\Models\AbstractModel;
 use MS\RestServer\Server\Models\ErrorModel;
@@ -92,12 +91,12 @@ class InputQueryValidator
         $paramRequired = $paramData['paramRequired'] === true;
         $paramValue = $this->queryParams[$paramName];
 
-        if ($paramRequired && is_null($paramValue)) {
-            $errorC = ServerErrors::FIELD_REQUIRED;
-            $errorM = $this->localizationService->text(sprintf('serverErrors.%s', $errorC));
-            $error = new ErrorModel($errorC, $errorM, sprintf('query.%s', $paramName));
-
-            return [$error];
+        if ($paramRequired) {
+            $validator = new RequiredValidator();
+            $result = $validator->validate($paramValue, sprintf('query.%s', $paramName));
+            if ($result !== null) {
+                return [$result];
+            }
         }
         if (in_array($paramType, $this->simpleTypes)) {
             return $this->validateSimpleType($paramData);
@@ -129,9 +128,8 @@ class InputQueryValidator
          * @var SimpleTypeValidator $validator
          */
         $validator = new $validatorClass();
-        $result = $validator->validate($paramValue, $paramType);
+        $result = $validator->validate($paramValue, $paramType, sprintf('query.%s', $paramName));
         if ($result !== null) {
-            $result->setFieldName(sprintf('query.%s', $paramName));
             return [$result];
         }
         return [];
@@ -156,26 +154,16 @@ class InputQueryValidator
          * @var SimpleTypeValidator $validator
          */
         $validator = new SimpleArrayValidator();
-        $result = $validator->validate($paramValue, $paramType);
+        $result = $validator->validate($paramValue, $paramType, sprintf('query.%s', $paramName));
         if ($result !== null) {
-            $result->setFieldName(sprintf('query.%s', $paramName));
             return [$result];
         }
 
-        $errors = [];
         /**
          * @var ArrayTypeValidator $validator
          */
         $validator = new $validatorClass();
-        $result = $validator->validate($paramValue, $validatorType);
-        foreach ($result as $index => $error) {
-            /**
-             * @var ErrorModel $error
-             */
-            $error->setFieldName(sprintf('query.%s.%s', $paramName, $index));
-            $errors[] = $error;
-        }
-        return $errors;
+        return $validator->validate($paramValue, $validatorType, sprintf('query.%s', $paramName));
     }
 
     /**
@@ -196,9 +184,8 @@ class InputQueryValidator
          * @var SimpleTypeValidator $validator
          */
         $validator = new SimpleObjectValidator();
-        $result = $validator->validate($paramValue, $modelName);
+        $result = $validator->validate($paramValue, $modelName, sprintf('query.%s', $paramName));
         if ($result !== null) {
-            $result->setFieldName(sprintf('query.%s', $paramName));
             return [$result];
         }
 
@@ -212,7 +199,10 @@ class InputQueryValidator
             /**
              * @var ErrorModel $error
              */
-            $error->setFieldName(sprintf('query.%s', $error->getFieldName()));
+            $fieldName = $error->getFieldName();
+            if (!preg_match('/^query\.'.$paramName.'\./', $fieldName)) {
+                $error->setFieldName(sprintf('query.%s.%s', $paramName, $fieldName));
+            }
             $errors[] = $error;
         }
         return $errors;
@@ -237,9 +227,8 @@ class InputQueryValidator
          * @var SimpleTypeValidator $validator
          */
         $validator = new SimpleArrayValidator();
-        $result = $validator->validate($paramValue, $modelName);
+        $result = $validator->validate($paramValue, $modelName, sprintf('query.%s', $paramName));
         if ($result !== null) {
-            $result->setFieldName(sprintf('query.%s', $paramName));
             return [$result];
         }
 
@@ -251,9 +240,8 @@ class InputQueryValidator
              * @var SimpleTypeValidator $validator
              */
             $validator = new SimpleObjectValidator();
-            $result = $validator->validate($value, $modelName);
+            $result = $validator->validate($value, $modelName, sprintf('query.%s.%s', $paramName, $index));
             if ($result !== null) {
-                $result->setFieldName(sprintf('query.%s.%s', $paramName, $index));
                 $errors[] = $result;
             }
             if ($result === null) {
@@ -266,7 +254,10 @@ class InputQueryValidator
                     /**
                      * @var ErrorModel $error
                      */
-                    $error->setFieldName(sprintf('query.%s.%s.%s', $paramName, $index, $error->getFieldName()));
+                    $fieldName = $error->getFieldName();
+                    if (!preg_match('/^query\.'.$paramName.'\.[0-9]+\./', $fieldName)) {
+                        $error->setFieldName(sprintf('query.%s.%s.%s', $paramName, $index, $fieldName));
+                    }
                     $errors[] = $error;
                 }
             }

@@ -23,9 +23,10 @@ class StringValidator implements SimpleTypeValidator
 
      * @param $value
      * @param string $requiredType
+     * @param string $fieldName
      * @return ErrorModel|null
      */
-    public function validate($value, $requiredType = 'string'): ?ErrorModel
+    public function validate($value, $requiredType = 'string', $fieldName = null): ?ErrorModel
     {
         if (!is_string($value)) {
             $localizationService = LocalizationService::getInstance();
@@ -33,7 +34,7 @@ class StringValidator implements SimpleTypeValidator
             $errorM = $localizationService->text(sprintf('serverErrors.%s', $errorC));
             $errorM = sprintf($errorM, $requiredType);
 
-            return new ErrorModel($errorC, $errorM);
+            return new ErrorModel($errorC, $errorM, $fieldName);
         }
         return null;
     }

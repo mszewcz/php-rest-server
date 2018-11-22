@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Server\Validators;
 
-use MS\RestServer\Server\Errors\ServerErrors;
 use MS\RestServer\Server\Localization\LocalizationService;
 use MS\RestServer\Server\Models\AbstractModel;
 use MS\RestServer\Server\Models\ErrorModel;
@@ -93,12 +92,12 @@ class InputPathValidator
         $paramRequired = $paramData['paramRequired'] === true;
         $paramValue = $this->pathParams[$paramName];
 
-        if ($paramRequired && is_null($paramValue)) {
-            $errorC = ServerErrors::FIELD_REQUIRED;
-            $errorM = $this->localizationService->text(sprintf('serverErrors.%s', $errorC));
-            $error = new ErrorModel($errorC, $errorM, sprintf('path.%s', $paramName));
-
-            return [$error];
+        if ($paramRequired) {
+            $validator = new RequiredValidator();
+            $result = $validator->validate($paramValue, sprintf('path.%s', $paramName));
+            if ($result !== null) {
+                return [$result];
+            }
         }
         if (in_array($paramType, $this->simpleTypes)) {
             return $this->validateSimpleType($paramData);
@@ -130,9 +129,8 @@ class InputPathValidator
          * @var SimpleTypeValidator $validator
          */
         $validator = new $validatorClass();
-        $result = $validator->validate($paramValue, $paramType);
+        $result = $validator->validate($paramValue, $paramType, sprintf('path.%s', $paramName));
         if ($result !== null) {
-            $result->setFieldName(sprintf('path.%s', $paramName));
             return [$result];
         }
         return [];
@@ -157,26 +155,16 @@ class InputPathValidator
          * @var SimpleTypeValidator $validator
          */
         $validator = new SimpleArrayValidator();
-        $result = $validator->validate($paramValue, $paramType);
+        $result = $validator->validate($paramValue, $paramType, sprintf('path.%s', $paramName));
         if ($result !== null) {
-            $result->setFieldName(sprintf('path.%s', $paramName));
             return [$result];
         }
 
-        $errors = [];
         /**
          * @var ArrayTypeValidator $validator
          */
         $validator = new $validatorClass();
-        $result = $validator->validate($paramValue, $validatorType);
-        foreach ($result as $index => $error) {
-            /**
-             * @var ErrorModel $error
-             */
-            $error->setFieldName(sprintf('path.%s.%s', $paramName, $index));
-            $errors[] = $error;
-        }
-        return $errors;
+        return $validator->validate($paramValue, $validatorType, sprintf('path.%s', $paramName));
     }
 
     /**
@@ -197,9 +185,8 @@ class InputPathValidator
          * @var SimpleTypeValidator $validator
          */
         $validator = new SimpleObjectValidator();
-        $result = $validator->validate($paramValue, $modelName);
+        $result = $validator->validate($paramValue, $modelName, sprintf('path.%s', $paramName));
         if ($result !== null) {
-            $result->setFieldName(sprintf('path.%s', $paramName));
             return [$result];
         }
 
@@ -213,7 +200,10 @@ class InputPathValidator
             /**
              * @var ErrorModel $error
              */
-            $error->setFieldName(sprintf('path.%s', $error->getFieldName()));
+            $fieldName = $error->getFieldName();
+            if (!preg_match('/^path\.'.$paramName.'\./', $fieldName)) {
+                $error->setFieldName(sprintf('path.%s.%s', $paramName, $fieldName));
+            }
             $errors[] = $error;
         }
         return $errors;
@@ -238,9 +228,8 @@ class InputPathValidator
          * @var SimpleTypeValidator $validator
          */
         $validator = new SimpleArrayValidator();
-        $result = $validator->validate($paramValue, $modelName);
+        $result = $validator->validate($paramValue, $modelName, sprintf('path.%s', $paramName));
         if ($result !== null) {
-            $result->setFieldName(sprintf('path.%s', $paramName));
             return [$result];
         }
 
@@ -252,9 +241,8 @@ class InputPathValidator
              * @var SimpleTypeValidator $validator
              */
             $validator = new SimpleObjectValidator();
-            $result = $validator->validate($value, $modelName);
+            $result = $validator->validate($value, $modelName, sprintf('path.%s.%s', $paramName, $index));
             if ($result !== null) {
-                $result->setFieldName(sprintf('path.%s.%s', $paramName, $index));
                 $errors[] = $result;
             }
             if ($result === null) {
@@ -267,7 +255,10 @@ class InputPathValidator
                     /**
                      * @var ErrorModel $error
                      */
-                    $error->setFieldName(sprintf('path.%s.%s.%s', $paramName, $index, $error->getFieldName()));
+                    $fieldName = $error->getFieldName();
+                    if (!preg_match('/^path\.'.$paramName.'\.[0-9]+\./', $fieldName)) {
+                        $error->setFieldName(sprintf('path.%s.%s.%s', $paramName, $index, $fieldName));
+                    }
                     $errors[] = $error;
                 }
             }

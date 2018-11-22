@@ -23,9 +23,10 @@ class ArrayValidator implements SimpleTypeValidator
 
      * @param $value
      * @param string $requiredType
+     * @param string $fieldName
      * @return ErrorModel|null
      */
-    public function validate($value, $requiredType = 'array'): ?ErrorModel
+    public function validate($value, $requiredType = 'array', $fieldName = null): ?ErrorModel
     {
         if (!is_array($value)) {
             $localizationService = LocalizationService::getInstance();
@@ -33,7 +34,7 @@ class ArrayValidator implements SimpleTypeValidator
             $errorM = $localizationService->text(sprintf('serverErrors.%s', $errorC));
             $errorM = sprintf($errorM, $requiredType);
 
-            return new ErrorModel($errorC, $errorM);
+            return new ErrorModel($errorC, $errorM, $fieldName);
         }
         return null;
     }

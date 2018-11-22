@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Server\Validators;
 
-use MS\RestServer\Server\Errors\ServerErrors;
 use MS\RestServer\Server\Localization\LocalizationService;
 use MS\RestServer\Server\Models\AbstractModel;
 use MS\RestServer\Server\Models\ErrorModel;
@@ -72,12 +71,12 @@ class InputBodyValidator
      */
     public function validate(): array
     {
-        if (is_null($this->requestBody) && $this->inputParams['body'][0]['paramRequired'] === true) {
-            $errorC = ServerErrors::FIELD_REQUIRED;
-            $errorM = $this->localizationService->text(sprintf('serverErrors.%s', $errorC));
-            $error = new ErrorModel($errorC, $errorM, 'body');
-
-            return [$error];
+        if ($this->inputParams['body'][0]['paramRequired'] === true) {
+            $validator = new RequiredValidator();
+            $result = $validator->validate($this->requestBody, 'body');
+            if ($result !== null) {
+                return [$result];
+            }
         }
 
         $variableType = $this->inputParams['body'][0]['paramType'];
@@ -113,9 +112,8 @@ class InputBodyValidator
          * @var SimpleTypeValidator $validator
          */
         $validator = new $validatorClass();
-        $result = $validator->validate($paramValue, $paramType);
+        $result = $validator->validate($paramValue, $paramType, 'body');
         if ($result !== null) {
-            $result->setFieldName('body');
             return [$result];
         }
         return [];
@@ -141,26 +139,16 @@ class InputBodyValidator
          * @var SimpleTypeValidator $validator
          */
         $validator = new SimpleArrayValidator();
-        $result = $validator->validate($paramValue, $paramType);
+        $result = $validator->validate($paramValue, $paramType, 'body');
         if ($result !== null) {
-            $result->setFieldName('body');
             return [$result];
         }
 
-        $errors = [];
         /**
          * @var ArrayTypeValidator $validator
          */
         $validator = new $validatorClass();
-        $result = $validator->validate($paramValue, $validatorType);
-        foreach ($result as $index => $error) {
-            /**
-             * @var ErrorModel $error
-             */
-            $error->setFieldName(sprintf('body.%s', $index));
-            $errors[] = $error;
-        }
-        return $errors;
+        return $validator->validate($paramValue, $validatorType, 'body');
     }
 
     /**
@@ -181,9 +169,8 @@ class InputBodyValidator
          * @var SimpleTypeValidator $validator
          */
         $validator = new SimpleObjectValidator();
-        $result = $validator->validate($paramValue, $modelName);
+        $result = $validator->validate($paramValue, $modelName, 'body');
         if ($result !== null) {
-            $result->setFieldName('body');
             return [$result];
         }
 
@@ -196,7 +183,10 @@ class InputBodyValidator
             /**
              * @var ErrorModel $error
              */
-            $error->setFieldName(sprintf('body.%s', $error->getFieldName()));
+            $fieldName = $error->getFieldName();
+            if (!preg_match('/^body\./', $fieldName)) {
+                $error->setFieldName(sprintf('body.%s', $fieldName));
+            }
             $errors[] = $error;
         }
         return $errors;
@@ -220,9 +210,8 @@ class InputBodyValidator
          * @var SimpleTypeValidator $validator
          */
         $validator = new SimpleArrayValidator();
-        $result = $validator->validate($paramValue, $modelName);
+        $result = $validator->validate($paramValue, $modelName, 'body');
         if ($result !== null) {
-            $result->setFieldName('body');
             return [$result];
         }
 
@@ -234,9 +223,8 @@ class InputBodyValidator
              * @var SimpleTypeValidator $validator
              */
             $validator = new SimpleObjectValidator();
-            $result = $validator->validate($value, $modelName);
+            $result = $validator->validate($value, $modelName, sprintf('body.%s', $index));
             if ($result !== null) {
-                $result->setFieldName(sprintf('body.%s', $index));
                 $errors[] = $result;
             }
             if ($result === null) {
@@ -249,7 +237,10 @@ class InputBodyValidator
                     /**
                      * @var ErrorModel $error
                      */
-                    $error->setFieldName(sprintf('body.%s.%s', $index, $error->getFieldName()));
+                    $fieldName = $error->getFieldName();
+                    if (!preg_match('/^body\.[0-9]+\./', $fieldName)) {
+                        $error->setFieldName(sprintf('body.%s.%s', $index, $fieldName));
+                    }
                     $errors[] = $error;
                 }
             }
