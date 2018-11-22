@@ -25,13 +25,23 @@ class ArrayFloatValidatorTest extends TestCase
 
     public function testValidateError()
     {
-        $expected = ['Wymagany typ: float'];
-        $result = $this->validator->validate(['a'], 'float');
-        $this->assertEquals($expected, $result);
+        $expected = 'Wymagany typ: float';
 
-        $expected = [1 => 'Wymagany typ: float'];
+        $result = $this->validator->validate(['a'], 'float');
+        /**
+         * @var \MS\RestServer\Server\Models\ErrorModel $error
+         */
+        $error = $result[0];
+        $error = $error->toArray();
+        $this->assertEquals($expected, $error['message']);
+
         $result = $this->validator->validate([0.5, 'a'], 'float');
-        $this->assertEquals($expected, $result);
+        /**
+         * @var \MS\RestServer\Server\Models\ErrorModel $error
+         */
+        $error = $result[1];
+        $error = $error->toArray();
+        $this->assertEquals($expected, $error['message']);
     }
 
     public function testValidateOK()

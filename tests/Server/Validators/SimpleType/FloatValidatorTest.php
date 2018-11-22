@@ -29,7 +29,8 @@ class SimpleFloatValidatorTest extends TestCase
     {
         $expected = 'Wymagany typ: float';
         $result = $this->validator->validate('a', 'float');
-        $this->assertEquals($expected, $result);
+        $error = $result->toArray();
+        $this->assertEquals($expected, $error['message']);
     }
 
     public function testValidateOK()

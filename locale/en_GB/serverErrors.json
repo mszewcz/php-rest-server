@@ -1,14 +1,16 @@
 {
     "serverErrors": {
-        "1004041": "No controller/method matching uri: %s",
-        "1004042": "No method matching uri: %s",
-        "1005001": "Controller class not found",
-        "1005002": "Method map file is missing for uri: %s",
-        "1005003": "Method map file decoding error for uri: %s",
-        "1005004": "Default auth provider is not set",
-        "1005005": "Auth provider class (%s) does not exist",
-        "1005006": "Auth provider class (%s) has to be an instance of AbstractAuthProvider",
-        "1005007": "",
-        "1005008": "Map encoding error"
+        "99994001": "This field is required",
+        "99994002": "Required type: %s",
+        "99994041": "No controller/method matching uri: %s",
+        "99994042": "No method matching uri: %s",
+        "99995001": "Controller class not found",
+        "99995002": "Method map file is missing for uri: %s",
+        "99995003": "Method map file decoding error for uri: %s",
+        "99995004": "Default auth provider is not set",
+        "99995005": "Auth provider class (%s) does not exist",
+        "99995006": "Auth provider class (%s) has to be an instance of AbstractAuthProvider",
+        "99995007": "",
+        "99995008": "Map encoding error"
     }
 }

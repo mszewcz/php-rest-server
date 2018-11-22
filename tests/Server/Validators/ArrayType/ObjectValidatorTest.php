@@ -25,13 +25,23 @@ class ArrayObjectValidatorTest extends TestCase
 
     public function testValidateError()
     {
-        $expected = ['Wymagany typ: object'];
-        $result = $this->validator->validate([0.5], 'object');
-        $this->assertEquals($expected, $result);
+        $expected = 'Wymagany typ: object';
 
-        $expected = [1 => 'Wymagany typ: object'];
+        $result = $this->validator->validate([0.5], 'object');
+        /**
+         * @var \MS\RestServer\Server\Models\ErrorModel $error
+         */
+        $error = $result[0];
+        $error = $error->toArray();
+        $this->assertEquals($expected, $error['message']);
+
         $result = $this->validator->validate([new \stdClass(), 'a'], 'object');
-        $this->assertEquals($expected, $result);
+        /**
+         * @var \MS\RestServer\Server\Models\ErrorModel $error
+         */
+        $error = $result[1];
+        $error = $error->toArray();
+        $this->assertEquals($expected, $error['message']);
     }
 
     public function testValidateOK()

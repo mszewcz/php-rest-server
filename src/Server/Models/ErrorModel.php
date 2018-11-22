@@ -40,12 +40,28 @@ class ErrorModel
     }
 
     /**
+     * @return string
+     */
+    public function getFieldName(): string
+    {
+        return $this->fieldName;
+    }
+
+    /**
+     * @param string $fieldName
+     */
+    public function setFieldName(string $fieldName): void
+    {
+        $this->fieldName = $fieldName;
+    }
+
+    /**
      * @return array
      */
     public function toArray(): array
     {
         $response = [
-            'code' => $this->errorCode,
+            'code'    => $this->errorCode,
             'message' => $this->errorMessage
         ];
         if ($this->fieldName !== null) {

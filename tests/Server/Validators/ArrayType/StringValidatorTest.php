@@ -25,13 +25,23 @@ class ArrayStringValidatorTest extends TestCase
 
     public function testValidateError()
     {
-        $expected = ['Wymagany typ: string'];
-        $result = $this->validator->validate([true], 'string');
-        $this->assertEquals($expected, $result);
+        $expected = 'Wymagany typ: string';
 
-        $expected = [1 => 'Wymagany typ: string'];
+        $result = $this->validator->validate([true], 'string');
+        /**
+         * @var \MS\RestServer\Server\Models\ErrorModel $error
+         */
+        $error = $result[0];
+        $error = $error->toArray();
+        $this->assertEquals($expected, $error['message']);
+
         $result = $this->validator->validate(['a', 1], 'string');
-        $this->assertEquals($expected, $result);
+        /**
+         * @var \MS\RestServer\Server\Models\ErrorModel $error
+         */
+        $error = $result[1];
+        $error = $error->toArray();
+        $this->assertEquals($expected, $error['message']);
     }
 
     public function testValidateOK()

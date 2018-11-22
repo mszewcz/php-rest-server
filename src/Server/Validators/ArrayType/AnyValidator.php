@@ -20,7 +20,7 @@ class AnyValidator implements ArrayTypeValidator
      *
      * @param array $value
      * @param string $requiredType
-     * @return null|array
+     * @return array|null
      */
     public function validate(array $value, string $requiredType = 'any'): ?array
     {

@@ -29,7 +29,8 @@ class SimpleStringValidatorTest extends TestCase
     {
         $expected = 'Wymagany typ: string';
         $result = $this->validator->validate(true, 'string');
-        $this->assertEquals($expected, $result);
+        $error = $result->toArray();
+        $this->assertEquals($expected, $error['message']);
     }
 
     public function testValidateOK()

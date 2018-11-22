@@ -25,13 +25,23 @@ class ArrayBooleanValidatorTest extends TestCase
 
     public function testValidateError()
     {
-        $expected = ['Wymagany typ: boolean'];
-        $result = $this->validator->validate([1], 'boolean');
-        $this->assertEquals($expected, $result);
+        $expected = 'Wymagany typ: boolean';
 
-        $expected = [1 => 'Wymagany typ: boolean'];
+        $result = $this->validator->validate([1], 'boolean');
+        /**
+         * @var \MS\RestServer\Server\Models\ErrorModel $error
+         */
+        $error = $result[0];
+        $error = $error->toArray();
+        $this->assertEquals($expected, $error['message']);
+
         $result = $this->validator->validate([true, 1], 'boolean');
-        $this->assertEquals($expected, $result);
+        /**
+         * @var \MS\RestServer\Server\Models\ErrorModel $error
+         */
+        $error = $result[1];
+        $error = $error->toArray();
+        $this->assertEquals($expected, $error['message']);
     }
 
     public function testValidateOK()

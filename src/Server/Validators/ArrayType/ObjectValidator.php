@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Server\Validators\ArrayType;
 
+use MS\RestServer\Server\Errors\ServerErrors;
+use MS\RestServer\Server\Localization\LocalizationService;
+use MS\RestServer\Server\Models\ErrorModel;
 use MS\RestServer\Server\Validators\Interfaces\ArrayTypeValidator;
 
 
@@ -20,14 +23,19 @@ class ObjectValidator implements ArrayTypeValidator
      *
      * @param array $value
      * @param string $requiredType
-     * @return null|array
+     * @return array|null
      */
     public function validate(array $value, string $requiredType = 'object'): ?array
     {
+        $localizationService = LocalizationService::getInstance();
         $errors = [];
         foreach ($value as $key => $val) {
             if (!is_object($val)) {
-                $errors[$key] = sprintf('Wymagany typ: %s', $requiredType);
+                $errorC = ServerErrors::TYPE_REQUIRED;
+                $errorM = $localizationService->text(sprintf('serverErrors.%s', $errorC));
+                $errorM = sprintf($errorM, $requiredType);
+
+                $errors[$key] = new ErrorModel($errorC, $errorM);
             }
         }
         return $errors;

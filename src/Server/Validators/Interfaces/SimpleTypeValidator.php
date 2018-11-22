@@ -10,8 +10,10 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Server\Validators\Interfaces;
 
+use MS\RestServer\Server\Models\ErrorModel;
+
 
 interface SimpleTypeValidator
 {
-    public function validate($value, string $requiredType): ?string;
+    public function validate($value, $requiredType = 'any'): ?ErrorModel;
 }

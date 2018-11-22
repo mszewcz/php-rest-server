@@ -29,7 +29,8 @@ class SimpleBooleanValidatorTest extends TestCase
     {
         $expected = 'Wymagany typ: boolean';
         $result = $this->validator->validate(1, 'boolean');
-        $this->assertEquals($expected, $result);
+        $error = $result->toArray();
+        $this->assertEquals($expected, $error['message']);
     }
 
     public function testValidateOK()

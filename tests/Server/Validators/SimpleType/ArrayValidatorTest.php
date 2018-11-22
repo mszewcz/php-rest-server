@@ -29,7 +29,8 @@ class SimpleArrayValidatorTest extends TestCase
     {
         $expected = 'Wymagany typ: array';
         $result = $this->validator->validate('aaa', 'array');
-        $this->assertEquals($expected, $result);
+        $error = $result->toArray();
+        $this->assertEquals($expected, $error['message']);
     }
 
     public function testValidateOK()

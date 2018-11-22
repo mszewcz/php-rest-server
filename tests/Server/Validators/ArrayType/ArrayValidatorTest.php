@@ -25,13 +25,22 @@ class ArrayArrayValidatorTest extends TestCase
 
     public function testValidateError()
     {
-        $expected = ['Wymagany typ: array'];
+        $expected = 'Wymagany typ: array';
         $result = $this->validator->validate([1], 'array');
-        $this->assertEquals($expected, $result);
+        /**
+         * @var \MS\RestServer\Server\Models\ErrorModel $error
+         */
+        $error = $result[0];
+        $error = $error->toArray();
+        $this->assertEquals($expected, $error['message']);
 
-        $expected = [1 => 'Wymagany typ: array'];
         $result = $this->validator->validate([[], 1], 'array');
-        $this->assertEquals($expected, $result);
+        /**
+         * @var \MS\RestServer\Server\Models\ErrorModel $error
+         */
+        $error = $result[1];
+        $error = $error->toArray();
+        $this->assertEquals($expected, $error['message']);
     }
 
     public function testValidateOK()

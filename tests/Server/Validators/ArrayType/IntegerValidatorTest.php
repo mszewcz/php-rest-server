@@ -25,13 +25,23 @@ class ArrayIntegerValidatorTest extends TestCase
 
     public function testValidateError()
     {
-        $expected = ['Wymagany typ: integer'];
-        $result = $this->validator->validate([0.5], 'integer');
-        $this->assertEquals($expected, $result);
+        $expected = 'Wymagany typ: integer';
 
-        $expected = [1 => 'Wymagany typ: integer'];
+        $result = $this->validator->validate([0.5], 'integer');
+        /**
+         * @var \MS\RestServer\Server\Models\ErrorModel $error
+         */
+        $error = $result[0];
+        $error = $error->toArray();
+        $this->assertEquals($expected, $error['message']);
+
         $result = $this->validator->validate([1, 'a'], 'integer');
-        $this->assertEquals($expected, $result);
+        /**
+         * @var \MS\RestServer\Server\Models\ErrorModel $error
+         */
+        $error = $result[1];
+        $error = $error->toArray();
+        $this->assertEquals($expected, $error['message']);
     }
 
     public function testValidateOK()

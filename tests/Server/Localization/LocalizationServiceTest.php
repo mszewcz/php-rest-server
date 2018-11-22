@@ -41,7 +41,7 @@ class LocalizationServiceTest extends TestCase
     public function testText()
     {
         $expected = 'Nie znaleziono klasy kontrolera';
-        $this->assertEquals($expected, $this->localizationService->text('serverErrors.1005001'));
+        $this->assertEquals($expected, $this->localizationService->text('serverErrors.99995001'));
 
         $expected = 'Missing translation for xxx.yyy';
         $this->assertEquals($expected, $this->localizationService->text('xxx.yyy'));

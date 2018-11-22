@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Server\Validators\SimpleType;
 
+use MS\RestServer\Server\Errors\ServerErrors;
+use MS\RestServer\Server\Localization\LocalizationService;
+use MS\RestServer\Server\Models\ErrorModel;
 use MS\RestServer\Server\Validators\Interfaces\SimpleTypeValidator;
 
 
@@ -17,15 +20,20 @@ class ObjectValidator implements SimpleTypeValidator
 {
     /**
      * Validates value
-     *
+
      * @param $value
      * @param string $requiredType
-     * @return null|string
+     * @return ErrorModel|null
      */
-    public function validate($value, string $requiredType = 'object'): ?string
+    public function validate($value, $requiredType = 'object'): ?ErrorModel
     {
         if (!is_object($value)) {
-            return sprintf('Wymagany typ: %s', $requiredType);
+            $localizationService = LocalizationService::getInstance();
+            $errorC = ServerErrors::TYPE_REQUIRED;
+            $errorM = $localizationService->text(sprintf('serverErrors.%s', $errorC));
+            $errorM = sprintf($errorM, $requiredType);
+
+            return new ErrorModel($errorC, $errorM);
         }
         return null;
     }

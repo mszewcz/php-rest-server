@@ -29,7 +29,8 @@ class SimpleObjectValidatorTest extends TestCase
     {
         $expected = 'Wymagany typ: object';
         $result = $this->validator->validate([0.5], 'object');
-        $this->assertEquals($expected, $result);
+        $error = $result->toArray();
+        $this->assertEquals($expected, $error['message']);
     }
 
     public function testValidateOK()

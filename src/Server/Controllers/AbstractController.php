@@ -11,14 +11,19 @@ declare(strict_types=1);
 namespace MS\RestServer\Server\Controllers;
 
 use MS\RestServer\Base;
-use MS\RestServer\Server\Auth;
+use MS\RestServer\Server\Auth\AbstractAuthProvider;
+use MS\RestServer\Server\Auth\AbstractUser;
+use MS\RestServer\Server\Auth\AuthorizationResult;
+use MS\RestServer\Server\Auth\AuthorizedUser;
 use MS\RestServer\Server\Errors\ServerErrors;
 use MS\RestServer\Server\Exceptions\ResponseException;
 use MS\RestServer\Server\Localization\LocalizationService;
 use MS\RestServer\Server\Models\ErrorModel;
-use MS\RestServer\Server\Validators;
 use MS\RestServer\Server\Request;
 use MS\RestServer\Server\Response;
+use MS\RestServer\Server\Validators\InputBodyValidator;
+use MS\RestServer\Server\Validators\InputPathValidator;
+use MS\RestServer\Server\Validators\InputQueryValidator;
 
 
 /**
@@ -39,7 +44,7 @@ class AbstractController
      */
     private $request;
     /**
-     * @var Auth\AbstractUser
+     * @var AbstractUser
      */
     protected $authorizedUser;
     /**
@@ -65,7 +70,7 @@ class AbstractController
         $this->base = Base::getInstance();
         $this->localizationService = LocalizationService::getInstance();
         $this->request = $request;
-        $this->authorizedUser = new Auth\AuthorizedUser();
+        $this->authorizedUser = new AuthorizedUser();
     }
 
     /**
@@ -207,17 +212,17 @@ class AbstractController
      * Checks authorization status
      *
      * @param string $authProvider
-     * @return Auth\AuthorizationResult
+     * @return AuthorizationResult
      * @throws ResponseException
      */
-    private function authorizeUser(string $authProvider): Auth\AuthorizationResult
+    private function authorizeUser(string $authProvider): AuthorizationResult
     {
         $noAuthProvider = ['false', 'no', 'none'];
         $defaultAuthProvider = ['true', 'yes', 'default'];
 
         // No Auth Provider
         if (in_array($authProvider, $noAuthProvider)) {
-            return new Auth\AuthorizationResult(true, null, new Auth\AuthorizedUser());
+            return new AuthorizationResult(true, null, new AuthorizedUser());
         }
 
         // Default Auth Provider
@@ -244,7 +249,7 @@ class AbstractController
             throw $exception;
         }
         $authProviderClass = new $authProvider;
-        if (!($authProviderClass instanceof Auth\AbstractAuthProvider)) {
+        if (!($authProviderClass instanceof AbstractAuthProvider)) {
             $errorC = ServerErrors::AUTH_PROVIDER_CLASS_INSTANCE_ERROR_CODE;
             $errorM = $this->localizationService->text(sprintf('serverErrors.%s', $errorC));
 
@@ -267,29 +272,20 @@ class AbstractController
 
         // Validate path params
         if (\array_key_exists('path', $endpointParams)) {
-            $validator = new Validators\InputPathValidator($this->request, $endpointParams['path']);
-            $errors = $validator->validate();
-            foreach ($errors as $k => $v) {
-                $inputErrors[$k] = $v;
-            }
+            $validator = new InputPathValidator($this->request, $endpointParams['path']);
+            $inputErrors = array_merge($inputErrors, $validator->validate());
         }
 
         // Validate query params
         if (\array_key_exists('query', $endpointParams)) {
-            $validator = new Validators\InputQueryValidator($this->request, $endpointParams['query']);
-            $errors = $validator->validate();
-            foreach ($errors as $k => $v) {
-                $inputErrors[$k] = $v;
-            }
+            $validator = new InputQueryValidator($this->request, $endpointParams['query']);
+            $inputErrors = array_merge($inputErrors, $validator->validate());
         }
 
         // Validate request body
         if (\array_key_exists('body', $endpointParams)) {
-            $validator = new Validators\InputBodyValidator($this->request, $endpointParams);
-            $errors = $validator->validate();
-            foreach ($errors as $k => $v) {
-                $inputErrors[$k] = $v;
-            }
+            $validator = new InputBodyValidator($this->request, $endpointParams);
+            $inputErrors = array_merge($inputErrors, $validator->validate());
         }
 
         return $inputErrors;

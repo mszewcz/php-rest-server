@@ -10,7 +10,10 @@ declare(strict_types=1);
 
 namespace MS\RestServer\Server\Validators;
 
+use MS\RestServer\Server\Errors\ServerErrors;
+use MS\RestServer\Server\Localization\LocalizationService;
 use MS\RestServer\Server\Models\AbstractModel;
+use MS\RestServer\Server\Models\ErrorModel;
 use MS\RestServer\Server\Request;
 use MS\RestServer\Server\Validators\Interfaces\ArrayTypeValidator;
 use MS\RestServer\Server\Validators\Interfaces\SimpleTypeValidator;
@@ -23,6 +26,10 @@ use MS\RestServer\Server\Validators\SimpleType\ObjectValidator as SimpleObjectVa
  */
 class InputBodyValidator
 {
+    /**
+     * @var LocalizationService
+     */
+    private $localizationService;
     /**
      * @var Request
      */
@@ -52,6 +59,7 @@ class InputBodyValidator
      */
     public function __construct(Request $request, array $inputParams)
     {
+        $this->localizationService = LocalizationService::getInstance();
         $this->request = $request;
         $this->inputParams = $inputParams;
         $this->requestBody = $request->getRequestBody();
@@ -65,7 +73,11 @@ class InputBodyValidator
     public function validate(): array
     {
         if (is_null($this->requestBody) && $this->inputParams['body'][0]['paramRequired'] === true) {
-            return ['body' => 'To pole jest wymagane'];
+            $errorC = ServerErrors::FIELD_REQUIRED;
+            $errorM = $this->localizationService->text(sprintf('serverErrors.%s', $errorC));
+            $error = new ErrorModel($errorC, $errorM, 'body');
+
+            return [$error];
         }
 
         $variableType = $this->inputParams['body'][0]['paramType'];
@@ -103,7 +115,8 @@ class InputBodyValidator
         $validator = new $validatorClass();
         $result = $validator->validate($paramValue, $paramType);
         if ($result !== null) {
-            return ['body' => $result];
+            $result->setFieldName('body');
+            return [$result];
         }
         return [];
     }
@@ -130,7 +143,8 @@ class InputBodyValidator
         $validator = new SimpleArrayValidator();
         $result = $validator->validate($paramValue, $paramType);
         if ($result !== null) {
-            return ['body' => $result];
+            $result->setFieldName('body');
+            return [$result];
         }
 
         $errors = [];
@@ -140,7 +154,11 @@ class InputBodyValidator
         $validator = new $validatorClass();
         $result = $validator->validate($paramValue, $validatorType);
         foreach ($result as $index => $error) {
-            $errors['body'][$index] = $error;
+            /**
+             * @var ErrorModel $error
+             */
+            $error->setFieldName(sprintf('body.%s', $index));
+            $errors[] = $error;
         }
         return $errors;
     }
@@ -165,7 +183,8 @@ class InputBodyValidator
         $validator = new SimpleObjectValidator();
         $result = $validator->validate($paramValue, $modelName);
         if ($result !== null) {
-            return ['body' => $result];
+            $result->setFieldName('body');
+            return [$result];
         }
 
         /**
@@ -173,8 +192,12 @@ class InputBodyValidator
          */
         $tmpModel = new $modelClass((array)$paramValue);
         $validationErrors = $tmpModel->validate();
-        foreach ($validationErrors as $propName => $propError) {
-            $errors['body'][$propName] = $propError;
+        foreach ($validationErrors as $error) {
+            /**
+             * @var ErrorModel $error
+             */
+            $error->setFieldName(sprintf('body.%s', $error->getFieldName()));
+            $errors[] = $error;
         }
         return $errors;
     }
@@ -199,7 +222,8 @@ class InputBodyValidator
         $validator = new SimpleArrayValidator();
         $result = $validator->validate($paramValue, $modelName);
         if ($result !== null) {
-            return ['body' => $result];
+            $result->setFieldName('body');
+            return [$result];
         }
 
         $errors = [];
@@ -212,7 +236,8 @@ class InputBodyValidator
             $validator = new SimpleObjectValidator();
             $result = $validator->validate($value, $modelName);
             if ($result !== null) {
-                $errors['body'][$index] = $result;
+                $result->setFieldName(sprintf('body.%s', $index));
+                $errors[] = $result;
             }
             if ($result === null) {
                 /**
@@ -220,8 +245,12 @@ class InputBodyValidator
                  */
                 $tmpModel = new $modelClass((array)$value);
                 $validationErrors = $tmpModel->validate();
-                foreach ($validationErrors as $propName => $propError) {
-                    $errors['body'][$index . '.' . $propName] = $propError;
+                foreach ($validationErrors as $error) {
+                    /**
+                     * @var ErrorModel $error
+                     */
+                    $error->setFieldName(sprintf('body.%s.%s', $index, $error->getFieldName()));
+                    $errors[] = $error;
                 }
             }
         }

@@ -29,7 +29,8 @@ class SimpleIntegerValidatorTest extends TestCase
     {
         $expected = 'Wymagany typ: integer';
         $result = $this->validator->validate([0.5], 'integer');
-        $this->assertEquals($expected, $result);
+        $error = $result->toArray();
+        $this->assertEquals($expected, $error['message']);
     }
 
     public function testValidateOK()
