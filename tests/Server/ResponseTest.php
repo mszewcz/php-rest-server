@@ -27,6 +27,17 @@ class ResponseTest extends TestCase
     {
     }
 
+    public function testGetContentType()
+    {
+        $this->assertEquals($this->response->getContentType(), 'application/json');
+    }
+
+    public function testGetEncoding()
+    {
+        $this->assertEquals($this->response->getEncoding(), 'utf-8');
+    }
+
+
     public function testGetCode()
     {
         $this->assertEquals($this->response->getCode(), 200);

@@ -1,0 +1,14 @@
+{
+    "serverErrors": {
+        "1004041": "No controller/method matching uri: %s",
+        "1004042": "No method matching uri: %s",
+        "1005001": "Controller class not found",
+        "1005002": "Method map file is missing for uri: %s",
+        "1005003": "Method map file decoding error for uri: %s",
+        "1005004": "Default auth provider is not set",
+        "1005005": "Auth provider class (%s) does not exist",
+        "1005006": "Auth provider class (%s) has to be an instance of AbstractAuthProvider",
+        "1005007": "",
+        "1005008": "Map encoding error"
+    }
+}

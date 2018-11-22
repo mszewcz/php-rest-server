@@ -17,6 +17,7 @@ use MS\RestServer\Server\Auth\AuthorizationResult;
 use MS\RestServer\Server\Auth\AuthorizedUser;
 use MS\RestServer\Server\Errors\ServerErrors;
 use MS\RestServer\Server\Exceptions\ResponseException;
+use MS\RestServer\Server\Localization\LocalizationService;
 use MS\RestServer\Server\Models\ErrorModel;
 use MS\RestServer\Server\Validators\InputQueryValidator;
 use MS\RestServer\Server\Validators\InputPathValidator;
@@ -34,6 +35,10 @@ class AbstractController
      * @var Base
      */
     private $base;
+    /**
+     * @var LocalizationService
+     */
+    private $localizationService;
     /**
      * @var Request
      */
@@ -63,6 +68,7 @@ class AbstractController
     public function __construct(Request $request)
     {
         $this->base = Base::getInstance();
+        $this->localizationService = LocalizationService::getInstance();
         $this->request = $request;
         $this->authorizedUser = new AuthorizedUser();
     }
@@ -109,11 +115,11 @@ class AbstractController
 
         // Invoke endpoint method
         if ($endpointMethodName === null) {
+            $errorC = ServerErrors::NO_METHOD_MATCHING_URI_CODE;
+            $errorM = $this->localizationService->text(sprintf('serverErrors.%s', $errorC));
+
             $exception = new ResponseException(404);
-            $exception->addError(new ErrorModel(
-                ServerErrors::NO_METHOD_MATCHING_URI_CODE,
-                sprintf(ServerErrors::NO_METHOD_MATCHING_URI_MESSAGE, $requestUri)
-            ));
+            $exception->addError(new ErrorModel($errorC, sprintf($errorM, $requestUri)));
             throw $exception;
         }
 
@@ -182,21 +188,21 @@ class AbstractController
         $mapFilePath = $this->base->getMapFilePath();
         // Load method map file for current controller
         if (!$this->base->fileExists($mapFilePath)) {
+            $errorC = ServerErrors::METHOD_MAP_FILE_MISSING_CODE;
+            $errorM = $this->localizationService->text(sprintf('serverErrors.%s', $errorC));
+
             $exception = new ResponseException(500);
-            $exception->addError(new ErrorModel(
-                ServerErrors::METHOD_MAP_FILE_MISSING_CODE,
-                sprintf(ServerErrors::METHOD_MAP_FILE_MISSING_MESSAGE, $requestUri)
-            ));
+            $exception->addError(new ErrorModel($errorC, sprintf($errorM, $requestUri)));
             throw $exception;
         }
 
         $map = $this->base->decodeAsArray($this->base->fileRead($mapFilePath));
         if ($map === false) {
+            $errorC = ServerErrors::METHOD_MAP_FILE_DECODING_ERROR_CODE;
+            $errorM = $this->localizationService->text(sprintf('serverErrors.%s', $errorC));
+
             $exception = new ResponseException(500);
-            $exception->addError(new ErrorModel(
-                ServerErrors::METHOD_MAP_FILE_DECODING_ERROR_CODE,
-                sprintf(ServerErrors::METHOD_MAP_FILE_DECODING_ERROR_CODE, $requestUri)
-            ));
+            $exception->addError(new ErrorModel($errorC, sprintf($errorM, $requestUri)));
             throw $exception;
         }
         return $map;
@@ -223,11 +229,11 @@ class AbstractController
         if (in_array($authProvider, $defaultAuthProvider)) {
             $authProvider = $this->request->getDefaultAuthProvider();
             if ($authProvider === null) {
+                $errorC = ServerErrors::DEFAULT_AUTH_PROVIDER_NOT_SET_CODE;
+                $errorM = $this->localizationService->text(sprintf('serverErrors.%s', $errorC));
+
                 $exception = new ResponseException(500);
-                $exception->addError(new ErrorModel(
-                    ServerErrors::DEFAULT_AUTH_PROVIDER_NOT_SET_CODE,
-                    ServerErrors::DEFAULT_AUTH_PROVIDER_NOT_SET_MESSAGE
-                ));
+                $exception->addError(new ErrorModel($errorC, $errorM));
                 throw $exception;
             }
             return $authProvider->authorize();
@@ -235,20 +241,20 @@ class AbstractController
 
         // Custom Auth Provider
         if (!\class_exists($authProvider)) {
+            $errorC = ServerErrors::AUTH_PROVIDER_CLASS_DOES_NOT_EXIST_CODE;
+            $errorM = $this->localizationService->text(sprintf('serverErrors.%s', $errorC));
+
             $exception = new ResponseException(500);
-            $exception->addError(new ErrorModel(
-                ServerErrors::AUTH_PROVIDER_CLASS_DOES_NOT_EXIST_CODE,
-                sprintf(ServerErrors::AUTH_PROVIDER_CLASS_DOES_NOT_EXIST_MESSAGE, $authProvider)
-            ));
+            $exception->addError(new ErrorModel($errorC, sprintf($errorM, $authProvider)));
             throw $exception;
         }
         $authProviderClass = new $authProvider;
         if (!($authProviderClass instanceof AbstractAuthProvider)) {
+            $errorC = ServerErrors::AUTH_PROVIDER_CLASS_INSTANCE_ERROR_CODE;
+            $errorM = $this->localizationService->text(sprintf('serverErrors.%s', $errorC));
+
             $exception = new ResponseException(500);
-            $exception->addError(new ErrorModel(
-                ServerErrors::AUTH_PROVIDER_CLASS_INSTANCE_ERROR_CODE,
-                sprintf(ServerErrors::AUTH_PROVIDER_CLASS_INSTANCE_ERROR_MESSAGE, $authProvider)
-            ));
+            $exception->addError(new ErrorModel($errorC, sprintf($errorM, $authProvider)));
             throw $exception;
         }
         return $authProviderClass->authorize();

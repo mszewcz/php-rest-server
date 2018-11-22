@@ -1,0 +1,14 @@
+{
+    "serverErrors": {
+        "1004041": "Nie znaleziono kontrolera/metody obsługujących adres uri: %s",
+        "1004042": "Nie znaleziono metody obsługującej adres uri: %s",
+        "1005001": "Nie znaleziono klasy kontrolera",
+        "1005002": "Brak pliku mapującego metody dla adresu uri: %s",
+        "1005003": "Błąd dekodowania pliku mapującego metody dla adresu uri: %s",
+        "1005004": "Nie ustawiono domyślnego dostawcy autoryzacji",
+        "1005005": "Nie znaleziono klasy dostawcy autoryzacji: %s",
+        "1005006": "Klasa dostawcy autoryzacji (%s) musi być instancją klasy AbstractAuthProvider",
+        "1005007": "",
+        "1005008": "Błąd enkodowania mapy metod"
+    }
+}

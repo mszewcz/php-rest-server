@@ -26,6 +26,19 @@
             ]
         }
     ],
+    "localization": {
+        "defaultLanguage": "pl_PL",
+        "languages": [
+            {
+                "code": "pl_PL",
+                "directory": "%DOCUMENT_ROOT%/locale/pl_PL/"
+            },
+            {
+                "code": "en_GB",
+                "directory": "%DOCUMENT_ROOT%/locale/en_GB/"
+            }
+        ]
+    },
     "obfuscator": {
         "enabled": true,
         "userDependent": true,

@@ -10,7 +10,9 @@ declare(strict_types=1);
 
 namespace Server\Exceptions;
 
+use MS\RestServer\Server\Errors\ServerErrors;
 use MS\RestServer\Server\Exceptions\ResponseException;
+use MS\RestServer\Server\Localization\LocalizationService;
 use MS\RestServer\Server\Models\ErrorModel;
 use PHPUnit\Framework\TestCase;
 
@@ -27,15 +29,16 @@ class ResponseExceptionTest extends TestCase
 
     public function testGetErrors()
     {
-        $exception = new ResponseException(500);
-        $exception->addError(new ErrorModel(
-            100,
-            'Error Message',
-            'Field name'
-        ));
+        $localizationService = LocalizationService::getInstance();
 
+        $errorC = ServerErrors::CONTROLLER_NOT_FOUND_CODE;
+        $errorM = $localizationService->text(sprintf('serverErrors.%s', $errorC));
+        $errorF = 'field';
+
+        $exception = new ResponseException(500);
+        $exception->addError(new ErrorModel($errorC, $errorM, $errorF));
         $this->assertEquals(
-            [['code' => 100, 'message' => 'Error Message', 'field' => 'Field name']],
+            [['code' => $errorC, 'message' => $errorM, 'field' => $errorF]],
             $exception->getErrors()
         );
     }

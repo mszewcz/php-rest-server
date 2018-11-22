@@ -15,6 +15,7 @@ use MS\RestServer\Base;
 use MS\RestServer\Server\Errors\ServerErrors;
 use MS\RestServer\Server\Exceptions\MapBuilderException;
 use MS\RestServer\Server\Exceptions\ResponseException;
+use MS\RestServer\Server\Localization\LocalizationService;
 use MS\RestServer\Server\Models\ErrorModel;
 
 
@@ -24,6 +25,10 @@ class MapBuilder
      * @var Base
      */
     private $base;
+    /**
+     * @var LocalizationService
+     */
+    private $localizationService;
 
     /**
      * MapBuilder constructor
@@ -31,6 +36,7 @@ class MapBuilder
     public function __construct()
     {
         $this->base = Base::getInstance();
+        $this->localizationService = LocalizationService::getInstance();
     }
 
     /**
@@ -134,10 +140,7 @@ class MapBuilder
             // @codeCoverageIgnoreStart
         } catch (\Exception $e) {
             $exception = new ResponseException(500);
-            $exception->addError(new ErrorModel(
-                ServerErrors::MAP_BUILDER_EXCEPTION_CODE,
-                $e->getMessage()
-            ));
+            $exception->addError(new ErrorModel(ServerErrors::MAP_BUILDER_EXCEPTION_CODE, $e->getMessage()));
             throw $exception;
             // @codeCoverageIgnoreEnd
         }
@@ -145,11 +148,11 @@ class MapBuilder
         $endpointMapEncoded = $this->base->encode($endpointMap);
         // @codeCoverageIgnoreStart
         if ($endpointMapEncoded === false) {
+            $errorC = ServerErrors::MAP_BUILDER_ENCODING_ERROR_CODE;
+            $errorM = $this->localizationService->text(sprintf('serverErrors.%s', $errorC));
+
             $exception = new ResponseException(500);
-            $exception->addError(new ErrorModel(
-                ServerErrors::MAP_BUILDER_ENCODING_ERROR_CODE,
-                ServerErrors::MAP_BUILDER_ENCODING_ERROR_MESSAGE
-            ));
+            $exception->addError(new ErrorModel($errorC, $errorM));
             throw $exception;
         }
         // @codeCoverageIgnoreEnd

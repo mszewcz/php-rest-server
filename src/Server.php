@@ -14,6 +14,7 @@ use MS\RestServer\Server\Auth\AbstractAuthProvider;
 use MS\RestServer\Server\Controllers\AbstractController;
 use MS\RestServer\Server\Errors\ServerErrors;
 use MS\RestServer\Server\Exceptions\ResponseException;
+use MS\RestServer\Server\Localization\LocalizationService;
 use MS\RestServer\Server\MapBuilder;
 use MS\RestServer\Server\Models\ErrorModel;
 use MS\RestServer\Server\Request;
@@ -28,6 +29,10 @@ class Server
      * @var Base
      */
     private $base;
+    /**
+     * @var LocalizationService
+     */
+    private $localizationService;
     /**
      * @var Headers
      */
@@ -116,6 +121,7 @@ class Server
     public function __construct()
     {
         $this->base = Base::getInstance();
+        $this->localizationService = LocalizationService::getInstance();
         $this->headers = new Headers($this->defaultHeaders);
         $this->request = new Request();
         $this->requestMethod = $this->request->getRequestHttpMethod();
@@ -207,11 +213,11 @@ class Server
                     $mapFilePath = sprintf('%s%s.json', $definitionsDir, (string) $endpoint->mapFile);
 
                     if (!\class_exists($controllerClass)) {
+                        $errorC = ServerErrors::CONTROLLER_NOT_FOUND_CODE;
+                        $errorM = $this->localizationService->text(sprintf('serverErrors.%s', $errorC));
+
                         $exception = new ResponseException(500);
-                        $exception->addError(new ErrorModel(
-                            ServerErrors::CONTROLLER_NOT_FOUND_CODE,
-                            ServerErrors::CONTROLLER_NOT_FOUND_MESSAGE
-                        ));
+                        $exception->addError(new ErrorModel($errorC, $errorM));
                         throw $exception;
                     }
                     if (!$this->base->fileExists($mapFilePath)) {
@@ -244,11 +250,11 @@ class Server
             }
         }
 
+        $errorC = ServerErrors::NO_CONTROLLER_MATCHING_URI_CODE;
+        $errorM = $this->localizationService->text(sprintf('serverErrors.%s', $errorC));
+
         $exception = new ResponseException(404);
-        $exception->addError(new ErrorModel(
-            ServerErrors::NO_CONTROLLER_MATCHING_URI_CODE,
-            sprintf(ServerErrors::NO_CONTROLLER_MATCHING_URI_MESSAGE, $this->requestUri)
-        ));
+        $exception->addError(new ErrorModel($errorC, sprintf($errorM, $this->requestUri)));
         throw $exception;
     }
 

@@ -33,9 +33,9 @@ class AuthorizationResult
      *
      * @param bool $result
      * @param ErrorModel|null $error
-     * @param AbstractUser $user
+     * @param AbstractUser|null $user
      */
-    public function __construct(bool $result, ?ErrorModel $error, AbstractUser $user)
+    public function __construct(bool $result, ?ErrorModel $error, ?AbstractUser $user)
     {
         $this->result = $result;
         $this->error = $error;
@@ -51,17 +51,17 @@ class AuthorizationResult
     }
 
     /**
-     * @return ErrorModel
+     * @return ErrorModel|null
      */
-    public function getError(): ErrorModel
+    public function getError(): ?ErrorModel
     {
         return $this->error;
     }
 
     /**
-     * @return AbstractUser
+     * @return AbstractUser|null
      */
-    public function getUser(): AbstractUser
+    public function getUser(): ?AbstractUser
     {
         return $this->user;
     }
