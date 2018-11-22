@@ -33,17 +33,17 @@ class Response
     /**
      * Response constructor.
      *
-     * @param int $responseCode
-     * @param $responseBody
-     * @param string $responseContentType
-     * @param string $responseEncoding
+     * @param int $code
+     * @param $body
+     * @param string $contentType
+     * @param string $encoding
      */
-    public function __construct(int $responseCode = 200, $responseBody = '', $responseContentType = 'application/json', $responseEncoding = 'utf-8')
+    public function __construct(int $code = 200, $body = '', $contentType = 'application/json', $encoding = 'utf-8')
     {
-        $this->responseCode = $responseCode;
-        $this->responseBody = $responseBody;
-        $this->responseContentType = $responseContentType;
-        $this->responseEncoding = $responseEncoding;
+        $this->responseCode = $code;
+        $this->responseBody = $body;
+        $this->responseContentType = $contentType;
+        $this->responseEncoding = $encoding;
     }
 
     /**

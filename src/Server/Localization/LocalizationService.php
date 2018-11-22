@@ -97,10 +97,10 @@ final class LocalizationService
             $this->currentLanguage = $language;
             $this->translations = [];
 
-            $languageDir = $this->frameworkBase->parsePath($this->languages[$language]);
-            $languageDirReadResult = Directory::read($languageDir);
+            $langDir = $this->frameworkBase->parsePath($this->languages[$language]);
+            $langDirReadResult = Directory::read($langDir);
 
-            foreach ($languageDirReadResult['files'] as $file) {
+            foreach ($langDirReadResult['files'] as $file) {
                 $translations = File::read($file);
                 if ($translations !== false) {
                     $translations = json_decode($translations, true);

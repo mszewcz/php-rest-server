@@ -15,7 +15,11 @@ class TestAuthProvider extends \MS\RestServer\Server\Auth\AbstractAuthProvider
 {
     public function authorize(): \MS\RestServer\Server\Auth\AuthorizationResult
     {
-        return new \MS\RestServer\Server\Auth\AuthorizationResult(true, null, new \MS\RestServer\Server\Auth\AuthorizedUser());
+        return new \MS\RestServer\Server\Auth\AuthorizationResult(
+            true,
+            null,
+            new \MS\RestServer\Server\Auth\AuthorizedUser()
+        );
     }
 }
 

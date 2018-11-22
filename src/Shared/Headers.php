@@ -42,11 +42,13 @@ class Headers
             $headers = [$headers];
         }
         foreach ($headers as $header) {
-            if (isset($header['value']) && isset($header['name'])) {
-                $this->headers[$header['name']] = $header['value'];
-            }
-            if (isset($header['value']) && isset($header['code'])) {
-                $this->headers[$header['code']] = $header['value'];
+            if (isset($header['value'])) {
+                if (isset($header['name'])) {
+                    $this->headers[$header['name']] = $header['value'];
+                }
+                if (isset($header['code'])) {
+                    $this->headers[$header['code']] = $header['value'];
+                }
             }
         }
     }

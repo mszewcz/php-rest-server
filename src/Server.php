@@ -234,11 +234,13 @@ class Server
             }
         }
 
+        $requestHttpMethod = $this->request->getRequestHttpMethod();
+
         foreach ($matchingControllers as $matchingController) {
             $endpointMap = $this->base->decodeAsArray($this->base->fileRead($matchingController['mapFilePath']));
 
             foreach ($endpointMap as $endpointMethodName => $endpointMethodData) {
-                $httpMethodMatched = ($endpointMethodData['endpointHttpMethod'] === $this->request->getRequestHttpMethod());
+                $httpMethodMatched = ($endpointMethodData['endpointHttpMethod'] === $requestHttpMethod);
                 $uriMatched = preg_match($endpointMethodData['endpointUriPattern'], $requestUri);
 
                 if ($httpMethodMatched && $uriMatched) {
@@ -279,8 +281,10 @@ class Server
         $status = $this->getStatus($code);
         $body = $response->getBody();
 
-        $this->headers->addHeaders(['name' => 'Content-Type', 'value' => sprintf('%s; charset=%s', $contentType, $encoding)]);
-        $this->headers->addHeaders(['name' => $code, 'value' => sprintf('HTTP/1.1 %s %s', $code, $status)]);
+        $this->headers->addHeaders([
+            ['name' => 'Content-Type', 'value' => sprintf('%s; charset=%s', $contentType, $encoding)],
+            ['name' => $code, 'value' => sprintf('HTTP/1.1 %s %s', $code, $status)]
+        ]);
 
         if (is_array($body) || is_object($body)) {
             $body = $this->base->encode($body);
