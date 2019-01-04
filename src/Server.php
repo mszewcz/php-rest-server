@@ -56,6 +56,7 @@ class Server
         ['name' => 'Content-Type', 'value' => 'application/json; charset=utf-8'],
         ['name' => 'Access-Control-Allow-Origin', 'value' => '*'],
         ['name' => 'Access-Control-Allow-Headers', 'value' => 'Content-Type, Authorization'],
+        ['name' => 'Access-Control-Allow-Methods', 'value' => 'DELETE, GET, POST, PUT, OPTIONS'],
     ];
     /**
      * @var array
