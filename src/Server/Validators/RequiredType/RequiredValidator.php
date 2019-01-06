@@ -25,7 +25,7 @@ class RequiredValidator
      */
     public function validate($value): bool
     {
-        if (is_object($value) || is_array($value)) {
+        if (is_object($value) || is_array($value) || is_bool($value)) {
             return true;
         }
         return !is_null($value) && trim((string) $value) !== '';
