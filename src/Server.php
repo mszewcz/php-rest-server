@@ -206,10 +206,11 @@ class Server
 
         foreach ($controllers as $matchingController) {
             foreach ($matchingController->endpoints as $endpoint) {
-                $endpointUriPattern = preg_replace('|/{[^}]+}|', '/[^/]+', $endpoint->uri);
-                $endpointUriPattern = str_replace('/', '\\/', $endpointUriPattern);
+                $endpointUriPattern = preg_replace('/\/({[^}]+})/', '/([^/]+)', $endpoint->uri);
+                $endpointUriPattern = preg_replace('/=({[^}]+})/', '=([^&]*)', $endpointUriPattern);
+                $endpointUriPattern = str_replace('?', '\\?', $endpointUriPattern);
 
-                if (preg_match('/^' . $endpointUriPattern . '(\/|$)/i', $this->requestUri)) {
+                if (preg_match(sprintf('|^%s$|i', $endpointUriPattern), $this->requestUri)) {
                     $controllerClass = (string) $endpoint->class;
                     $mapFilePath = sprintf('%s%s.json', $definitionsDir, (string) $endpoint->mapFile);
 
