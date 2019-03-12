@@ -246,8 +246,9 @@ class Server
 
                 if ($httpMethodMatched && $uriMatched) {
                     return [
-                        'controller' => new $matchingController['controllerClass']($this->request),
-                        'methodName' => $endpointMethodName
+                        'controller'  => new $matchingController['controllerClass']($this->request),
+                        'methodName'  => $endpointMethodName,
+                        'mapFilePath' => $matchingController['mapFilePath']
                     ];
                 }
             }
@@ -273,8 +274,9 @@ class Server
          * @var $controller AbstractController
          */
         $controller = $controllerData['controller'];
+        $mapFilePath = $controllerData['mapFilePath'];
         $methodName = $controllerData['methodName'];
-        $response = $controller->invoke($methodName);
+        $response = $controller->invoke($mapFilePath, $methodName);
 
         $contentType = $response->getContentType();
         $encoding = $response->getEncoding();

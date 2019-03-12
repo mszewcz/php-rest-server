@@ -76,14 +76,15 @@ class AbstractController
     /**
      * Invokes controller method and returns response
      *
+     * @param string $mapFilePath
      * @param string $endpointMethodName
      * @return Response
      * @throws ResponseException
      */
-    public function invoke(string $endpointMethodName): Response
+    public function invoke(string $mapFilePath, string $endpointMethodName): Response
     {
         $requestUri = $this->request->getRequestUri();
-        $endpointMap = $this->getControllerMap();
+        $endpointMap = $this->getControllerMap($mapFilePath);
         $endpointAuthProvider = $endpointMap[$endpointMethodName]['endpointAuthProvider'];
         $endpointParams = $endpointMap[$endpointMethodName]['endpointParams'];
 
@@ -179,13 +180,13 @@ class AbstractController
     }
 
     /**
+     * @param string $mapFilePath
      * @return array
      * @throws ResponseException
      */
-    private function getControllerMap(): array
+private function getControllerMap(string $mapFilePath): array
     {
         $requestUri = $this->request->getRequestUri();
-        $mapFilePath = $this->base->getMapFilePath();
         // Load method map file for current controller
         if (!$this->base->fileExists($mapFilePath)) {
             $errorC = ServerErrors::METHOD_MAP_FILE_MISSING_CODE;
