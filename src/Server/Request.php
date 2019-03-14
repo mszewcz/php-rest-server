@@ -184,16 +184,17 @@ class Request
         $uriExploded = explode('?', $endpointData['endpointUri']);
 
         if (isset($uriExploded[1])) {
-            preg_match_all('|([^=]+)=|', $uriExploded[1], $matches);
+            preg_match_all('|({[^}]+})?&?([^=]+)=|', $uriExploded[1], $matches);
 
-            if (isset($matches[1])) {
-                foreach ($matches[1] as $match) {
+            if (isset($matches[2])) {
+                foreach ($matches[2] as $match) {
                     $paramName = $match;
                     $paramValue = filter_input(INPUT_GET, $paramName, FILTER_DEFAULT);
                     $this->requestParamsQuery[$paramName] = $this->parseValue($paramValue);
                 }
             }
         }
+
     }
 
     /**

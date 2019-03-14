@@ -98,16 +98,19 @@ class InputQueryValidator
                 return $validator->getErrors(sprintf('query.%s', $paramName));
             }
         }
-        if (in_array($paramType, $this->simpleTypes)) {
-            return $this->validateSimpleType($paramData);
+        if ($paramValue !== null) {
+            if (in_array($paramType, $this->simpleTypes)) {
+                return $this->validateSimpleType($paramData);
+            }
+            if (in_array($paramType, $this->arrayTypes)) {
+                return $this->validateArrayType($paramData);
+            }
+            if (stripos($paramType, '[]') !== false) {
+                return $this->validateModelArrayType($paramData);
+            }
+            return $this->validateModelType($paramData);
         }
-        if (in_array($paramType, $this->arrayTypes)) {
-            return $this->validateArrayType($paramData);
-        }
-        if (stripos($paramType, '[]') !== false) {
-            return $this->validateModelArrayType($paramData);
-        }
-        return $this->validateModelType($paramData);
+        return [];
     }
 
     /**
