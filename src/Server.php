@@ -284,10 +284,17 @@ class Server
         $status = $this->getStatus($code);
         $body = $response->getBody();
 
-        $this->headers->addHeaders([
+        $responseHeaders = [
             ['name' => 'Content-Type', 'value' => sprintf('%s; charset=%s', $contentType, $encoding)],
             ['name' => $code, 'value' => sprintf('HTTP/1.1 %s %s', $code, $status)]
-        ]);
+        ];
+
+        $headers = $response->headers()->getHeaders();
+        foreach ($headers as $name => $value) {
+            $responseHeaders[] = ['name' => $name, 'value' => $value];
+        }
+
+        $this->headers->addHeaders($responseHeaders);
 
         if (is_array($body) || is_object($body)) {
             $body = $this->base->encode($body);
