@@ -11,6 +11,8 @@ declare(strict_types=1);
 namespace MS\RestServer\Server;
 
 
+use MS\RestServer\Shared\Headers;
+
 class Response
 {
     /**
@@ -29,6 +31,10 @@ class Response
      * @var string
      */
     private $responseEncoding = 'utf-8';
+    /**
+     * @var Headers
+     */
+    private $responseHeaders = null;
 
     /**
      * Response constructor.
@@ -44,6 +50,17 @@ class Response
         $this->responseBody = $body;
         $this->responseContentType = $contentType;
         $this->responseEncoding = $encoding;
+        $this->responseHeaders = new Headers();
+    }
+
+    /**
+     * Returns response's headers class
+     *
+     * @return Headers
+     */
+    public function headers()
+    {
+        return $this->responseHeaders;
     }
 
     /**
