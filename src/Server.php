@@ -130,6 +130,13 @@ class Server
     }
 
     /**
+     * @return Headers
+     */
+    public function headers(): Headers {
+        return $this->headers;
+    }
+
+    /**
      * Sets default auth provider
      *
      * @param AbstractAuthProvider $authProvider
